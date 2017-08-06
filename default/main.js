@@ -33,7 +33,7 @@ module.exports.loop = function () {
     }
     const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
     if(harvesters.length < 3) {
-        const newName = Game.spawns['Spawn1'].createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'harvester'});
+        const newName = Game.spawns['Spawn1'].createCreep([WORK,WORK,CARRY,CARRY,WORK,MOVE], undefined, {role: 'harvester'});
         prioritySpawn = true;
         console.log('Spawning new harvester: ' + newName);
     }
