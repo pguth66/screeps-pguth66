@@ -21,9 +21,18 @@ var roleHealer = {
 	        creep.say('🚧 heal');
 	    }
 	    if (!creep.memory.healing) {
-            const target = creep.pos.findClosestByPath(FIND_SOURCES);
-            if(creep.harvest(target) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
+            var sources = creep.room.find(FIND_MY_STRUCTURES, {
+                    filter: (structure) => {
+                        return (structure.structureType == STRUCTURE_EXTENSION || 
+                                 structure.structureType == STRUCTURE_CONTAINER)  && structure.energy > 0;
+                    }
+            });
+            if ((sources.length == 0) || (creep.room.energyAvailable < 450)) {
+                sources = creep.room.find(FIND_SOURCES_ACTIVE);
+            }
+            const source = creep.pos.findClosestByPath(sources);
+            if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
             }
 	    }
         else {
