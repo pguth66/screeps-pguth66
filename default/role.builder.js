@@ -64,7 +64,7 @@ var roleBuilder = {
 			});
 				// pull from a SOURCE if no extensions/containers with energy found
 				// OR if total room energy is less than 450 (minimum to spawn a harvester)
-            if ((sources.length == 0) || (creep.room.energy < 450)) {
+            if ((sources.length == 0) || (creep.room.energyAvailable < 450)) {
                 var sources = creep.room.find(FIND_SOURCES_ACTIVE);
                 const source = creep.pos.findClosestByPath(sources);
                 if (creep.harvest(source) == ERR_NOT_IN_RANGE ) {
