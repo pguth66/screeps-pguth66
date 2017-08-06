@@ -32,7 +32,7 @@ module.exports.loop = function () {
         }
     }
     const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    if(harvesters.length < 3) {
+    if(harvesters.length < 4) {
         // WORKx3, CARRYx2, MOVEx1 costs 450
         const newName = Game.spawns['Spawn1'].createCreep([WORK,WORK,CARRY,CARRY,WORK,MOVE], undefined, {role: 'harvester'});
         prioritySpawn = true;
