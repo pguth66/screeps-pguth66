@@ -1,0 +1,50 @@
+/*
+ * Module code goes here. Use 'module.exports' to export things:
+ * module.exports.thing = 'a thing';
+ *
+ * You can import it from another modules like this:
+ * var mod = require('role.healer');
+ * mod.thing == 'a thing'; // true
+ */
+
+var roleHealer = {
+
+    /** @param {Creep} creep **/
+    run: function(creep) {
+        
+        if(creep.memory.healing && creep.carry.energy == 0) {
+            creep.memory.healing = false;
+            creep.say('🔄 harvest');
+	    }
+	    if(!creep.memory.healing && creep.carry.energy == creep.carryCapacity) {
+	        creep.memory.healing = true;
+	        creep.say('🚧 heal');
+	    }
+	    if (!creep.memory.healing) {
+            const target = creep.pos.findClosestByPath(FIND_SOURCES);
+            if(creep.harvest(target) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
+            }
+	    }
+        else {
+            var targets = creep.room.find(FIND_STRUCTURES, {
+                    filter: (structure) => {
+                        return (structure.structureType == STRUCTURE_ROAD || 
+                                 structure.structureType == STRUCTURE_WALL ||
+                                  structure.structureType == STRUCTURE_TOWER) && structure.hits < structure.hitsMax;
+                    }
+            });
+            if(targets.length > 0) {
+                const target = creep.pos.findClosestByPath(targets);
+                if(creep.repair(target) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                }
+                else {
+                    creep.say("H " + target.id);
+                }
+            }
+        }
+	}
+};
+
+module.exports = roleHealer;
