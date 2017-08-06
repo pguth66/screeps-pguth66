@@ -64,7 +64,7 @@ var roleBuilder = {
 			});
 				// pull from a SOURCE if no extensions/containers with energy found
 				// OR if total room energy is less than 450 (minimum to spawn a harvester)
-            if ((sources.length == 0) && (creep.room.energy < 450)) {
+            if ((sources.length == 0) || (creep.room.energy < 450)) {
                 var sources = creep.room.find(FIND_SOURCES_ACTIVE);
                 const source = creep.pos.findClosestByPath(sources);
                 if (creep.harvest(source) == ERR_NOT_IN_RANGE ) {
@@ -80,7 +80,7 @@ var roleBuilder = {
     	           case 0:
     	               break;
     	           case ERR_INVALID_TARGET:
-    	               console.log("source is invalid target");
+    	               console.log(creep.name +": source " + source.id + " is invalid target");
     	               break;
     	            default:
     	                console.log(creep.name + ":Error while trying to withdraw from " + source.id);
