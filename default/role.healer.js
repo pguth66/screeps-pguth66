@@ -27,11 +27,8 @@ var roleHealer = {
                                  structure.structureType == STRUCTURE_CONTAINER)  && structure.energy > 0;
                     }
             });
-            if ((sources.length == 0) || (creep.room.energyAvailable < 450)) {
-                sources = creep.room.find(FIND_SOURCES_ACTIVE);
-            }
             const source = creep.pos.findClosestByPath(sources);
-            if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
+            if(creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
             }
 	    }
@@ -40,6 +37,7 @@ var roleHealer = {
                     filter: (structure) => {
                         return (structure.structureType == STRUCTURE_ROAD || 
                                  structure.structureType == STRUCTURE_WALL ||
+                                 structure.structureType == STRUCTURE_RAMPART || 
                                   structure.structureType == STRUCTURE_TOWER) && structure.hits < structure.hitsMax;
                     }
             });
