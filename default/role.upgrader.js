@@ -19,23 +19,16 @@ var roleUpgrader = {
         }
         else 
         {
-	        var sources = creep.room.find(FIND_SOURCES);
-	        var bestpath = [] ; 
-	        var bestpathindex = 0 ;
+			var sources = creep.room.find(FIND_STRUCTURES, {
+                 filter: (structure) => {
+                        return ((structure.structureType == STRUCTURE_CONTAINER) && structure.store[RESOURCE_ENERGY] > 0);
+                    }
+				});
+			
+			const source = creep.pos.findClosestByPath(sources);
 	        
-	        for (i=0 ; i < sources.length ; i++) {
-	           path = creep.pos.findPathTo(sources[i].pos);
-                if (bestpath.length == 0) { 
-                    bestpath = JSON.parse(JSON.stringify(path)) ;
-                }
-
-	           if (path.length < bestpath.length) {
-	               bestpath = JSON.parse(JSON.stringify(path)) ;
-	               bestpathindex = i ;
-	           }
-	        }
-            if(creep.harvest(sources[bestpathindex]) == ERR_NOT_IN_RANGE) {
-                creep.moveByPath(bestpath);
+            if(creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(source);
             }
 	    }
 	}
