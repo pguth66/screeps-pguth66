@@ -1,3 +1,5 @@
+roleHealer = require('role.healer');
+
 var roleBuilder = {
 
     /** @param {Creep} creep **/
@@ -34,8 +36,9 @@ var roleBuilder = {
 	    if(creep.memory.building) {
 	        var targets = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
 	        if (targets.length == 0) {
-	            Memory.noBuild = true;
-	            creep.moveTo(29,17);
+				Memory.noBuild = true;
+				roleHealer.run(creep);
+//	            creep.moveTo(29,17);
 	        }
 	        else {
            	var bestpathindex = 999 ;
