@@ -60,7 +60,7 @@ module.exports.loop = function () {
     }
     
     const healers = _.filter(Game.creeps, (creep) => creep.memory.role == 'healer');
-    if ((healers.length < 2) && !prioritySpawn) {
+    if ((healers.length < 1) && !prioritySpawn) {
         const newName = Game.spawns['Spawn1'].createCreep([WORK,WORK,MOVE,MOVE,CARRY], undefined, {role: 'healer'});
         console.log('Spawning new healer: ' + newName);
     }
