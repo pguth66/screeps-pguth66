@@ -3,6 +3,25 @@ var roleBuilder = {
     /** @param {Creep} creep **/
     run: function(creep) {
 
+		function hasEnergy(structure) {
+        var b = false;
+
+        switch (structure.structureType) {
+            case STRUCTURE_CONTAINER:
+                if (structure.store[RESOURCE_ENERGY] > 0) {
+                    b = true;
+                };
+                break;
+            case STRUCTURE_EXTENSION:
+            case STRUCTURE_SPAWN:
+            case STRUCTURE_TOWER:
+                if (structure.energy > 0) {
+                    b = true;
+                }
+        }
+        return true;
+		}
+	
 	    if(creep.memory.building && creep.carry.energy == 0) {
             creep.memory.building = false;
             creep.say('🔄 harvest');
@@ -13,7 +32,7 @@ var roleBuilder = {
 	    }
 
 	    if(creep.memory.building) {
-	        var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
+	        var targets = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
 	        if (targets.length == 0) {
 	            Memory.noBuild = true;
 	            creep.moveTo(29,17);
@@ -56,15 +75,14 @@ var roleBuilder = {
 	        }
         }
 	    else {
-	         var sources = creep.room.find(FIND_MY_STRUCTURES, {
+	         var sources = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
-                        return (structure.structureType == STRUCTURE_EXTENSION || 
-                                 structure.structureType == STRUCTURE_CONTAINER)  && structure.energy > 0;
+                        return ((structure.structureType == STRUCTURE_CONTAINER)  && (structure.store[RESOURCE_ENERGY] > 0));
                     }
 			});
 				// pull from a SOURCE if no extensions/containers with energy found
 				// OR if total room energy is less than 450 (minimum to spawn a harvester)
-            if ((sources.length == 0) || (creep.room.energyAvailable < 450)) {
+            if ((sources.length == 0)) {
                 var sources = creep.room.find(FIND_SOURCES_ACTIVE);
                 const source = creep.pos.findClosestByPath(sources);
                 if (creep.harvest(source) == ERR_NOT_IN_RANGE ) {
