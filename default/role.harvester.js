@@ -34,7 +34,7 @@ var roleHarvester = {
 	    }
         if(!creep.memory.depositing) {
             // we're harvesting, so find sources 
-            var sources = creep.room.find(FIND_SOURCES);
+            var sources = creep.room.find(FIND_SOURCES_ACTIVE);
             const source=creep.pos.findClosestByPath(sources);
             if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
