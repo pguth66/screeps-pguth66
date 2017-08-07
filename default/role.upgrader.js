@@ -28,7 +28,7 @@ var roleUpgrader = {
 			const source = creep.pos.findClosestByPath(sources);
 	        
             if(creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(source);
+                creep.moveTo(source, {visualizePathStyle: {}});
             }
 	    }
 	}
