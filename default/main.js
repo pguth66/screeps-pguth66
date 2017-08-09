@@ -3,9 +3,11 @@ var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
 var roleHealer = require('role.healer');
 var roleHauler = require('role.hauler');
+var roleClaimer = require('role.claimer');
 
 module.exports.loop = function () {
 
+    Memory.roomToClaim = 'W46N98';
     Memory.noBuild = false ; // used to flag when there are no construction sites, to prevent spawning builders
     switch(Game.spawns['Spawn1'].room.controller.level) {
         case 0:
@@ -44,6 +46,9 @@ module.exports.loop = function () {
         if(creep.memory.role == 'hauler') {
             roleHauler.run(creep);
         }
+        if(creep.memory.role == 'claimer') {
+            roleClaimer.run(creep);
+        }
     }
     // start stage defaults
     var numHaulers = 0 ;
@@ -51,13 +56,15 @@ module.exports.loop = function () {
     var numUpgraders = 2 ;
     var numBuilders = 5 ;
     var numHealers = 0 ;
+    var numClaimers = 0 ;
 
     if (Memory.stage == 'later') {
         numHaulers = 2 ;
-        numHarvesters = 4 ;
+        numHarvesters = 3 ;
         numBuilders = 2 ;
-        numUpgraders = 2 ;
+        numUpgraders = 1 ;
         numHealers = 1 ;
+        numClaimers = 0 ;
     }
 
     const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
@@ -115,7 +122,13 @@ module.exports.loop = function () {
         const newName = Game.spawns['Spawn1'].createCreep([WORK,WORK,MOVE,MOVE,CARRY], undefined, {role: 'healer'});
         console.log('Spawning new healer: ' + newName);
     }
-    
+   
+    const claimers = _.filter(Game.creeps, (creep) => creep.memory.role == 'claimer');
+    if ((claimers.length < numClaimers) && !prioritySpawn) {
+        const newName = Game.spawns['Spawn1'].createCreep([CLAIM,MOVE], undefined, {role: 'claimer'});
+        console.log('Spawning new claimer: ' + newName);
+    }
+
     if(Game.spawns['Spawn1'].spawning) {
         var spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
         Game.spawns['Spawn1'].room.visual.text(
