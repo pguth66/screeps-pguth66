@@ -6,6 +6,7 @@
  * var mod = require('role.healer');
  * mod.thing == 'a thing'; // true
  */
+roleUpgrader = require('role.upgrader');
 
 var roleHealer = {
 
@@ -38,7 +39,9 @@ var roleHealer = {
                         return (structure.structureType == STRUCTURE_ROAD || 
                                  structure.structureType == STRUCTURE_WALL ||
                                  structure.structureType == STRUCTURE_RAMPART || 
-                                  structure.structureType == STRUCTURE_TOWER) && structure.hits < structure.hitsMax;
+                                  structure.structureType == STRUCTURE_TOWER) && 
+                                  structure.hits < structure.hitsMax &&
+                                  structure.hits < 100000 ;
                     }
             });
             if(targets.length > 0) {
@@ -49,6 +52,9 @@ var roleHealer = {
                 else {
                     creep.say("H " + target.id);
                 }
+            }
+            else {
+                roleUpgrader.run(creep);
             }
         }
 	}
