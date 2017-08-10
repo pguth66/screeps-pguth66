@@ -62,9 +62,9 @@ module.exports.loop = function () {
         numHaulers = 2 ;
         numHarvesters = 3 ;
         numBuilders = 2 ;
-        numUpgraders = 1 ;
+        numUpgraders = 2 ;
         numHealers = 1 ;
-        numClaimers = 0 ;
+        numClaimers = 1 ;
     }
 
     const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
@@ -104,7 +104,7 @@ module.exports.loop = function () {
     }
     
     const builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
-    if((builders.length < numBuilders) && !prioritySpawn && !Memory.noBuild) {
+    if((builders.length < numBuilders) && !prioritySpawn ) {
         var newName;
         switch (Memory.stage) {
             case 'start':
