@@ -4,6 +4,7 @@ var roleBuilder = require('role.builder');
 var roleHealer = require('role.healer');
 var roleHauler = require('role.hauler');
 var roleClaimer = require('role.claimer');
+var roleWarrior = require('role.warrior');
 
 module.exports.loop = function () {
 
@@ -49,6 +50,9 @@ module.exports.loop = function () {
         if(creep.memory.role == 'claimer') {
             roleClaimer.run(creep);
         }
+        if(creep.memory.role == 'warrior') {
+            roleWarrior.run(creep);
+        }
     }
     // start stage defaults
     var numHaulers = 0 ;
@@ -62,9 +66,9 @@ module.exports.loop = function () {
         numHaulers = 2 ;
         numHarvesters = 3 ;
         numBuilders = 2 ;
-        numUpgraders = 2 ;
+        numUpgraders = 1 ;
         numHealers = 1 ;
-        numClaimers = 1 ;
+        numClaimers = 0 ;
     }
 
     const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
@@ -140,7 +144,7 @@ module.exports.loop = function () {
     var tower = Game.getObjectById('5987dce11fd19d5d4cb9f894');
     if(tower) {
             var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-            filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 10000 ) )
+            filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 100000 ) )
         });
         if(closestDamagedStructure) {
             tower.repair(closestDamagedStructure);
