@@ -8,9 +8,16 @@ var roleWarrior = require('role.warrior');
 
 module.exports.loop = function () {
 
-    Memory.roomToClaim = 'W46N98';
+    Memory.roomToClaim = 'W47N96';
+    for (i in Game.rooms) {
+        room = Game.rooms[i];
+//        console.log("running for room " + room.name);
+
+        // for now assuming there is only one spawn per room
+        const spawn = room.find(FIND_MY_SPAWNS)[0];
+
     Memory.noBuild = false ; // used to flag when there are no construction sites, to prevent spawning builders
-    switch(Game.spawns['Spawn1'].room.controller.level) {
+    switch(room.controller.level) {
         case 0:
         case 1:
         case 2:
@@ -32,6 +39,7 @@ module.exports.loop = function () {
     
         for(var name in Game.creeps) {
         var creep = Game.creeps[name];
+        if(creep.room == room) {
         if(creep.memory.role == 'harvester') {
             roleHarvester.run(creep);
         }
@@ -53,7 +61,9 @@ module.exports.loop = function () {
         if(creep.memory.role == 'warrior') {
             roleWarrior.run(creep);
         }
+        }
     }
+    
     // start stage defaults
     var numHaulers = 0 ;
     var numHarvesters = 3 ;
@@ -76,10 +86,10 @@ module.exports.loop = function () {
         var newName ;
         switch (Memory.stage) {
             case 'start':
-                newName = Game.spawns['Spawn1'].createCreep([WORK,CARRY,MOVE], undefined, {role: 'harvester'});
+                newName = spawn.createCreep([WORK,CARRY,MOVE], undefined, {role: 'harvester'});
                 break ;
             default:
-                newName = Game.spawns['Spawn1'].createCreep([WORK,WORK,CARRY,WORK,MOVE], undefined, {role: 'harvester'});
+                newName = spawn.createCreep([WORK,WORK,CARRY,WORK,MOVE], undefined, {role: 'harvester'});
                 break ; 
         }
         prioritySpawn = true;
@@ -88,7 +98,7 @@ module.exports.loop = function () {
 
     const haulers = _.filter(Game.creeps, (creep) => creep.memory.role == 'hauler');
     if(haulers.length < numHaulers) {
-        const newName = Game.spawns['Spawn1'].createCreep([CARRY,CARRY,MOVE,MOVE], undefined, {role: 'hauler'});
+        const newName = spawn.createCreep([CARRY,CARRY,MOVE,MOVE], undefined, {role: 'hauler'});
         prioritySpawn = true;
         console.log('Spawning new hauler: ' + newName);
     }
@@ -98,10 +108,10 @@ module.exports.loop = function () {
         var newName ;
         switch (Memory.stage) {
             case 'start':
-                newName = Game.spawns['Spawn1'].createCreep([WORK,CARRY,MOVE], undefined, {role: 'upgrader'});
+                newName = spawn.createCreep([WORK,CARRY,MOVE], undefined, {role: 'upgrader'});
                 break;
             default:
-                newName = Game.spawns['Spawn1'].createCreep([WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'upgrader'});
+                newName = spawn.createCreep([WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'upgrader'});
                 break;
         }
         console.log('Spawning new upgrader: ' + newName);
@@ -112,10 +122,10 @@ module.exports.loop = function () {
         var newName;
         switch (Memory.stage) {
             case 'start':
-                newName = Game.spawns['Spawn1'].createCreep([WORK,CARRY,MOVE], undefined, {role: 'builder'});
+                newName = spawn.createCreep([WORK,CARRY,MOVE], undefined, {role: 'builder'});
                 break;
             default:
-                newName = Game.spawns['Spawn1'].createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder'});
+                newName = spawn.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder'});
                 break;
         }
         console.log('Spawning new builder: ' + newName);
@@ -123,22 +133,22 @@ module.exports.loop = function () {
     
     const healers = _.filter(Game.creeps, (creep) => creep.memory.role == 'healer');
     if ((healers.length < numHealers) && !prioritySpawn) {
-        const newName = Game.spawns['Spawn1'].createCreep([WORK,WORK,MOVE,MOVE,CARRY], undefined, {role: 'healer'});
+        const newName = spawn.createCreep([WORK,WORK,MOVE,MOVE,CARRY], undefined, {role: 'healer'});
         console.log('Spawning new healer: ' + newName);
     }
    
     const claimers = _.filter(Game.creeps, (creep) => creep.memory.role == 'claimer');
     if ((claimers.length < numClaimers) && !prioritySpawn) {
-        const newName = Game.spawns['Spawn1'].createCreep([CLAIM,MOVE], undefined, {role: 'claimer'});
+        const newName = spawn.createCreep([CLAIM,MOVE], undefined, {role: 'claimer'});
         console.log('Spawning new claimer: ' + newName);
     }
 
-    if(Game.spawns['Spawn1'].spawning) {
-        var spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
-        Game.spawns['Spawn1'].room.visual.text(
+    if(spawn.spawning) {
+        var spawningCreep = Game.creeps[spawn.spawning.name];
+        spawn.room.visual.text(
             '🛠️' + spawningCreep.memory.role,
-            Game.spawns['Spawn1'].pos.x + 1,
-            Game.spawns['Spawn1'].pos.y,
+            spawn.pos.x + 1,
+            spawn.pos.y,
             {align: 'left', opacity: 0.8});
     }
     var tower = Game.getObjectById('5987dce11fd19d5d4cb9f894');
@@ -155,6 +165,5 @@ module.exports.loop = function () {
             tower.attack(closestHostile);
         }
     }
-    
-
+    }
 }
