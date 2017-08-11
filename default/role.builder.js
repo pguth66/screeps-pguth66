@@ -37,7 +37,7 @@ var roleBuilder = {
 	        var targets = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
 	        if (targets.length == 0) {
 				Memory.noBuild = true;
-				roleHealer.run(creep);
+				roleUpgrader.run(creep);
 //	            creep.moveTo(29,17);
 	        }
 	        else {
