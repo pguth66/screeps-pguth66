@@ -35,14 +35,29 @@ module.exports = {
                 }
             }
             else {
-                creep.moveTo(25,12);
+                var targets = creep.room.find(FIND_STRUCTURES, {
+                    filter: (structure) => { 
+                        return  structure.structureType == STRUCTURE_STORAGE &&
+                                (structure.store[RESOURCE_ENERGY] < structure.storeCapacity) ; }
+                });
+                if (targets.length > 0) {
+                    const target = creep.pos.findClosestByPath(targets);
+                    if(creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(target, {visualizePathStyle: {}});
+                    }
+                }
+                else {
+                    creep.moveTo(25,12);
+                }
             }
         }
 
         if(!creep.memory.hauling) {
             var sources = creep.room.find(FIND_STRUCTURES, {
                  filter: (structure) => {
-                        return ((structure.structureType == STRUCTURE_CONTAINER) && (structure.store[RESOURCE_ENERGY] > 0));
+                        return (((structure.structureType == STRUCTURE_CONTAINER) || 
+                        (structure.structureType == STRUCTURE_STORAGE)) 
+                        && (structure.store[RESOURCE_ENERGY] > (structure.storeCapacity / 2)));
                     }
                 });
                 const source=creep.pos.findClosestByPath(sources);
