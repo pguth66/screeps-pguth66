@@ -9,9 +9,18 @@ var roleWarrior = require('role.warrior');
 module.exports.loop = function () {
 
     Memory.roomToClaim = 'W47N96';
+
+
+    for(var name in Memory.creeps) {
+        if(!Game.creeps[name]) {
+            delete Memory.creeps[name];
+            console.log('Clearing non-existing creep memory:', name);
+        }
+    }
+
     for (i in Game.rooms) {
         room = Game.rooms[i];
-//        console.log("running for room " + room.name);
+//      console.log("running for room " + room.name);
 
         // for now assuming there is only one spawn per room
         const spawn = room.find(FIND_MY_SPAWNS)[0];
@@ -28,17 +37,13 @@ module.exports.loop = function () {
             break;
     }
 
-    for(var name in Memory.creeps) {
-        if(!Game.creeps[name]) {
-            delete Memory.creeps[name];
-            console.log('Clearing non-existing creep memory:', name);
-        }
-    }
+    const roomCreeps = _.filter(Game.creeps, function(creep) { return creep.room.name == 'W46N97'}) ;
+
     
     var prioritySpawn = false; // used to prioritize spawning of harvesters when multiple creeps are needed
     
-        for(var name in Game.creeps) {
-        var creep = Game.creeps[name];
+        for(var name in roomCreeps) {
+        var creep = roomCreeps[name];
         if(creep.room == room) {
         if(creep.memory.role == 'harvester') {
             roleHarvester.run(creep);
@@ -73,14 +78,24 @@ module.exports.loop = function () {
     var numClaimers = 0 ;
 
     if (Memory.stage == 'later') {
-        numHaulers = 2 ;
+        numHaulers = 3 ;
         numHarvesters = 3 ;
         numBuilders = 2 ;
-        numUpgraders = 1 ;
+        numUpgraders = 2 ;
         numHealers = 1 ;
         numClaimers = 0 ;
     }
 
+    enemies = room.find(FIND_HOSTILE_CREEPS);
+    switch (enemies.length) {
+        case 0:
+            room.memory.foundHostiles = false;
+            break;
+        default:
+            room.memory.foundHostiles = true;
+            break;
+    }
+        
     const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
     if(harvesters.length < numHarvesters) {
         var newName ;
@@ -89,7 +104,7 @@ module.exports.loop = function () {
                 newName = spawn.createCreep([WORK,CARRY,MOVE], undefined, {role: 'harvester'});
                 break ;
             default:
-                newName = spawn.createCreep([WORK,WORK,CARRY,WORK,MOVE], undefined, {role: 'harvester'});
+                newName = spawn.createCreep([WORK,WORK,WORK,CARRY,WORK,MOVE], undefined, {role: 'harvester'});
                 break ; 
         }
         prioritySpawn = true;
@@ -164,6 +179,12 @@ module.exports.loop = function () {
         if(closestHostile) {
             tower.attack(closestHostile);
         }
+    }
+    if ((Game.time % 5) == 0) {
+        console.log('Room ' + room.name + '(' + room.controller.level + '): ' + 
+            room.energyAvailable + '/' + room.energyCapacityAvailable + 
+            ' Creeps: ' + _.size(roomCreeps) + ' Tower: ' +
+            tower.energy + '/' + tower.energyCapacity);
     }
     }
 }
