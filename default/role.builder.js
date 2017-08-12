@@ -45,7 +45,7 @@ var roleBuilder = {
 
 				switch(creep.build(target)) {
 					case ERR_NOT_IN_RANGE:
-						creep.moveByPath(bestpath);
+						creep.moveTo(target);
 						break;
 					case OK:
 						creep.say("Building");
