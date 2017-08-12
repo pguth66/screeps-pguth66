@@ -41,32 +41,20 @@ var roleBuilder = {
 //	            creep.moveTo(29,17);
 	        }
 	        else {
-           	var bestpathindex = 999 ;
-           	var bestpath = [] ;        
-	        
-	        for (i=0 ; i < targets.length ; i++) {
-	           path = creep.pos.findPathTo(targets[i].pos);
-                if (bestpath.length == 0) { 
-                    bestpath = JSON.parse(JSON.stringify(path)) ;
-                    bestpathindex = 0 ;
-                }
-	           if (path.length < bestpath.length) {
-	               bestpath = JSON.parse(JSON.stringify(path)) ;
-	               bestpathindex = i ;
-	           }
-	        }
-	        switch(creep.build(targets[bestpathindex])) {
-	            case ERR_NOT_IN_RANGE:
-	                creep.moveByPath(bestpath);
-	                break;
-	            case OK:
-	                creep.say("Building");
-	                break;
-	            case ERR_INVALID_TARGET:
-	                console.log("Invalid target with index " +bestpathindex);
-	                break;
-	           default: 
-	            console.log(creep.name + ": Error while trying to build " + targets[bestpathindex].id);
+				target = creep.pos.findClosestByPath(targets);
+
+				switch(creep.build(target)) {
+					case ERR_NOT_IN_RANGE:
+						creep.moveByPath(bestpath);
+						break;
+					case OK:
+						creep.say("Building");
+						break;
+					case ERR_INVALID_TARGET:
+						console.log("Invalid target with index " +bestpathindex);
+						break;
+				default: 
+					console.log(creep.name + ": Error while trying to build " + targets[bestpathindex].id);
 	        }
 /*            if(creep.build(targets[bestpathindex]) == ERR_NOT_IN_RANGE) {
                 console.log("building site with index " + bestpathindex);
