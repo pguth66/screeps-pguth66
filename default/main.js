@@ -8,7 +8,7 @@ var roleWarrior = require('role.warrior');
 
 module.exports.loop = function () {
 
-    Memory.roomToClaim = 'W47N96';
+    Memory.roomToClaim = 'W46N98';
 
 
     for(var name in Memory.creeps) {
@@ -37,7 +37,7 @@ module.exports.loop = function () {
             break;
     }
 
-    const roomCreeps = _.filter(Game.creeps, function(creep) { return creep.room.name == 'W46N97'}) ;
+    const roomCreeps = _.filter(Game.creeps, function(creep) { return creep.room.name == room.name}) ;
 
     
     var prioritySpawn = false; // used to prioritize spawning of harvesters when multiple creeps are needed
@@ -81,7 +81,7 @@ module.exports.loop = function () {
         numHaulers = 3 ;
         numHarvesters = 3 ;
         numBuilders = 2 ;
-        numUpgraders = 2 ;
+        numUpgraders = 1 ;
         numHealers = 1 ;
         numClaimers = 0 ;
     }
@@ -95,7 +95,15 @@ module.exports.loop = function () {
             room.memory.foundHostiles = true;
             break;
     }
-        
+    
+    var roomOwner = undefined; 
+    try {
+        roomOwner = room.controller.owner.username;
+    }
+    catch(err) {
+       // console.log(err);
+    }
+    if (roomOwner == 'MixtySix') {
     const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
     if(harvesters.length < numHarvesters) {
         var newName ;
@@ -104,7 +112,7 @@ module.exports.loop = function () {
                 newName = spawn.createCreep([WORK,CARRY,MOVE], undefined, {role: 'harvester'});
                 break ;
             default:
-                newName = spawn.createCreep([WORK,WORK,WORK,CARRY,WORK,MOVE], undefined, {role: 'harvester'});
+                newName = spawn.createCreep([WORK,WORK,WORK,WORK,CARRY,WORK,MOVE], undefined, {role: 'harvester'});
                 break ; 
         }
         prioritySpawn = true;
@@ -166,25 +174,37 @@ module.exports.loop = function () {
             spawn.pos.y,
             {align: 'left', opacity: 0.8});
     }
-    var tower = Game.getObjectById('5987dce11fd19d5d4cb9f894');
-    if(tower) {
-            var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+    const towers = room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}} );
+    for (i in towers) {
+            tower = towers[i];    
+            const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
             filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 100000 ) )
         });
         if(closestDamagedStructure) {
             tower.repair(closestDamagedStructure);
         }
         
-        var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+        const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
         if(closestHostile) {
             tower.attack(closestHostile);
         }
     }
-    if ((Game.time % 5) == 0) {
+    }
+    if ((Game.time % 12) == 0) {
+        if (room.controller.level > 2) {
         console.log('Room ' + room.name + '(' + room.controller.level + '): ' + 
             room.energyAvailable + '/' + room.energyCapacityAvailable + 
             ' Creeps: ' + _.size(roomCreeps) + ' Tower: ' +
             tower.energy + '/' + tower.energyCapacity);
+        }
+        else {
+            console.log('Room ' + room.name + '(' + room.controller.level + '): ' + 
+            room.energyAvailable + '/' + room.energyCapacityAvailable + 
+            ' Creeps: ' + _.size(roomCreeps));
+        }
+        if (room.memory.foundHostiles) {
+            console.log(room.name + " found hostile creeps!")
+        }
     }
     }
 }
