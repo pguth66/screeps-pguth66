@@ -25,7 +25,8 @@ module.exports = {
                     filter: (structure) => {
                         return (structure.structureType == STRUCTURE_EXTENSION || 
                                 structure.structureType == STRUCTURE_SPAWN ||
-                                structure.structureType == STRUCTURE_TOWER) && structure.energy < structure.energyCapacity;
+                                structure.structureType == STRUCTURE_TOWER) && 
+                                structure.energy < structure.energyCapacity;
                     }
             });
             if(targets.length > 0) {
@@ -37,8 +38,9 @@ module.exports = {
             else {
                 var targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => { 
-                        return  structure.structureType == STRUCTURE_STORAGE &&
-                                (structure.store[RESOURCE_ENERGY] < structure.storeCapacity) ; }
+                        return  (structure.structureType == STRUCTURE_STORAGE ||
+                                structure.structureType == STRUCTURE_CONTAINER) &&
+                                (structure.store[RESOURCE_ENERGY] < (structure.storeCapacity /4)) ; }
                 });
                 if (targets.length > 0) {
                     const target = creep.pos.findClosestByPath(targets);
@@ -57,7 +59,8 @@ module.exports = {
                  filter: (structure) => {
                         return (((structure.structureType == STRUCTURE_CONTAINER) || 
                         (structure.structureType == STRUCTURE_STORAGE)) 
-                        && (structure.store[RESOURCE_ENERGY] > (structure.storeCapacity / 2)));
+                        && (structure.store[RESOURCE_ENERGY] > (structure.storeCapacity / 3)));
+ //                       && (structure.store[RESOURCE_ENERGY] > 2000));
                     }
                 });
                 const source=creep.pos.findClosestByPath(sources);
