@@ -17,7 +17,6 @@ module.exports.loop = function () {
             console.log('Clearing non-existing creep memory:', name);
         }
     }
-
     for (i in Game.rooms) {
         room = Game.rooms[i];
 //      console.log("running for room " + room.name);
@@ -81,7 +80,7 @@ module.exports.loop = function () {
         numHaulers = 3 ;
         numHarvesters = 3 ;
         numBuilders = 2 ;
-        numUpgraders = 1 ;
+        numUpgraders = 3 ;
         numHealers = 1 ;
         numClaimers = 0 ;
     }
@@ -103,7 +102,7 @@ module.exports.loop = function () {
     catch(err) {
        // console.log(err);
     }
-    if (roomOwner == 'MixtySix') {
+    if ((roomOwner == 'MixtySix') && spawn) {
     const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
     if(harvesters.length < numHarvesters) {
         var newName ;
@@ -120,8 +119,8 @@ module.exports.loop = function () {
     }
 
     const haulers = _.filter(Game.creeps, (creep) => creep.memory.role == 'hauler');
-    if(haulers.length < numHaulers) {
-        const newName = spawn.createCreep([CARRY,CARRY,MOVE,MOVE], undefined, {role: 'hauler'});
+    if((haulers.length < numHaulers) && !prioritySpawn) {
+        const newName = spawn.createCreep([CARRY,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'hauler'});
         prioritySpawn = true;
         console.log('Spawning new hauler: ' + newName);
     }
@@ -176,17 +175,21 @@ module.exports.loop = function () {
     }
     const towers = room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}} );
     for (i in towers) {
-            tower = towers[i];    
+        tower = towers[i];    
+        if(!room.memory.foundHostiles) {    
             const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-            filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 100000 ) )
-        });
-        if(closestDamagedStructure) {
-            tower.repair(closestDamagedStructure);
-        }
+                filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 100000 ) )
+                });
         
-        const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-        if(closestHostile) {
-            tower.attack(closestHostile);
+            if(closestDamagedStructure) {
+                tower.repair(closestDamagedStructure);
+            }
+        }
+        else {
+            const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+            if(closestHostile) {
+                tower.attack(closestHostile);
+            }
         }
     }
     }
