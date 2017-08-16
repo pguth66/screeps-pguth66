@@ -60,7 +60,7 @@ module.exports = {
                         return (((structure.structureType == STRUCTURE_CONTAINER) || 
                         (structure.structureType == STRUCTURE_STORAGE)) 
                         && (structure.store[RESOURCE_ENERGY] > (structure.storeCapacity / 3)));
- //                       && (structure.store[RESOURCE_ENERGY] > 2000));
+ //                       && (structure.store[RESOURCE_ENERGY] > 1800));
                     }
                 });
                 const source=creep.pos.findClosestByPath(sources);
