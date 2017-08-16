@@ -6,7 +6,7 @@
  * var mod = require('role.healer');
  * mod.thing == 'a thing'; // true
  */
-roleUpgrader = require('role.upgrader');
+ roleUpgrader = require('role.upgrader');
 
 var roleHealer = {
 
@@ -42,7 +42,7 @@ var roleHealer = {
                                  structure.structureType == STRUCTURE_CONTAINER ||
                                   structure.structureType == STRUCTURE_TOWER) && 
                                   structure.hits < structure.hitsMax &&
-                                  structure.hits < 100000 ;
+                                  structure.hits < 110000 ;
                     }
             });
             if(targets.length > 0) {
