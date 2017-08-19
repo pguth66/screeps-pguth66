@@ -55,14 +55,17 @@ module.exports = {
         }
 
         if(!creep.memory.hauling) {
-            var sources = creep.room.find(FIND_STRUCTURES, {
-                 filter: (structure) => {
+ //           var sources = creep.room.find(FIND_DROPPED_RESOURCES);
+ //           if(sources.length == 0) {
+                sources = creep.room.find(FIND_STRUCTURES, {
+                    filter: (structure) => {
                         return (((structure.structureType == STRUCTURE_CONTAINER) || 
-                        (structure.structureType == STRUCTURE_STORAGE)) 
-                        && (structure.store[RESOURCE_ENERGY] > (structure.storeCapacity / 3)));
- //                       && (structure.store[RESOURCE_ENERGY] > 1800));
-                    }
+                            (structure.structureType == STRUCTURE_STORAGE)) 
+                            && (structure.store[RESOURCE_ENERGY] > (structure.storeCapacity / 3)));
+ //                           && (structure.store[RESOURCE_ENERGY] > 1800));
+                     }
                 });
+  //          }
                 const source=creep.pos.findClosestByPath(sources);
                 if(creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                    creep.moveTo(source, {visualizePathStyle: {}});
