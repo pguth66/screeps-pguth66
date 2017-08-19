@@ -41,8 +41,8 @@ var roleHealer = {
                                  structure.structureType == STRUCTURE_RAMPART || 
                                  structure.structureType == STRUCTURE_CONTAINER ||
                                   structure.structureType == STRUCTURE_TOWER) && 
-                                  structure.hits < structure.hitsMax &&
-                                  structure.hits < 110000 ;
+                                  (structure.hits < structure.hitsMax &&
+                                  structure.hits < 100000) ;
                     }
             });
             if(targets.length > 0) {
