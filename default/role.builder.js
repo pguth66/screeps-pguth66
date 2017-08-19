@@ -51,7 +51,7 @@ var roleBuilder = {
 						creep.say("Building");
 						break;
 					case ERR_INVALID_TARGET:
-						console.log("Invalid target with index " +bestpathindex);
+						console.log("Invalid target " + target.id);
 						break;
 				default: 
 					console.log(creep.name + ": Error while trying to build " + targets[bestpathindex].id);
