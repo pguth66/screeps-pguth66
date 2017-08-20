@@ -10,13 +10,13 @@ module.exports.loop = function () {
 
     Memory.roomToClaim = 'W46N98';
 
-
     for(var name in Memory.creeps) {
         if(!Game.creeps[name]) {
             delete Memory.creeps[name];
             console.log('Clearing non-existing creep memory:', name);
         }
     }
+
     for (i in Game.rooms) {
         room = Game.rooms[i];
 //      console.log("running for room " + room.name);
@@ -39,7 +39,7 @@ module.exports.loop = function () {
 
     const roomCreeps = _.filter(Game.creeps, function(creep) { return creep.room.name == room.name}) ;
 
-    var creepRoles = [ { role: 'harvester', run: roleHarvester.run },
+    const creepRoles = [ { role: 'harvester', run: roleHarvester.run },
                         {role: 'upgrader', run: roleUpgrader.run },
                         {role: 'healer', run: roleHealer.run},
                         {role: 'hauler', run: roleHauler.run},
@@ -65,7 +65,7 @@ module.exports.loop = function () {
     // start stage defaults
     var numHaulers = 1;
     var numHarvesters = 4 ;
-    var numUpgraders = 1 ;
+    var numUpgraders = 2 ;
     var numBuilders = 2;
     var numHealers = 1 ;
     var numClaimers = 0 ;
