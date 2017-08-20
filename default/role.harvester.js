@@ -6,22 +6,23 @@ var roleHarvester = {
     run: function(creep) {
 
         function isFull(structure) {
-        var b = false;
+          var b = false;
 
-        switch (structure.structureType) {
-            case STRUCTURE_CONTAINER:
-                if (structure.store[RESOURCE_ENERGY] == structure.storeCapacity) {
-                    b = true;
+            switch (structure.structureType) {
+                case STRUCTURE_CONTAINER:
+                case STRUCTURE_STORAGE:
+                    if (structure.store[RESOURCE_ENERGY] == structure.storeCapacity) {
+                        b = true;
                 };
                 break;
-            case STRUCTURE_EXTENSION:
-            case STRUCTURE_SPAWN:
-            case STRUCTURE_TOWER:
-                if (structure.energy == structure.energyCapacity) {
-                    b = true;
-                }
-        }
-        return b;
+                case STRUCTURE_EXTENSION:
+                case STRUCTURE_SPAWN:
+                case STRUCTURE_TOWER:
+                    if (structure.energy == structure.energyCapacity) {
+                        b = true;
+                    }
+            }
+            return b;
         }
 
         if(creep.memory.depositing && creep.carry.energy == 0) {
