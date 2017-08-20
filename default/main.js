@@ -39,33 +39,26 @@ module.exports.loop = function () {
 
     const roomCreeps = _.filter(Game.creeps, function(creep) { return creep.room.name == room.name}) ;
 
+    var creepRoles = [ { role: 'harvester', run: roleHarvester.run },
+                        {role: 'upgrader', run: roleUpgrader.run },
+                        {role: 'healer', run: roleHealer.run},
+                        {role: 'hauler', run: roleHauler.run},
+                        {role: 'claimer', run: roleClaimer.run},
+                        {role: 'warrior', run: roleWarrior.run},
+                        {role: 'builder', run: roleBuilder.run} ] ;
+//    console.log('role: ' + creepMap[0].role + " function: " + creepMap[0].run);
     
     var prioritySpawn = false; // used to prioritize spawning of harvesters when multiple creeps are needed
     
-        for(var name in roomCreeps) {
+    // loop over creeps in room, have them run the right role based on creepRoles
+    for(var name in roomCreeps) {  
         var creep = roomCreeps[name];
         if(creep.room == room) {
-        if(creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
-        }
-        if(creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-        }
-        if(creep.memory.role == 'builder') {
-            roleBuilder.run(creep);
-        }
-        if(creep.memory.role == 'healer') {
-            roleHealer.run(creep);
-        }
-        if(creep.memory.role == 'hauler') {
-            roleHauler.run(creep);
-        }
-        if(creep.memory.role == 'claimer') {
-            roleClaimer.run(creep);
-        }
-        if(creep.memory.role == 'warrior') {
-            roleWarrior.run(creep);
-        }
+            for(i=0; i < creepRoles.length; i++) {
+                if(creep.memory.role == creepRoles[i].role) {
+                    creepRoles[i].run(creep);
+                }
+            }   
         }
     }
     
@@ -107,7 +100,7 @@ module.exports.loop = function () {
 
         if(room.memory.foundHostiles && (_.filter(roomCreeps, (creep) => creep.memory.role == 'warrior') == 0)) {
             var newName ; 
-            newName = spawn.createCreep([MOVE,MOVE,ATTACK,ATTACK,ATTACK,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH], undefined, {role: 'warrior'});
+            newName = spawn.createCreep([MOVE,MOVE,MOVE,MOVE,ATTACK,ATTACK,ATTACK,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH], undefined, {role: 'warrior'});
             console.log('Spawning new WARRIOR in ' + room.name);
         }
 //        console.log('running spawns for ' + room.name);
