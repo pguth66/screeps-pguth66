@@ -22,10 +22,9 @@ var roleHealer = {
 	        creep.say('🚧 heal');
 	    }
 	    if (!creep.memory.healing) {
-            var sources = creep.room.find(FIND_MY_STRUCTURES, {
+            var sources = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
-                        return (structure.structureType == STRUCTURE_EXTENSION || 
-                                 structure.structureType == STRUCTURE_CONTAINER)  && structure.energy > 0;
+                        return (structure.structureType == STRUCTURE_CONTAINER)  && structure.store[RESOURCE_ENERGY] > 500;
                     }
             });
             const source = creep.pos.findClosestByPath(sources);
@@ -37,12 +36,11 @@ var roleHealer = {
             var targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
                         return (structure.structureType == STRUCTURE_ROAD || 
-                                 structure.structureType == STRUCTURE_WALL ||
-                                 structure.structureType == STRUCTURE_RAMPART || 
+                                 (structure.structureType == STRUCTURE_WALL && structure.hits < 20000) ||
+                                 (structure.structureType == STRUCTURE_RAMPART  && structure.hits < 20000) || 
                                  structure.structureType == STRUCTURE_CONTAINER ||
                                   structure.structureType == STRUCTURE_TOWER) && 
-                                  (structure.hits < structure.hitsMax &&
-                                  structure.hits < 100000) ;
+                                  structure.hits < structure.hitsMax ;
                     }
             });
             if(targets.length > 0) {
