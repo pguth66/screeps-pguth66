@@ -14,7 +14,7 @@ var roleUpgrader = {
 
 	    if(creep.memory.upgrading) {
             if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
+                creep.moveTo(creep.room.controller, {visualizePathStyle: {}});
             }
         }
         else 
@@ -27,6 +27,15 @@ var roleUpgrader = {
 								&& (structure.store[RESOURCE_ENERGY] > 0);
                     }
 				});
+			if(sources.length == 0 && (creep.room.energyAvailable === creep.room.energyCapacityAvailable)) {
+				sources = creep.room.find(FIND_MY_STRUCTURES, {
+					filter: (structure) => {
+						return ((structure.structureType == STRUCTURE_SPAWN ||
+							structure.structureType == STRUCTURE_EXTENSION) &&
+							structure.energy == structure.energyCapacity)
+					}
+				});
+			}
 			if(sources.length == 0) {
 				sources = creep.room.find(FIND_SOURCES_ACTIVE);
 				source = creep.pos.findClosestByPath(sources);
