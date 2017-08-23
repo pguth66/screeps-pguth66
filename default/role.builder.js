@@ -34,7 +34,7 @@ var roleBuilder = {
 	    }
 
 	    if(creep.memory.building) {
-	        var targets = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
+			var targets = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
 	        if (targets.length == 0) {
 				Memory.noBuild = true;
 				roleUpgrader.run(creep);
@@ -42,33 +42,29 @@ var roleBuilder = {
 	        }
 	        else {
 				target = creep.pos.findClosestByPath(targets);
-
+				if(!target) {
+					target = creep.pos.findClosestByRange(targets);
+				}
+				// console.log("found target " + target + "for creep " + creep.name);
 				switch(creep.build(target)) {
 					case ERR_NOT_IN_RANGE:
 						creep.moveTo(target);
 						break;
 					case OK:
-						creep.say("Building");
+						// creep.say("Building");
 						break;
 					case ERR_INVALID_TARGET:
 						console.log("Invalid target " + target.id);
 						break;
 				default: 
-					console.log(creep.name + ": Error while trying to build " + targets[bestpathindex].id);
-	        }
-/*            if(creep.build(targets[bestpathindex]) == ERR_NOT_IN_RANGE) {
-                console.log("building site with index " + bestpathindex);
-               creep.moveByPath(bestpath);
-            }
-            else {
-                    console.log(creep.name + " is building");
-            } */ 
+					console.log(creep.name + ": Error while trying to build " + target.id);
+	      		}
 	        }
         }
 	    else {
 	         var sources = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
-                        return ((structure.structureType == STRUCTURE_CONTAINER)  && (structure.store[RESOURCE_ENERGY] > 0));
+                        return ((structure.structureType == STRUCTURE_CONTAINER)  && (structure.store[RESOURCE_ENERGY] > structure.storeCapacity / 2));
                     }
 			});
 				// pull from a SOURCE if no extensions/containers with energy found
