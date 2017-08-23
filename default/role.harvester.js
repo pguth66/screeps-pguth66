@@ -58,7 +58,7 @@ var roleHarvester = {
                 }
             }
             else {
-                creep.moveTo(Game.spawns['Spawn1'].pos);
+                creep.moveTo(creep.room.find(FIND_MY_SPAWNS[0]));
             }
         }
 	}
