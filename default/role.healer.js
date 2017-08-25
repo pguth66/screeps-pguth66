@@ -6,7 +6,7 @@
  * var mod = require('role.healer');
  * mod.thing == 'a thing'; // true
  */
- roleUpgrader = require('role.upgrader');
+var roleUpgrader = require('role.upgrader');
 
 var roleHealer = {
 
@@ -47,9 +47,6 @@ var roleHealer = {
                 const target = creep.pos.findClosestByPath(targets);
                 if(creep.repair(target) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
-                }
-                else {
-                    creep.say("H " + target.id);
                 }
             }
             else {
