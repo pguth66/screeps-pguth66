@@ -18,8 +18,8 @@ module.exports.loop = function () {
     }
 
     for (i in Game.rooms) {
-        room = Game.rooms[i];
-//      console.log("running for room " + room.name);
+      const room = Game.rooms[i];
+      // console.log("running for room " + room.name);
 
         // for now assuming there is only one spawn per room
         const spawn = room.find(FIND_MY_SPAWNS)[0];
@@ -66,20 +66,20 @@ module.exports.loop = function () {
             }   
  //       }
     }
-//   Game.creeps['Kayla'].moveTo(Game.spawns['Spawn1'].pos);
+ //  Game.creeps['Henry'].moveTo(Game.spawns['Spawn1'].pos);
 
  //  Game.creeps['Isaac'].moveTo(24,22);
 
     // start stage defaults
-    var numHaulers = 0;
+    var numHaulers = 2;
     var numHarvesters = 2 ;
     var numUpgraders = 1 ;
-    var numBuilders = 3;
-    var numHealers = 0 ;
+    var numBuilders = 4;
+    var numHealers = 1 ;
     var numClaimers = 0 ;
 
     if (Memory.stage == 'later') {
-        numHaulers = 2 ;
+        numHaulers = 3 ;
         numHarvesters = 3 ;
         numBuilders = 3 ;
         numUpgraders = 1 ;
@@ -87,7 +87,7 @@ module.exports.loop = function () {
         numClaimers = 0 ;
     }
 
-    enemies = room.find(FIND_HOSTILE_CREEPS);
+    const enemies = room.find(FIND_HOSTILE_CREEPS);
     switch (enemies.length) {
         case 0:
             room.memory.foundHostiles = false;
@@ -108,7 +108,7 @@ module.exports.loop = function () {
 
         if(room.memory.foundHostiles && (_.filter(roomCreeps, (creep) => creep.memory.role == 'warrior') < 1)) {
             var newName ; 
-            newName = spawn.createCreep([MOVE,MOVE,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH], undefined, {role: 'warrior'});
+            newName = spawn.createCreep([TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,MOVE,MOVE,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK], undefined, {role: 'warrior'});
             console.log('Spawning new WARRIOR in ' + room.name);
         }
 //        console.log('running spawns for ' + room.name);
