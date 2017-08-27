@@ -34,7 +34,6 @@ var roleBuilder = {
 	    if(!creep.memory.building && creep.carry.energy == creep.carryCapacity) {
 	        creep.memory.building = true;
 	        creep.say('🚧 build');
-	        creep.move(BOTTOM_LEFT);
 	    }
 
 	    if(creep.memory.building) {
@@ -103,7 +102,7 @@ var roleBuilder = {
     	           case 0:
     	               break;
     	           case ERR_INVALID_TARGET:
-    	               creep.say("source is invalid target");
+    	               creep.say("invalid source");
     	               break;
     	            default:
     	                console.log(creep.say("withdraw error"));
