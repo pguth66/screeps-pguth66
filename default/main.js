@@ -18,29 +18,54 @@ module.exports.loop = function () {
     }
 
     for (i in Game.rooms) {
-      const room = Game.rooms[i];
-      // console.log("running for room " + room.name);
-
+        const room = Game.rooms[i];
+        // console.log("running for room " + room.name);
         // for now assuming there is only one spawn per room
         const spawn = room.find(FIND_MY_SPAWNS)[0];
         const towers = room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}} );
 
+        Memory.noBuild = false ; // used to flag when there are no construction sites, to prevent spawning builders
+        switch(room.controller.level) {
+            case 0:
+            case 1:
+            case 2:
+                Memory.stage = 'start';
+                break;
+            default:
+                Memory.stage = 'later';
+                break;
+        }
 
-    Memory.noBuild = false ; // used to flag when there are no construction sites, to prevent spawning builders
-    switch(room.controller.level) {
-        case 0:
-        case 1:
-        case 2:
+        if(room.energyCapacityAvailable < 600) {
             Memory.stage = 'start';
-            break;
-        default:
-            Memory.stage = 'later';
-            break;
-    }
+        }
 
-    if(room.energyCapacityAvailable < 600) {
-        Memory.stage = 'start';
-    }
+        // hand create room map for now
+        Memory.roomMaps = { 
+            W28N27: { containers: [ 
+                { id: '599db1672988077e7d51b7cd', role: 'SOURCE'},
+                { id: '59a27936efdfa26afb535d45', role: 'SOURCE'},
+                { id: '599dda3dfa93cd1619f05757', role: 'SINK'},
+                { id: '59a256249cb73d4b2b3567b3', role: 'SINK'} // Storage 
+            ]} ,
+            W27N27: {containers: [ 
+                { id: '599b7d776ab60d4e2bc5aa9d', role: 'SOURCE'},
+                { id: '599bd2f7e82f6d79eb4e4571', role: 'SOURCE'},
+                { id: '599c644ca6502f209b65e8a1', role: 'SINK'},
+                { id: '59a0994324116d15c606624b', role: 'SINK'} // this one is Storage
+            ]} 
+        }
+//        console.log(roomMap + room.name);
+
+//        Memory.mapRoom = { containers: [ { id: '599db1672988077e7d51b7cd', role: 'SOURCE'} ]};
+//        for(c in Memory.mapRoom.containers) {
+//            // get the real container object
+//            container = Game.getObjectById(Memory.mapRoom.containers[c].id);
+//           console.log("container info " + container.id + Memory.mapRoom.containers[c].role);
+//        }
+        
+    room.numSpawns = room.find(FIND_SOURCES).length;
+//    console.log("room " + room.name + "has " + room.numSpawns + "spawns.");
 
     const roomCreeps = _.filter(Game.creeps, function(creep) { return creep.room.name == room.name}) ;
 
@@ -66,7 +91,7 @@ module.exports.loop = function () {
             }   
  //       }
     }
- //  Game.creeps['Henry'].moveTo(Game.spawns['Spawn1'].pos);
+  // Game.creeps['Ava'].moveTo(Game.spawns['Spawn2'].pos);
 
  //  Game.creeps['Isaac'].moveTo(24,22);
 
@@ -79,10 +104,10 @@ module.exports.loop = function () {
     var numClaimers = 0 ;
 
     if (Memory.stage == 'later') {
-        numHaulers = 3 ;
-        numHarvesters = 3 ;
-        numBuilders = 3 ;
-        numUpgraders = 1 ;
+        numHaulers = 4 ;
+        numHarvesters = (room.numSpawns) + 1 ;
+        numBuilders = numHarvesters + 2 ;
+        numUpgraders = numHarvesters - 1 ;
         numHealers = 1 ;
         numClaimers = 0 ;
     }
@@ -108,7 +133,7 @@ module.exports.loop = function () {
 
         if(room.memory.foundHostiles && (_.filter(roomCreeps, (creep) => creep.memory.role == 'warrior') < 1)) {
             var newName ; 
-            newName = spawn.createCreep([TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,MOVE,MOVE,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK], undefined, {role: 'warrior'});
+            newName = spawn.createCreep([TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,MOVE,MOVE,MOVE,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,MOVE,ATTACK], undefined, {role: 'warrior'});
             console.log('Spawning new WARRIOR in ' + room.name);
         }
 //        console.log('running spawns for ' + room.name);
@@ -184,7 +209,7 @@ module.exports.loop = function () {
     }
     for (i in towers) {
         tower = towers[i];    
-        if(!room.memory.foundHostiles) {    
+        if(!room.memory.foundHostiles && (tower.energy > tower.energyCapacity / 2)) {    
             const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 8000 ) )
                 });
