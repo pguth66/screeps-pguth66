@@ -1,10 +1,13 @@
-roleHealer = require('role.healer');
+var roleHealer = require('role.healer');
+var roleUpgrader = require('role.upgrader');
 
 var roleBuilder = {
 
     /** @param {Creep} creep **/
     run: function(creep) {
 
+		var roomMap = Memory.roomMaps[creep.room.name];
+		
 		function hasEnergy(structure) {
         var b = false;
 
@@ -31,6 +34,7 @@ var roleBuilder = {
 	    if(!creep.memory.building && creep.carry.energy == creep.carryCapacity) {
 	        creep.memory.building = true;
 	        creep.say('🚧 build');
+	        creep.move(BOTTOM_LEFT);
 	    }
 
 	    if(creep.memory.building) {
@@ -54,7 +58,7 @@ var roleBuilder = {
 						// creep.say("Building");
 						break;
 					case ERR_INVALID_TARGET:
-						console.log("Invalid target " + target.id);
+						creep.say("Invalid target");
 						break;
 				default: 
 					console.log(creep.name + ": Error while trying to build " + target.id);
@@ -62,11 +66,25 @@ var roleBuilder = {
 	        }
         }
 	    else {
-	         var sources = creep.room.find(FIND_STRUCTURES, {
+			var sources = [];
+/*	         var sources = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
-                        return ((structure.structureType == STRUCTURE_CONTAINER)  && (structure.store[RESOURCE_ENERGY] > structure.storeCapacity / 2));
+						return ((structure.structureType == STRUCTURE_CONTAINER)  
+							&& (structure.store[RESOURCE_ENERGY] > structure.storeCapacity * .8)
+							|| (structure.structureType == STRUCTURE_STORAGE 
+								&& structure.store[RESOURCE_ENERGY] > 2000 ));
                     }
-			});
+			});*/
+			for(c in roomMap.containers) {
+				// get the real container object
+				container = Game.getObjectById(roomMap.containers[c].id);
+				container.role = roomMap.containers[c].role ;
+	 //          console.log("creep " + creep.name +" found container info " + container.id + container.role);
+				if(container.role == 'SINK' && (_.sum(container.store) > creep.carryCapacity)) {
+					sources.push(container);
+				}
+			}
+
 				// pull from a SOURCE if no extensions/containers with energy found
 				// OR if total room energy is less than 450 (minimum to spawn a harvester)
             if ((sources.length == 0)) {
@@ -85,10 +103,10 @@ var roleBuilder = {
     	           case 0:
     	               break;
     	           case ERR_INVALID_TARGET:
-    	               console.log(creep.name +": source " + source.id + " is invalid target");
+    	               creep.say("source is invalid target");
     	               break;
     	            default:
-    	                console.log(creep.name + ":Error while trying to withdraw from " + source.id);
+    	                console.log(creep.say("withdraw error"));
     	                break;
     	        }
 /*                if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
