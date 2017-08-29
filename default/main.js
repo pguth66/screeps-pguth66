@@ -5,6 +5,7 @@ var roleHealer = require('role.healer');
 var roleHauler = require('role.hauler');
 var roleClaimer = require('role.claimer');
 var roleWarrior = require('role.warrior');
+var roleMiner = require('role.miner');
 
 module.exports.loop = function () {
 
@@ -75,7 +76,8 @@ module.exports.loop = function () {
                         {role: 'hauler', run: roleHauler.run},
                         {role: 'claimer', run: roleClaimer.run},
                         {role: 'warrior', run: roleWarrior.run},
-                        {role: 'builder', run: roleBuilder.run} ] ;
+                        {role: 'builder', run: roleBuilder.run},
+                        {role: 'miner', run: roleMiner.run} ] ;
 //    console.log('role: ' + creepMap[0].role + " function: " + creepMap[0].run);
     
     var prioritySpawn = false; // used to prioritize spawning of harvesters when multiple creeps are needed
@@ -106,8 +108,8 @@ module.exports.loop = function () {
     if (Memory.stage == 'later') {
         numHaulers = 4 ;
         numHarvesters = (room.numSpawns) + 1 ;
-        numBuilders = numHarvesters + 2 ;
-        numUpgraders = numHarvesters - 1 ;
+        numBuilders = numHarvesters ;
+        numUpgraders = 1 ;
         numHealers = 1 ;
         numClaimers = 0 ;
     }
@@ -197,6 +199,12 @@ module.exports.loop = function () {
     if ((claimers.length < numClaimers) && !prioritySpawn) {
         const newName = spawn.createCreep([CLAIM,MOVE], undefined, {role: 'claimer'});
         console.log('Spawning new claimer in ' + room.name + ': ' + newName);
+    }
+
+    const miners = _.filter(roomCreeps, (creep) => creep.memory.role == 'miner');
+    if ((miners.length < 1) && (room.controller.level >= 6)) {
+        const newName = spawn.createCreep([WORK,WORK,WORK,WORK,MOVE,CARRY], undefined, {role: 'miner'});
+        console.log('Spawning new miner in ' + room.name + ': ' + newName);
     }
 
     if(spawn.spawning) {
