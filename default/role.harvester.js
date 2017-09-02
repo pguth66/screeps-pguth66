@@ -11,7 +11,7 @@ var roleHarvester = {
             switch (structure.structureType) {
                 case STRUCTURE_CONTAINER:
                 case STRUCTURE_STORAGE:
-                    if (structure.store[RESOURCE_ENERGY] == structure.storeCapacity) {
+                    if (_.sum(structure.store) == structure.storeCapacity) {
                         b = true;
                 };
                 break;
@@ -32,13 +32,20 @@ var roleHarvester = {
 	    if(!creep.memory.depositing && creep.carry.energy == creep.carryCapacity) {
 	        creep.memory.depositing = true;
 	        creep.say('🚧 deposit');
-	    }
+        }
+
         if(!creep.memory.depositing) {
             // we're harvesting, so find sources 
             var sources = creep.room.find(FIND_SOURCES_ACTIVE);
             const source=creep.pos.findClosestByPath(sources);
             if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
+                // deposit right away before trekking to another source
+                if(creep.carry.energy > 0) {
+                    creep.memory.depositing=true;
+                }
+                else {
+                    creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
+                }
             }
         }
         else {
@@ -58,7 +65,7 @@ var roleHarvester = {
                 }
             }
             else {
-                creep.moveTo(creep.room.find(FIND_MY_SPAWNS[0]));
+                creep.moveTo(creep.room.find(FIND_MY_SPAWNS)[0]);
             }
         }
 	}
