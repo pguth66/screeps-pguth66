@@ -9,6 +9,7 @@ var roleMiner = {
             switch (structure.structureType) {
                 case STRUCTURE_CONTAINER:
                 case STRUCTURE_STORAGE:
+                case STRUCTURE_TERMINAL:
                     if (_.sum(structure.store) == structure.storeCapacity) {
                         b = true;
                 };
@@ -45,7 +46,8 @@ var roleMiner = {
             var targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
                         return ((structure.structureType == STRUCTURE_CONTAINER ||
-                                structure.structureType == STRUCTURE_STORAGE)
+                                structure.structureType == STRUCTURE_STORAGE ||
+                                structure.structureType == STRUCTURE_TERMINAL)
                                  && !isFull(structure));
                     }
             });
