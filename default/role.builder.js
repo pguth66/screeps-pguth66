@@ -34,17 +34,19 @@ var roleBuilder = {
 	    if(!creep.memory.building && creep.carry.energy == creep.carryCapacity) {
 	        creep.memory.building = true;
 	        creep.say('🚧 build');
+	        creep.move(BOTTOM);
 	    }
 
 	    if(creep.memory.building) {
 			var targets = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
+			var target = null;
 	        if (targets.length == 0) {
 				Memory.noBuild = true;
 				roleUpgrader.run(creep);
 //	            creep.moveTo(29,17);
 	        }
 	        else {
-				target = creep.pos.findClosestByPath(targets);
+				//target = creep.pos.findClosestByPath(targets);
 				if(!target) {
 					target = creep.pos.findClosestByRange(targets);
 				}
@@ -74,24 +76,38 @@ var roleBuilder = {
 								&& structure.store[RESOURCE_ENERGY] > 2000 ));
                     }
 			});*/
+			try {
 			for(c in roomMap.containers) {
 				// get the real container object
 				container = Game.getObjectById(roomMap.containers[c].id);
 				container.role = roomMap.containers[c].role ;
 	 //          console.log("creep " + creep.name +" found container info " + container.id + container.role);
-				if(container.role == 'SINK' && (_.sum(container.store) > creep.carryCapacity)) {
+				if(container.store[RESOURCE_ENERGY] > creep.carryCapacity) {
+//				if(container.role == 'SINK' && (container.store[RESOURCE_ENERGY] > creep.carryCapacity)) {
 					sources.push(container);
 				}
 			}
-
+			}
+			catch(err) {
+				console.log(err);
+			}
 				// pull from a SOURCE if no extensions/containers with energy found
 				// OR if total room energy is less than 450 (minimum to spawn a harvester)
             if ((sources.length == 0)) {
                 var sources = creep.room.find(FIND_SOURCES_ACTIVE);
-                const source = creep.pos.findClosestByPath(sources);
-                if (creep.harvest(source) == ERR_NOT_IN_RANGE ) {
-                    creep.moveTo(source);
-                }
+				var source = creep.pos.findClosestByPath(sources);
+				if(source == null && creep.room.energyAvailable == creep.room.energyCapacityAvailable) {
+					source = creep.room.find(FIND_MY_SPAWNS)[0];
+					creep.say('Spawn harvest');
+					if(creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+						creep.moveTo(source);
+					}
+				}
+				else {
+					if (creep.harvest(source) == ERR_NOT_IN_RANGE ) {
+						creep.moveTo(source);
+					}
+				}
             }
             else {
     	        source = creep.pos.findClosestByPath(sources);
