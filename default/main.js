@@ -9,7 +9,27 @@ var roleMiner = require('role.miner');
 
 module.exports.loop = function () {
 
-    Memory.roomToClaim = 'W28N27';
+    Memory.roomToClaim = 'W29N29';
+    // hand create room map for now
+    Memory.roomMaps = { 
+        W28N27: { containers: [ 
+            { id: '599db1672988077e7d51b7cd', role: 'SOURCE', isSource: true},
+            { id: '59a27936efdfa26afb535d45', role: 'SOURCE', isSource: true},
+            { id: '599dda3dfa93cd1619f05757', role: 'SINK', isSource: false},
+            { id: '59a256249cb73d4b2b3567b3', role: 'SINK', isSource: false} // Storage 
+        ]} ,
+        W27N27: {containers: [ 
+            { id: '599b7d776ab60d4e2bc5aa9d', role: 'SOURCE', isSource: true},
+            { id: '599bd2f7e82f6d79eb4e4571', role: 'SOURCE', isSource: true},
+            { id: '599c644ca6502f209b65e8a1', role: 'SINK', isSource: false},
+            { id: '59a0994324116d15c606624b', role: 'SINK', isSource: false} // this one is Storage
+        ]},
+        W28N28: { containers: [
+            {id: '59a83cc7d0cf536b565f9da9', role:'SOURCE', isSource: true},
+            {id: '59a90288d14c6603ae1b5bef', role:'SINK', isSource: false}
+        ]}
+    }
+//        console.log(roomMap + room.name);
 
     for(var name in Memory.creeps) {
         if(!Game.creeps[name]) {
@@ -41,22 +61,6 @@ module.exports.loop = function () {
             Memory.stage = 'start';
         }
 
-        // hand create room map for now
-        Memory.roomMaps = { 
-            W28N27: { containers: [ 
-                { id: '599db1672988077e7d51b7cd', role: 'SOURCE'},
-                { id: '59a27936efdfa26afb535d45', role: 'SOURCE'},
-                { id: '599dda3dfa93cd1619f05757', role: 'SINK'},
-                { id: '59a256249cb73d4b2b3567b3', role: 'SINK'} // Storage 
-            ]} ,
-            W27N27: {containers: [ 
-                { id: '599b7d776ab60d4e2bc5aa9d', role: 'SOURCE'},
-                { id: '599bd2f7e82f6d79eb4e4571', role: 'SOURCE'},
-                { id: '599c644ca6502f209b65e8a1', role: 'SINK'},
-                { id: '59a0994324116d15c606624b', role: 'SINK'} // this one is Storage
-            ]} 
-        }
-//        console.log(roomMap + room.name);
 
 //        Memory.mapRoom = { containers: [ { id: '599db1672988077e7d51b7cd', role: 'SOURCE'} ]};
 //        for(c in Memory.mapRoom.containers) {
@@ -66,7 +70,17 @@ module.exports.loop = function () {
 //        }
         
     room.numSpawns = room.find(FIND_SOURCES).length;
-//    console.log("room " + room.name + "has " + room.numSpawns + "spawns.");
+    //    console.log("room " + room.name + "has " + room.numSpawns + "spawns.");
+    
+    try {
+        if(room.owner == 'MixtySix') {
+            room.numContainers = Memory.roomMaps[room.name].containers.length;
+        }
+    }
+    catch(err) {
+        console.log(err);
+    }
+    //console.log("room " + room.name + "has " + room.numContainers + " containers.");
 
     const roomCreeps = _.filter(Game.creeps, function(creep) { return creep.room.name == room.name}) ;
 
@@ -93,20 +107,20 @@ module.exports.loop = function () {
             }   
  //       }
     }
-  // Game.creeps['Ava'].moveTo(Game.spawns['Spawn2'].pos);
+   //Game.creeps['Bella'].moveTo(Game.spawns['Spawn1'].pos);
 
- //  Game.creeps['Isaac'].moveTo(24,22);
+   // Game.creeps['Elliot'].moveTo(Game.spawns['Spawn2']);
 
     // start stage defaults
-    var numHaulers = 2;
+    var numHaulers = 0;
     var numHarvesters = 2 ;
     var numUpgraders = 1 ;
     var numBuilders = 4;
-    var numHealers = 1 ;
+    var numHealers = 0 ;
     var numClaimers = 0 ;
 
     if (Memory.stage == 'later') {
-        numHaulers = 4 ;
+        numHaulers = room.numContainers + 1 ;
         numHarvesters = (room.numSpawns) + 1 ;
         numBuilders = numHarvesters ;
         numUpgraders = 1 ;
@@ -202,7 +216,8 @@ module.exports.loop = function () {
     }
 
     const miners = _.filter(roomCreeps, (creep) => creep.memory.role == 'miner');
-    if ((miners.length < 1) && (room.controller.level >= 6)) {
+    if ((miners.length < 1) && (room.controller.level >= 6) &&
+        (room.find(FIND_MINERALS)[0].mineralAmount > 0)) {
         const newName = spawn.createCreep([WORK,WORK,WORK,WORK,MOVE,CARRY], undefined, {role: 'miner'});
         console.log('Spawning new miner in ' + room.name + ': ' + newName);
     }
