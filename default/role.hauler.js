@@ -29,8 +29,8 @@ module.exports = {
             // if null find towers that are empty
             // then just find the closest of what's left
             // then will have to add something to prioritize towers when hostiles found
-            var targets ;
-            var target ;
+            var targets = [];
+            var target = null ;
             // if we have a target, either drop in there or move to there
             if(creep.memory.target != null) {
                 target = Game.getObjectById(creep.memory.target);
@@ -44,7 +44,7 @@ module.exports = {
             }
             else {
                 // we don't have a target, so figure out where to go
-                if(creep.carry[RESOURCE_ENERGY] > 0) {
+                if(_.sum(creep.carry) > 0 && creep.carry[RESOURCE_ENERGY] > 0 ) {
                     // first look for extensions, spawns, or towers that aren't full
                     targets = creep.room.find(FIND_STRUCTURES, {
                         filter: (structure) => {
@@ -69,6 +69,7 @@ module.exports = {
                 }
                 else {
                     // no spawns to target, so now extensions and towers
+                    try {
                     if(targets.length > 0) {
                         try {
                             target = creep.pos.findClosestByPath(targets);
@@ -86,15 +87,15 @@ module.exports = {
                             // get the real container object
                             container = Game.getObjectById(roomMap.containers[c].id);
                             container.role = roomMap.containers[c].role ;
-                 //          console.log("creep " + creep.name +" found container info " + container.id + container.role);
-                            if(container.role == 'SINK' && (_.sum(container.store) < (container.storeCapacity - _.sum(creep.carry)))) {
+                            if((container.role == 'SINK') && (_.sum(container.store) < (container.storeCapacity - _.sum(creep.carry)))) {
                                 targets.push(container);
                             }
                         }
                         // for now assume only 1 storage per room
                         storage = creep.room.find(FIND_STRUCTURES, {
                             filter: (structure) => {
-                                return (structure.structureType == STRUCTURE_STORAGE &&
+                                return (structure.structureType == STRUCTURE_STORAGE ||
+                                        (structure.structureType == STRUCTURE_TERMINAL && _.sum(structure.store) < 2500) &&
                                     _.sum(structure.store) < structure.storeCapacity) ; 
                             }
                         });
@@ -112,18 +113,26 @@ module.exports = {
                             console.log(err);
                         }
                     }
+                    }
+                    catch(err) {
+                        console.log(creep.name + ": " + err);
+                    }
                 }
             //now try to transfer to target, or else move to it
-            if(creep.transfer(target, RESOURCE_ENERGY) != OK) {
-                creep.moveTo(target, {visualizePathStyle: {}});
-            }
-            else {
-                creep.memory.target=null;
-                for(const resourceType in creep.carry) {
-                    if (creep.carry[resourceType] > 0) {                            
-                        creep.transfer(target, resourceType);
-                    }
-                }   
+            switch(creep.transfer(target, RESOURCE_ENERGY)) {
+                case ERR_NOT_IN_RANGE:
+                    creep.moveTo(target, {visualizePathStyle: {}});
+                    break;
+                case OK:
+                    break;
+                default:
+                    creep.memory.target=null;
+                    for(const resourceType in creep.carry) {
+                        if (creep.carry[resourceType] > 0) {                            
+                            creep.transfer(target, resourceType);
+                        }
+                    };
+                    break;   
             }
         }
     }
@@ -137,15 +146,16 @@ module.exports = {
                     // get the real container object
                     container = Game.getObjectById(roomMap.containers[c].id);
                     container.role = roomMap.containers[c].role ;
-         //          console.log("creep " + creep.name +" found container info " + container.id + container.role);
-                    if(container.role == 'SOURCE' && (_.sum(container.store) > creep.carryCapacity)){
+                    container.isSource = roomMap.containers[c].isSource ;
+                    // console.log("creep " + creep.name +" found container info " + container.id + container.role + " isSource " + container.isSource);
+                    if(((container.role == 'SOURCE') || container.isSource) && (_.sum(container.store) > creep.carryCapacity)){
                         sources.push(container);
                     }
                 }
             }
             else {
                 creep.say("Dropped");
-                console.log("Found "+ sources.length + " locations of dropped resources, first is " + sources[0].pos);
+            //    console.log("Found "+ sources.length + " locations of dropped resources, first is " + sources[0].pos);
             }
             const source=creep.pos.findClosestByPath(sources);
             try {
