@@ -35,7 +35,12 @@ module.exports = {
             if(creep.memory.target != null) {
                 target = Game.getObjectById(creep.memory.target);
                 if(creep.pos.inRangeTo(target,1)) {
-                    creep.transfer(target, RESOURCE_ENERGY);                    
+                    for(const resourceType in creep.carry) {
+                        if (creep.carry[resourceType] > 0) {                            
+                            creep.transfer(target, resourceType);
+                        }
+                    };
+//                    creep.transfer(target, RESOURCE_ENERGY);                    
                     creep.memory.target = null;
                 }
                 else {
@@ -77,7 +82,7 @@ module.exports = {
                             creep.say("Ext/Tower");                      
                         }
                         catch(err) {
-                            console.log(err);
+                            console.log(creep.name + err);
                         }   
                     }
                     else {
@@ -92,15 +97,18 @@ module.exports = {
                             }
                         }
                         // for now assume only 1 storage per room
-                        storage = creep.room.find(FIND_STRUCTURES, {
-                            filter: (structure) => {
-                                return (structure.structureType == STRUCTURE_STORAGE ||
-                                        (structure.structureType == STRUCTURE_TERMINAL && _.sum(structure.store) < 2500) &&
-                                    _.sum(structure.store) < structure.storeCapacity) ; 
+                        // only put in storage if no sink containers to drop in
+                        if(targets.length == 0) {
+                            storage = creep.room.find(FIND_STRUCTURES, {
+                                filter: (structure) => {
+                                    return (structure.structureType == STRUCTURE_STORAGE ||
+                                            (structure.structureType == STRUCTURE_TERMINAL && _.sum(structure.store) < 2500) &&
+                                        _.sum(structure.store) < structure.storeCapacity) ; 
+                                }
+                            });
+                            if(storage[0]) {
+                                targets.push(storage[0]);
                             }
-                        });
-                        if(storage[0]) {
-                            targets.push(storage[0]);
                         }
                         try {
                             if (targets.length > 0) {
@@ -110,7 +118,7 @@ module.exports = {
                             }
                         }
                         catch(err) {
-                            console.log(err);
+                            console.log(creep.name + ": " + err);
                         }
                     }
                     }
