@@ -22,6 +22,8 @@ var roleHealer = {
 	        creep.say('🚧 heal');
 	    }
 	    if (!creep.memory.healing) {
+            // healers should pull from any container regardless of SOURCE/SINK since walls may be 
+            // anywhere on the map
             var sources = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
                         return (structure.structureType == STRUCTURE_CONTAINER)  && structure.store[RESOURCE_ENERGY] > 200;
@@ -36,8 +38,8 @@ var roleHealer = {
             var targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
                         return (structure.structureType == STRUCTURE_ROAD || 
-                                 (structure.structureType == STRUCTURE_WALL && structure.hits < ((creep.room.controller.level * creep.room.controller.level) * 3000)) ||
-                                 (structure.structureType == STRUCTURE_RAMPART  && structure.hits < ((creep.room.controller.level * creep.room.controller.level) * 3000)) || 
+                                 (structure.structureType == STRUCTURE_WALL && structure.hits < ((creep.room.controller.level * creep.room.controller.level) * 5000)) ||
+                                 (structure.structureType == STRUCTURE_RAMPART  && structure.hits < ((creep.room.controller.level * creep.room.controller.level) * 5000)) || 
                                  structure.structureType == STRUCTURE_CONTAINER ||
                                   structure.structureType == STRUCTURE_TOWER) && 
                                   structure.hits < structure.hitsMax ;
