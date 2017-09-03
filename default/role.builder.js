@@ -89,7 +89,7 @@ var roleBuilder = {
 			}
 			}
 			catch(err) {
-				console.log(err);
+				console.log(err + ' while enumerating containers in ' + room.name);
 			}
 				// pull from a SOURCE if no extensions/containers with energy found
 				// OR if total room energy is less than 450 (minimum to spawn a harvester)
