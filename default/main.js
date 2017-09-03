@@ -26,8 +26,10 @@ module.exports.loop = function () {
         ]},
         W28N28: { containers: [
             {id: '59a83cc7d0cf536b565f9da9', role:'SOURCE', isSource: true},
+            {id: '59a9f88311e12f44ee2c18c3', role:'SOURCE', isSource: true},
             {id: '59a90288d14c6603ae1b5bef', role:'SINK', isSource: false}
-        ]}
+        ]},
+        sim: { containers: [ ] }
     }
 //        console.log(roomMap + room.name);
 
@@ -68,12 +70,18 @@ module.exports.loop = function () {
 //            container = Game.getObjectById(Memory.mapRoom.containers[c].id);
 //           console.log("container info " + container.id + Memory.mapRoom.containers[c].role);
 //        }
-        
+var roomOwner = undefined; 
+try {
+    roomOwner = room.controller.owner.username;
+}
+catch(err) {
+   // console.log(err);
+} 
     room.numSpawns = room.find(FIND_SOURCES).length;
     //    console.log("room " + room.name + "has " + room.numSpawns + "spawns.");
     
     try {
-        if(room.owner == 'MixtySix') {
+        if(roomOwner == 'MixtySix') {
             room.numContainers = Memory.roomMaps[room.name].containers.length;
         }
     }
@@ -138,13 +146,7 @@ module.exports.loop = function () {
             break;
     }
     
-    var roomOwner = undefined; 
-    try {
-        roomOwner = room.controller.owner.username;
-    }
-    catch(err) {
-       // console.log(err);
-    }
+
     if ((roomOwner == 'MixtySix') && spawn) {
 
         if(room.memory.foundHostiles && (_.filter(roomCreeps, (creep) => creep.memory.role == 'warrior') < 1)) {
@@ -169,10 +171,11 @@ module.exports.loop = function () {
     }
 
     const haulers = _.filter(roomCreeps, (creep) => creep.memory.role == 'hauler');
+//    console.log('haulers: ' + haulers.length + " of " + numHaulers);
     if((haulers.length < numHaulers) && !prioritySpawn) {
         const newName = spawn.createCreep([CARRY,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'hauler'});
         prioritySpawn = true;
-        console.log('Spawning new hauler: ' + newName);
+        console.log('Spawning new hauler in ' + room.name + ': ' + newName);
     }
 
     const upgraders = _.filter(roomCreeps, (creep) => creep.memory.role == 'upgrader');
