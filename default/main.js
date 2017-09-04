@@ -13,22 +13,29 @@ module.exports.loop = function () {
     // hand create room map for now
     Memory.roomMaps = { 
         W28N27: { containers: [ 
-            { id: '599db1672988077e7d51b7cd', role: 'SOURCE', isSource: true},
-            { id: '59a27936efdfa26afb535d45', role: 'SOURCE', isSource: true},
-            { id: '599dda3dfa93cd1619f05757', role: 'SINK', isSource: false},
-            { id: '59a256249cb73d4b2b3567b3', role: 'SINK', isSource: false} // Storage 
-        ]} ,
+                { id: '599db1672988077e7d51b7cd', role: 'SOURCE', isSource: true},
+                { id: '59a27936efdfa26afb535d45', role: 'SOURCE', isSource: true},
+                { id: '599dda3dfa93cd1619f05757', role: 'SINK', isSource: false},
+                { id: '59a256249cb73d4b2b3567b3', role: 'SINK', isSource: false} // Storage 
+            ]
+        } ,
         W27N27: {containers: [ 
-            { id: '599b7d776ab60d4e2bc5aa9d', role: 'SOURCE', isSource: true},
-            { id: '599bd2f7e82f6d79eb4e4571', role: 'SOURCE', isSource: true},
-            { id: '599c644ca6502f209b65e8a1', role: 'SINK', isSource: false},
-            { id: '59a0994324116d15c606624b', role: 'SINK', isSource: false} // this one is Storage
-        ]},
+                { id: '599b7d776ab60d4e2bc5aa9d', role: 'SOURCE', isSource: true},
+                { id: '599bd2f7e82f6d79eb4e4571', role: 'SOURCE', isSource: true},
+                { id: '599c644ca6502f209b65e8a1', role: 'SINK', isSource: false},
+                { id: '59a0994324116d15c606624b', role: 'SINK', isSource: false} // this one is Storage
+               ],
+            sources: [
+                {id: '5982fcceb097071b4adbe20a'},
+                {id: '5982fcceb097071b4adbe20c'}
+            ]
+        },
         W28N28: { containers: [
-            {id: '59a83cc7d0cf536b565f9da9', role:'SOURCE', isSource: true},
-            {id: '59a9f88311e12f44ee2c18c3', role:'SOURCE', isSource: true},
-            {id: '59a90288d14c6603ae1b5bef', role:'SINK', isSource: false}
-        ]},
+                {id: '59a83cc7d0cf536b565f9da9', role:'SOURCE', isSource: true},
+                {id: '59a9f88311e12f44ee2c18c3', role:'SOURCE', isSource: true},
+                {id: '59a90288d14c6603ae1b5bef', role:'SINK', isSource: false}
+            ]
+        },
         sim: { containers: [ ] }
     }
 //        console.log(roomMap + room.name);
@@ -128,9 +135,9 @@ catch(err) {
     var numClaimers = 0 ;
 
     if (Memory.stage == 'later') {
-        numHaulers = room.numContainers + 1 ;
-        numHarvesters = (room.numSpawns) + 1 ;
-        numBuilders = numHarvesters ;
+        numHaulers = room.numContainers ;
+        numHarvesters = (room.numSpawns) ;
+        numBuilders = numHarvesters + 1 ;
         numUpgraders = 1 ;
         numHealers = 1 ;
         numClaimers = 0 ;
@@ -163,7 +170,7 @@ catch(err) {
                 newName = spawn.createCreep([WORK,WORK,CARRY,MOVE], undefined, {role: 'harvester'});
                 break ;
             default:
-                newName = spawn.createCreep([WORK,WORK,WORK,CARRY,MOVE], undefined, {role: 'harvester'});
+                newName = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE], undefined, {role: 'harvester'});
                 break ; 
         }
         prioritySpawn = true;

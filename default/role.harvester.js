@@ -36,15 +36,51 @@ var roleHarvester = {
 
         if(!creep.memory.depositing) {
             // we're harvesting, so find sources 
-            var sources = creep.room.find(FIND_SOURCES_ACTIVE);
-            const source=creep.pos.findClosestByPath(sources);
-            if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                // deposit right away before trekking to another source
-                if(creep.carry.energy > 0) {
-                    creep.memory.depositing=true;
+            if(creep.memory.target != null) {
+                try {
+                    
+                target = Game.getObjectById(creep.memory.target);
+                if(creep.pos.inRangeTo(target,1)) {
+                    creep.harvest(target);  
+//                    creep.memory.target = null;
                 }
                 else {
-                    creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
+                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                }
+            }
+            catch(err) {
+                console.log(err);
+            }
+            }   
+            else {
+                var sources = creep.room.find(FIND_SOURCES_ACTIVE);
+                sourceToTarget = sources[0];
+                var harvsOnSource = [] ;
+                try{ 
+                for(i=0; i < sources.length ; i++) {
+               
+                    harvsOnSource[i] = _.filter(Game.creeps, function(c) { return (c.memory.role == 'harvester' && c.memory.target == sources[i].id)}).length
+                    if (sources[i].id == '5982fcceb097071b4adbe20c') {
+                    // console.log('found '+ harvsOnSource[i] + 'creeps on source index ' + i);
+                    }
+                }
+                sourceToTarget = sources[_.indexOf(harvsOnSource, _.min(harvsOnSource))] ;
+                console.log('Harvester ' + creep.name + ' targeting source ' + sourceToTarget);
+                creep.memory.target = sourceToTarget.id;
+            }
+            catch(err) {
+                console.log(err);
+            }
+            
+                const source=creep.pos.findClosestByPath(sources);
+                if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
+                    // deposit right away before trekking to another source
+                    if(creep.carry.energy > 0) {
+                        creep.memory.depositing=true;
+                    }
+                    else {
+                        creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
+                    }
                 }
             }
         }
