@@ -93,7 +93,7 @@ module.exports = {
                         try {
                             target = creep.pos.findClosestByPath(targets);
                             creep.memory.target = target.id;  
-                            creep.say("Ext/Tower");                      
+                            creep.say(target.structureType);                      
                         }
                         catch(err) {
                             console.log(creep.name + err);
@@ -143,7 +143,7 @@ module.exports = {
                             if (targets.length > 0) {
                                 target = creep.pos.findClosestByPath(targets);
                                 creep.memory.target = target.id;
-                                creep.say("conatiner");
+                                creep.say(target.structureType);
                             }
                         }
                         catch(err) {
@@ -203,6 +203,12 @@ module.exports = {
                     // console.log("creep " + creep.name +" found container info " + container.id + container.role + " isSource " + container.isSource);
                     if(((container.role == 'SOURCE') || container.isSource) && (_.sum(container.store) > creep.carryCapacity)){
                         sources.push(container);
+                    }
+                    else {
+                        // add all containers when room is below half on energy
+                        if(creep.room.energyAvailable < (creep.room.energyCapacityAvailable / 2) && (container.store[RESOURCE_ENERGY] > creep.carryCapacity)) {
+                            sources.push(container);
+                        }
                     }
                 }
             }
