@@ -146,6 +146,23 @@ module.exports = {
     }
 
         if(!creep.memory.hauling) {
+            var target = null ;
+            // if we have a target, either pick up there or move to there
+            try{
+            if(creep.memory.target != null) {
+                target = Game.getObjectById(creep.memory.target);
+                if(creep.pos.inRangeTo(target,1)) {
+                    if (creep.withdraw(target, RESOURCE_ENERGY) != OK) {
+                        creep.pickup(target) ;
+                        }
+                    creep.memory.target = null;
+                    }
+                else {
+                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                }
+            }
+
+            else {
             // start with dropped resources
             var sources = creep.room.find(FIND_DROPPED_RESOURCES);
             // if no dropped resources of > 25 units, then cycle through containers and find SOURCEs
@@ -165,8 +182,13 @@ module.exports = {
                 creep.say("Dropped");
             //    console.log("Found "+ sources.length + " locations of dropped resources, first is " + sources[0].pos);
             }
+            if (sources.length == 0 ) {
+                creep.say('Nosources!');
+                return;
+            }
             const source=creep.pos.findClosestByPath(sources);
-            try {
+            creep.memory.target = source.id ;
+ /*           try {
                 if(creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(source, {visualizePathStyle: {}});
                 }
@@ -178,6 +200,13 @@ module.exports = {
             }
             catch(err) {
                 creep.say(err);
+            } */
+            }
+        }
+            catch(err) {
+                creep.say(err);
+                console.log(creep.name + '' + creep.room.name + ': ' + err + ', target ' + target);
+                creep.memory.target = null;
             }
         }
     }
