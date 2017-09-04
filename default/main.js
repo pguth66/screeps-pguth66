@@ -18,23 +18,34 @@ module.exports.loop = function () {
                 { id: '59a27936efdfa26afb535d45', role: 'SOURCE', isSource: true},
                 { id: '599dda3dfa93cd1619f05757', role: 'SINK', isSource: false},
                 { id: '59a256249cb73d4b2b3567b3', role: 'SINK', isSource: false} // Storage 
+            ],
+            links: [
             ]
         } ,
         W27N27: {containers: [ 
                 { id: '599b7d776ab60d4e2bc5aa9d', role: 'SOURCE', isSource: true},
                 { id: '599bd2f7e82f6d79eb4e4571', role: 'SOURCE', isSource: true},
+                { id: '59acf60b17856d163132ae42', role: 'SOURCE', isSource: true},
                 { id: '599c644ca6502f209b65e8a1', role: 'SINK', isSource: false},
                 { id: '59a0994324116d15c606624b', role: 'SINK', isSource: false} // this one is Storage
                ],
             sources: [
                 {id: '5982fcceb097071b4adbe20a'},
                 {id: '5982fcceb097071b4adbe20c'}
+            ],
+            links: [
+                {id: '59a7ba769c3a583afe47f9c1', role: 'SINK', isSource: false},
+                {id: '59a7afe5587da815c0f44549', role: 'SOURCE', isSource: true}
             ]
         },
         W28N28: { containers: [
                 {id: '59a83cc7d0cf536b565f9da9', role:'SOURCE', isSource: true},
                 {id: '59a9f88311e12f44ee2c18c3', role:'SOURCE', isSource: true},
-                {id: '59a90288d14c6603ae1b5bef', role:'SINK', isSource: false}
+                {id: '59acf2a0202e1464bc31ab49', role: 'SOURCE', isSource: true},                
+                {id: '59a90288d14c6603ae1b5bef', role:'SINK', isSource: false},
+                {id: '59ab3a8937e7dd0cb4fa63d8', role:'SOURCE', isSource:true} // Storage
+            ],
+            links: [
             ]
         },
         sim: { containers: [ ] }
@@ -50,6 +61,7 @@ module.exports.loop = function () {
     for (i in Game.rooms) {
         const room = Game.rooms[i];
         // console.log("running for room " + room.name);
+
         // for now assuming there is only one spawn per room
         const spawn = room.find(FIND_MY_SPAWNS)[0];
         const towers = room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}} );
@@ -196,7 +208,7 @@ module.exports.loop = function () {
                     newName = spawn.createCreep([WORK,WORK,CARRY,MOVE], undefined, {role: 'builder'});
                     break;
                 default:
-                    newName = spawn.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder'});
+                    newName = spawn.createCreep([WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder'});
                     break;
             }
             console.log('Spawning new builder in ' + room.name + ': ' + newName);
@@ -220,6 +232,8 @@ module.exports.loop = function () {
             const newName = spawn.createCreep([WORK,WORK,WORK,WORK,MOVE,CARRY], undefined, {role: 'miner'});
             console.log('Spawning new miner in ' + room.name + ': ' + newName);
         }
+        } // end Spawning
+    
 
         if(spawn.spawning) {
             var spawningCreep = Game.creeps[spawn.spawning.name];
@@ -249,7 +263,25 @@ module.exports.loop = function () {
                 }
             }
         }
+
+        try{
+            const sourceLinkObj = _.filter(Memory.roomMaps[room.name].links,  (l) => l.role == 'SINK')[0] ;
+            if(sourceLinkObj) {
+                sourceLink = Game.getObjectById(sourceLinkObj.id);  
+                if (sourceLink.energy > (sourceLink.energyCapacity / 2)) {
+                    const targetLink = Game.getObjectById(_.filter(Memory.roomMaps[room.name].links, (l) => l.role == 'SOURCE')[0].id) ;
+                    if(targetLink.energy < targetLink.energyCapacity && sourceLink.cooldown < 1) {
+                        sourceLink.transferEnergy(targetLink);
+                        console.log(room.name + ': transfer from link ' + sourceLink.id + ' to ' + targetLink.id);
+                    }
+                }              
+            }
+            // console.log(room.name + sourceLink.id);
         }
+        catch(err) {
+            console.log(room.name + ": Error finding source link - " + err);
+        }
+        // Console report
         if ((Game.time % 12) == 0) {
             if (towers.length > 0) {
             console.log('Room ' + room.name + '(' + room.controller.level + '): ' + 
@@ -266,5 +298,5 @@ module.exports.loop = function () {
                 console.log(room.name + " found hostile creeps!")
             }
         }
-    }
+    } // end room loop
 }

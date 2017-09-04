@@ -87,6 +87,13 @@ var roleBuilder = {
 					sources.push(container);
 				}
 			}
+			for(l in roomMap.links) {
+				link = Game.getObjectById(roomMap.links[l].id);
+				link.role = roomMap.links[l].role ;
+				if(link.energy > 0) {
+					sources.push(link);
+				}
+			}
 			}
 			catch(err) {
 				console.log(err + ' while enumerating containers in ' + room.name);

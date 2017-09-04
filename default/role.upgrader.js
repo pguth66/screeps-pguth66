@@ -30,9 +30,10 @@ var roleUpgrader = {
 			if(sources.length == 0 && (creep.room.energyAvailable === creep.room.energyCapacityAvailable)) {
 				sources = creep.room.find(FIND_MY_STRUCTURES, {
 					filter: (structure) => {
-						return ((structure.structureType == STRUCTURE_SPAWN ||
+						return (((structure.structureType == STRUCTURE_SPAWN ||
 							structure.structureType == STRUCTURE_EXTENSION) &&
-							structure.energy == structure.energyCapacity)
+							structure.energy == structure.energyCapacity)	||						
+							(structure.structureType == STRUCTURE_LINK && structure.energy > 0))
 					}
 				});
 			}

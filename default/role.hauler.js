@@ -21,7 +21,25 @@ module.exports = {
         }
         if (!creep.memory.hauling && _.sum(creep.carry) == creep.carryCapacity) {
             creep.memory.hauling = true;
-            creep.memory.target = null;
+            // find nearby LINK to deposit in
+            try {
+            const sourceLinkObj = _.filter(roomMap.links,  (l) => l.role == 'SINK')[0] ;
+            if(sourceLinkObj) {
+                sourceLink = Game.getObjectById(sourceLinkObj.id);      
+                if(creep.pos.inRangeTo(sourceLink,3)) {
+                    creep.memory.target = sourceLink.id;
+                }
+                else {
+                    creep.memory.target = null ; 
+                }
+            }
+            else {
+                creep.memory.target = null;
+            }
+            }
+            catch(err) {
+                creep.memory.target = null;
+            }
             creep.say("Haul");
         }
         if(creep.memory.hauling) {
@@ -33,6 +51,7 @@ module.exports = {
             var target = null ;
             // if we have a target, either drop in there or move to there
             if(creep.memory.target != null) {
+                try {
                 target = Game.getObjectById(creep.memory.target);
                 if(creep.pos.inRangeTo(target,1)) {
                     for(const resourceType in creep.carry) {
@@ -45,6 +64,11 @@ module.exports = {
                 }
                 else {
                     creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                }
+                }
+                catch(err) {
+                    creep.memory.target = null;
+                    creep.say('memwipe');
                 }
             }
             else {
@@ -88,12 +112,27 @@ module.exports = {
                     else {
                         // no extensions, spawns, or towers
                         // this looks for SINKs and deposits there no matter how full
+                        if(roomMap.links.length > 0) {
+                            containersAndLinks = roomMap.containers.concat(roomMap.links);
+                        }
+                        else {
+                            containersAndLinks = roomMap.containers;
+                        }
+                        //console.log('room ' + creep.room.name + ' has ' + containersAndLinks.length + ' cont/links');
+
                         for(c in roomMap.containers) {
                             // get the real container object
                             container = Game.getObjectById(roomMap.containers[c].id);
                             container.role = roomMap.containers[c].role ;
                             if((container.role == 'SINK') && (_.sum(container.store) < (container.storeCapacity - _.sum(creep.carry)))) {
                                 targets.push(container);
+                            }
+                        }
+                        for(l in roomMap.links) {
+                            link = Game.getObjectById(roomMap.links[l].id);
+                            link.role = roomMap.links[l].role;
+                            if((link.role == 'SINK') && link.energy < link.energyCapacity - creep.carry[RESOURCE_ENERGY]) {
+                                targets.push(link);
                             }
                         }
                         // for now assume only 1 storage per room
@@ -165,8 +204,8 @@ module.exports = {
             else {
             // start with dropped resources
             var sources = creep.room.find(FIND_DROPPED_RESOURCES);
-            // if no dropped resources of > 25 units, then cycle through containers and find SOURCEs
-            if((sources.length == 0) || sources[0].amount < 25) {
+            // if no dropped resources of > 50 units, then cycle through containers and find SOURCEs
+            if((sources.length == 0) || sources[0].amount < 50) {
                 for(c in roomMap.containers) {
                     // get the real container object
                     container = Game.getObjectById(roomMap.containers[c].id);
