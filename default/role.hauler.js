@@ -87,19 +87,6 @@ module.exports = {
                         }
                     });
                 }
-                var targetSpawns = _.remove(targets, function(o) { return o.structureType == STRUCTURE_SPAWN; });
-                //prioritize spawns
-                if(targetSpawns.length > 0) {
-                    try {
-                    target = creep.pos.findClosestByPath(targetSpawns);
-                    creep.memory.target = target.id; 
-                    creep.say("Spawn");   
-                    }
-                    catch(err) {
-                        creep.say(err);
-                    }                
-                }
-                else {
                     // no spawns to target, so now extensions and towers
                     try {
                     if(targets.length > 0) {
@@ -167,7 +154,6 @@ module.exports = {
                     catch(err) {
                         console.log(creep.name + ": " + err);
                     }
-                }
             //now try to transfer to target, or else move to it
             switch(creep.transfer(target, RESOURCE_ENERGY)) {
                 case ERR_NOT_IN_RANGE:
