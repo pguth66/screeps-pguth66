@@ -38,19 +38,18 @@ var roleHarvester = {
             // we're harvesting, so find sources 
             if(creep.memory.target != null) {
                 try {
-                    
-                target = Game.getObjectById(creep.memory.target);
-                if(creep.pos.inRangeTo(target,1)) {
-                    creep.harvest(target);  
-//                    creep.memory.target = null;
+                    target = Game.getObjectById(creep.memory.target);
+                    if(creep.pos.inRangeTo(target,1)) {
+                        creep.harvest(target);  
+    //                    creep.memory.target = null;
+                    }
+                    else {
+                        creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                    }
                 }
-                else {
-                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                catch(err) {
+                    console.log(creep.name + ": " + err);
                 }
-            }
-            catch(err) {
-                console.log(err);
-            }
             }   
             else {
                 var sources = creep.room.find(FIND_SOURCES_ACTIVE);
@@ -69,7 +68,7 @@ var roleHarvester = {
                 creep.memory.target = sourceToTarget.id;
             }
             catch(err) {
-                console.log(err);
+                console.log(creep.name + ": " + err);
             }
             
                 const source=creep.pos.findClosestByPath(sources);
