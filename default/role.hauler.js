@@ -19,9 +19,11 @@ module.exports = {
             creep.memory.target = null;
             creep.say("Harvest");
         }
+
         if (!creep.memory.hauling && _.sum(creep.carry) == creep.carryCapacity) {
             creep.memory.hauling = true;
-            // find nearby LINK to deposit in
+            // if we just flipped to hauling, don't walk across the entire room if a LINK is nearby
+            // find nearby LINK to deposit in 
             try {
             const sourceLinkObj = _.filter(roomMap.links,  (l) => l.role == 'SINK')[0] ;
             if(sourceLinkObj) {
@@ -42,6 +44,7 @@ module.exports = {
             }
             creep.say("Haul");
         }
+
         if(creep.memory.hauling) {
             // change this logic to find spawns that are empty, if null find extensions that are empty, 
             // if null find towers that are empty
@@ -52,19 +55,19 @@ module.exports = {
             // if we have a target, either drop in there or move to there
             if(creep.memory.target != null) {
                 try {
-                target = Game.getObjectById(creep.memory.target);
-                if(creep.pos.inRangeTo(target,1)) {
-                    for(const resourceType in creep.carry) {
-                        if (creep.carry[resourceType] > 0) {                            
-                            creep.transfer(target, resourceType);
-                        }
-                    };
-//                    creep.transfer(target, RESOURCE_ENERGY);                    
-                    creep.memory.target = null;
-                }
-                else {
-                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
-                }
+                    target = Game.getObjectById(creep.memory.target);
+                    if(creep.pos.inRangeTo(target,1)) {
+                        for(const resourceType in creep.carry) {
+                            if (creep.carry[resourceType] > 0) {                            
+                                creep.transfer(target, resourceType);
+                            }
+                        };
+    //                    creep.transfer(target, RESOURCE_ENERGY);                    
+                        creep.memory.target = null;
+                    }
+                    else {
+                        creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                    }
                 }
                 catch(err) {
                     creep.memory.target = null;
