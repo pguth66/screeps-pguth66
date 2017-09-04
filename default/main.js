@@ -96,6 +96,7 @@ module.exports.loop = function () {
         try {
             if(roomOwner == 'MixtySix') {
                 room.numContainers = Memory.roomMaps[room.name].containers.length;
+                room.numLinks = Memory.roomMaps[room.name].links.length;
             }
         }
         catch(err) {
@@ -138,8 +139,8 @@ module.exports.loop = function () {
         var numClaimers = 0 ;
 
         if (Memory.stage == 'later') {
-            numHaulers = room.numContainers ;
-            numHarvesters = (room.numSpawns) ;
+            numHaulers = room.numContainers - room.numLinks ;
+            numHarvesters = room.numSpawns ;
             numBuilders = numHarvesters + 1 ;
             numUpgraders = 1 ;
             numHealers = 1 ;
@@ -272,7 +273,7 @@ module.exports.loop = function () {
                     const targetLink = Game.getObjectById(_.filter(Memory.roomMaps[room.name].links, (l) => l.role == 'SOURCE')[0].id) ;
                     if(targetLink.energy < targetLink.energyCapacity && sourceLink.cooldown < 1) {
                         sourceLink.transferEnergy(targetLink);
-                        console.log(room.name + ': transfer from link ' + sourceLink.id + ' to ' + targetLink.id);
+                        // console.log(room.name + ': transfer from link ' + sourceLink.id + ' to ' + targetLink.id);
                     }
                 }              
             }
@@ -282,7 +283,7 @@ module.exports.loop = function () {
             console.log(room.name + ": Error finding source link - " + err);
         }
         // Console report
-        if ((Game.time % 12) == 0) {
+        if ((Game.time % 24) == 0) {
             if (towers.length > 0) {
             console.log('Room ' + room.name + '(' + room.controller.level + '): ' + 
                 room.energyAvailable + '/' + room.energyCapacityAvailable + 
