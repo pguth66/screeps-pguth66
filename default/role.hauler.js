@@ -179,14 +179,20 @@ module.exports = {
             try{
             if(creep.memory.target != null) {
                 target = Game.getObjectById(creep.memory.target);
-                if(creep.pos.inRangeTo(target,1)) {
-                    if (creep.withdraw(target, RESOURCE_ENERGY) != OK) {
-                        creep.pickup(target) ;
-                        }
-                    creep.memory.target = null;
-                    }
+                if(target == null) {
+                    creep.memory.target = null ; 
+                    creep.say('memwipe');
+                }
                 else {
-                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                    if(creep.pos.inRangeTo(target,1)) {
+                        if (creep.withdraw(target, RESOURCE_ENERGY) != OK) {
+                            creep.pickup(target) ;
+                            }
+                        creep.memory.target = null;
+                        }
+                    else {
+                        creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                    }
                 }
             }
 
