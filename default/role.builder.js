@@ -82,7 +82,7 @@ var roleBuilder = {
 				container = Game.getObjectById(roomMap.containers[c].id);
 				container.role = roomMap.containers[c].role ;
 	 //          console.log("creep " + creep.name +" found container info " + container.id + container.role);
-				if(container.store[RESOURCE_ENERGY] > creep.carryCapacity) {
+				if(container.store[RESOURCE_ENERGY] > (creep.carryCapacity + 150)) {
 //				if(container.role == 'SINK' && (container.store[RESOURCE_ENERGY] > creep.carryCapacity)) {
 					sources.push(container);
 				}
@@ -96,7 +96,7 @@ var roleBuilder = {
 			}
 			}
 			catch(err) {
-				console.log(err + ' while enumerating containers in ' + room.name);
+				console.log(creep.name + ': ' + err + ' while enumerating containers in ' + room.name);
 			}
 				// pull from a SOURCE if no extensions/containers with energy found
 				// OR if total room energy is less than 450 (minimum to spawn a harvester)
