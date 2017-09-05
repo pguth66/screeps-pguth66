@@ -139,7 +139,7 @@ module.exports.loop = function () {
         var numClaimers = 0 ;
 
         if (Memory.stage == 'later') {
-            numHaulers = room.numContainers - room.numLinks ;
+            numHaulers = room.numContainers - room.numLinks - 1 ;
             numHarvesters = room.numSpawns ;
             numBuilders = numHarvesters + 1 ;
             numUpgraders = 1 ;
