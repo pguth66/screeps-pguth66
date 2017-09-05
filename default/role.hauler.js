@@ -12,6 +12,26 @@ module.exports = {
     run: function(creep) {
         // find containers with energy, bring them to fill spawns and extensions
         
+        function isFull(structure) {
+            var b = false;
+  
+              switch (structure.structureType) {
+                  case STRUCTURE_CONTAINER:
+                  case STRUCTURE_STORAGE:
+                      if (_.sum(structure.store) == structure.storeCapacity) {
+                          b = true;
+                  };
+                  break;
+                  case STRUCTURE_EXTENSION:
+                  case STRUCTURE_SPAWN:
+                  case STRUCTURE_TOWER:
+                      if (structure.energy == structure.energyCapacity) {
+                          b = true;
+                      }
+              }
+              return b;
+          }
+
         var roomMap = Memory.roomMaps[creep.room.name];
   
         if((creep.memory.hauling) && _.sum(creep.carry) == 0) {
@@ -56,17 +76,23 @@ module.exports = {
             if(creep.memory.target != null) {
                 try {
                     target = Game.getObjectById(creep.memory.target);
-                    if(creep.pos.inRangeTo(target,1)) {
-                        for(const resourceType in creep.carry) {
-                            if (creep.carry[resourceType] > 0) {                            
-                                creep.transfer(target, resourceType);
-                            }
-                        };
-    //                    creep.transfer(target, RESOURCE_ENERGY);                    
-                        creep.memory.target = null;
+                    if(!isFull(target)) {
+                        if(creep.pos.inRangeTo(target,1)) {
+                            for(const resourceType in creep.carry) {
+                                if (creep.carry[resourceType] > 0) {                            
+                                    creep.transfer(target, resourceType);
+                                }
+                            };
+        //                    creep.transfer(target, RESOURCE_ENERGY);                    
+                            creep.memory.target = null;
+                        }
+                        else {
+                            creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                        }
                     }
                     else {
-                        creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                        creep.say("full target");
+                        creep.memory.target = null ;
                     }
                 }
                 catch(err) {
