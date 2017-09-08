@@ -30,8 +30,10 @@ var roleHarvester = {
             creep.say('🔄 harvest');
 	    }
 	    if(!creep.memory.depositing && creep.carry.energy == creep.carryCapacity) {
-	        creep.memory.depositing = true;
-	        creep.say('🚧 deposit');
+            if(creep.carry.energy > 0) {
+                creep.memory.depositing = true;
+                creep.say('🚧 deposit');
+            }
         }
 
         if(!creep.memory.depositing) {
@@ -52,7 +54,7 @@ var roleHarvester = {
                 }
             }   
             else {
-                var sources = creep.room.find(FIND_SOURCES_ACTIVE);
+                var sources = creep.room.find(FIND_SOURCES);
                 sourceToTarget = sources[0];
                 var harvsOnSource = [] ;
                 try{ 
