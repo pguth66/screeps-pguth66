@@ -321,17 +321,21 @@ module.exports.loop = function () {
                 room.energyAvailable + '/' + room.energyCapacityAvailable + 
                 ' Creeps: ' + _.size(roomCreeps));
             }
-            if (room.memory.foundHostiles) {
-                console.log(room.name + " found hostile creeps!")
-            }
         }
+        if (room.memory.foundHostiles) {
+            console.log(room.name + " found hostile creeps!")
+        }
+
 
         // renew creeps 
         if(spawn != null) {
-            targetCreep = spawn.pos.findInRange(FIND_MY_CREEPS, 1);
-            if(targetCreep.ticksToLive < 600) {
-                spawn.renewCreep(targetCreep);
-                console.log('renewing ' + targetCreep.name + ' with TTL ' + targetCreep.ticksToLive);
+            targetCreeps = spawn.pos.findInRange(FIND_MY_CREEPS, 1);
+            if(targetCreeps.length > 0) {
+                // console.log('creep in range of spawn in ' +room.name + ': ' + targetCreeps[0].name);
+                if(targetCreeps[0].ticksToLive < 600 && targetCreeps[0].ticksToLive > 101) {
+                    spawn.renewCreep(targetCreeps[0]);
+                    console.log(room.name + ': renewing ' + targetCreeps[0].name + ' with TTL ' + targetCreeps[0].ticksToLive);
+                }
             }
         }
     } // end room loop
