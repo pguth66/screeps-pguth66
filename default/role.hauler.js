@@ -35,9 +35,15 @@ module.exports = {
         var roomMap = Memory.roomMaps[creep.room.name];
   
         if((creep.memory.hauling) && _.sum(creep.carry) == 0) {
-            creep.memory.hauling = false;
-            creep.memory.target = null;
-            creep.say("Harvest");
+            if(creep.ticksToLive < 100) {
+                creep.say('Goodbye');
+                creep.memory.role='recycle';
+            }
+            else {
+                creep.memory.hauling = false;
+                creep.memory.target = null;
+                creep.say("Harvest");
+            }
         }
 
         if (!creep.memory.hauling && _.sum(creep.carry) == creep.carryCapacity) {
@@ -151,20 +157,32 @@ module.exports = {
                                 targets.push(link);
                             }
                         }
+                        var terminal = creep.room.find(FIND_STRUCTURES, {
+                            filter: (s) => { return (s.structureType == STRUCTURE_TERMINAL &&
+                                                s.store[RESOURCE_ENERGY] < 5000 &&
+                                                _.sum(s.store) < s.storeCapacity); }
+                        });
+                        if(terminal[0]) {
+                            targets.push(terminal[0]);
+                        }
                         // for now assume only 1 storage per room
                         // only put in storage if no sink containers to drop in
-                        if(targets.length == 0) {
+ /*                       if(targets.length == 0) {
                             storage = creep.room.find(FIND_STRUCTURES, {
                                 filter: (structure) => {
-                                    return (structure.structureType == STRUCTURE_STORAGE ||
-                                            (structure.structureType == STRUCTURE_TERMINAL && _.sum(structure.store) < 2500) &&
+                                    return ((structure.structureType == STRUCTURE_STORAGE ||
+                                            (structure.structureType == STRUCTURE_TERMINAL && structure.store[RESOURCE_ENERGY] < 2500)) &&
                                         _.sum(structure.store) < structure.storeCapacity) ; 
                                 }
                             });
+                            console.log(creep.room.name + ' found ' + storage.length + ' storage units');                            
+                            if(storage.length > 0) {
+                                storage.foreach(function(s) { targets.push(s)});
+                            }
                             if(storage[0]) {
                                 targets.push(storage[0]);
-                            }
-                        }
+                            } 
+                    } */
                         try {
                             if (targets.length > 0) {
                                 target = creep.pos.findClosestByPath(targets);
@@ -173,7 +191,7 @@ module.exports = {
                             }
                         }
                         catch(err) {
-                            console.log(creep.name + ": " + err);
+                            console.log(creep.name +" " + creep.room.name + ": " + err);
                         }
                     }
                     }
@@ -233,7 +251,7 @@ module.exports = {
                     container.role = roomMap.containers[c].role ;
                     container.isSource = roomMap.containers[c].isSource ;
                     // console.log("creep " + creep.name +" found container info " + container.id + container.role + " isSource " + container.isSource);
-                    if(((container.role == 'SOURCE') || container.isSource) && (_.sum(container.store) > creep.carryCapacity)){
+                    if(((container.role == 'SOURCE') || container.isSource) && (container.store[RESOURCE_ENERGY] > creep.carryCapacity)){
                         sources.push(container);
                     }
                     else {
@@ -271,7 +289,7 @@ module.exports = {
         }
             catch(err) {
                 creep.say(err);
-                console.log(creep.name + '' + creep.room.name + ': ' + err + ', target ' + target);
+                console.log(creep.name + ' ' + creep.room.name + ': ' + err + ', target ' + target);
                 creep.memory.target = null;
             }
         }
