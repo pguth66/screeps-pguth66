@@ -16,7 +16,7 @@ module.exports.loop = function () {
     Memory.roomToClaim = 'W29N28'; // room to send claimers to
     Memory.roomToHelp = 'W28N28'; // room to drop off interroom energy in
 
-    Memory.terminal = '59a55cde8f17b94e4e8804e9';
+    Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
 
     // hand create room map for now
     Memory.roomMaps = { 
@@ -309,7 +309,7 @@ module.exports.loop = function () {
             if(tower.hits < (tower.hitsMax / 2)) {
                 room.needsSafeRoom = true;
             }
-        }
+        } // end towers
 
 
         // Console report
@@ -338,7 +338,7 @@ module.exports.loop = function () {
                 console.log(room.name + ' activating safe room!');
                 room.controller.activateSafeMode();
             }
-        }
+        } // end console report
 
 
         // renew creeps 
@@ -353,6 +353,6 @@ module.exports.loop = function () {
                     }
                 }
             }
-        }
+        } // end renew creeps
     } // end room loop
 }
