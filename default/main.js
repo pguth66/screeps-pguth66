@@ -48,7 +48,8 @@ module.exports.loop = function () {
             links: [
                 {id: '59a7ba769c3a583afe47f9c1', role: 'SINK', isSource: false},
                 {id: '59a7afe5587da815c0f44549', role: 'SOURCE', isSource: true}
-            ]
+            ],
+            isCapital: true
         },
         W28N28: { containers: [
                 {id: '59a83cc7d0cf536b565f9da9', role:'SOURCE', isSource: true},
@@ -333,8 +334,10 @@ module.exports.loop = function () {
             if(targetCreeps.length > 0) {
                 // console.log('creep in range of spawn in ' +room.name + ': ' + targetCreeps[0].name);
                 if(targetCreeps[0].ticksToLive < 600 && targetCreeps[0].ticksToLive > 101) {
-                    spawn.renewCreep(targetCreeps[0]);
-                    console.log(room.name + ': renewing ' + targetCreeps[0].name + ' with TTL ' + targetCreeps[0].ticksToLive);
+                    if(spawn.energy > 150 && !spawn.spawning) {
+                        spawn.renewCreep(targetCreeps[0]);
+                        console.log(room.name + ': renewing ' + targetCreeps[0].name + ' with TTL ' + targetCreeps[0].ticksToLive);
+                    }
                 }
             }
         }
