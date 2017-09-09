@@ -12,14 +12,35 @@ var roleWarrior = {
   /** @param {Creep} creep **/
     run: function(creep) {
 
-        const closestHostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+        // build array of targets, then attack closest one
+        // if target is controller, have to use different method
 
+        var hostiles ;
+
+        const hostileCreeps = creep.room.find(FIND_HOSTILE_CREEPS);
+        const hostileStructures = creep.room.find(FIND_HOSTILE_STRUCTURES);
+
+        hostiles = hostileCreeps.concat(hostileStructures);
+
+        // console.log(hostiles.length);
+
+        var closestHostile = creep.pos.findClosestByRange(hostiles);
+        //closestHostile=Game.getObjectById('599a277ade67ba6dbbfbc16e');
         if(closestHostile) {
-            creep.say('ATTACK!');
-            if (creep.attack(closestHostile) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(closestHostile);
+            switch(creep.attack(closestHostile)) {
+                case ERR_NOT_IN_RANGE: 
+                    creep.moveTo(closestHostile, {visualizePathStyle: {}});
+                    break;
+                case ERR_INVALID_TARGET:
+                    creep.say('inv target');
+                    break;
+                case OK:
+                    creep.say('ATTACK!');                
+                    break;
+                default:
+                    creep.say('attackerr');
             }
-        }
+        }   
         else {
             creep.moveTo(24,24, {visualizePathStyle: {}});
         }
