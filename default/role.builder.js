@@ -6,30 +6,40 @@ var roleBuilder = {
     /** @param {Creep} creep **/
     run: function(creep) {
 
+		if(creep.spawning) {
+			return;
+		}
+
 		var roomMap = Memory.roomMaps[creep.room.name];
 		
 		function hasEnergy(structure) {
-        var b = false;
+			var b = false;
 
-        switch (structure.structureType) {
-            case STRUCTURE_CONTAINER:
-                if (structure.store[RESOURCE_ENERGY] > 0) {
-                    b = true;
-                };
-                break;
-            case STRUCTURE_EXTENSION:
-            case STRUCTURE_SPAWN:
-            case STRUCTURE_TOWER:
-                if (structure.energy > 0) {
-                    b = true;
-                }
-        }
+			switch (structure.structureType) {
+				case STRUCTURE_CONTAINER:
+					if (structure.store[RESOURCE_ENERGY] > 0) {
+						b = true;
+					};
+					break;
+				case STRUCTURE_EXTENSION:
+				case STRUCTURE_SPAWN:
+				case STRUCTURE_TOWER:
+					if (structure.energy > 0) {
+						b = true;
+					}
+			}
         return true;
 		}
 	
 	    if(creep.memory.building && creep.carry.energy == 0) {
-            creep.memory.building = false;
-            creep.say('🔄 harvest');
+			if(creep.ticksToLive < 100) {
+                creep.say('Goodbye');
+                creep.memory.role='recycle';
+			}
+			else {
+				creep.memory.building = false;
+				creep.say('🔄 harvest');
+			}
 	    }
 	    if(!creep.memory.building && creep.carry.energy == creep.carryCapacity) {
 	        creep.memory.building = true;
@@ -96,7 +106,7 @@ var roleBuilder = {
 			}
 			}
 			catch(err) {
-				console.log(creep.name + ': ' + err + ' while enumerating containers in ' + room.name);
+				console.log(creep.name + ': ' + err + ' while enumerating containers in ' + creep.room.name);
 			}
 				// pull from a SOURCE if no extensions/containers with energy found
 				// OR if total room energy is less than 450 (minimum to spawn a harvester)
