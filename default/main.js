@@ -6,26 +6,38 @@ var roleHauler = require('role.hauler');
 var roleClaimer = require('role.claimer');
 var roleWarrior = require('role.warrior');
 var roleMiner = require('role.miner');
+var roleRecycle = require('role.recycle');
+var roleInterHauler = require('role.interhauler');
+var roleMinHauler = require('role.minhauler');
+
 
 module.exports.loop = function () {
 
-    Memory.roomToClaim = 'W29N29'; // room to send claimers to
+    Memory.roomToClaim = 'W29N28'; // room to send claimers to
+    Memory.roomToHelp = 'W28N28'; // room to drop off interroom energy in
+
+    Memory.terminal = '59a55cde8f17b94e4e8804e9';
 
     // hand create room map for now
     Memory.roomMaps = { 
         W28N27: { containers: [ 
                 { id: '599db1672988077e7d51b7cd', role: 'SOURCE', isSource: true},
                 { id: '59a27936efdfa26afb535d45', role: 'SOURCE', isSource: true},
+                { id: '59b009899eb1db6ba877dfc9', role: 'SOURCE', isSource: true},
+                { id: '59adb2825dc96122fd4a927d', role: 'SOURCE', isSource: true},
                 { id: '599dda3dfa93cd1619f05757', role: 'SINK', isSource: false},
                 { id: '59a256249cb73d4b2b3567b3', role: 'SINK', isSource: false} // Storage 
             ],
             links: [
+                {id: '59b21b672219c436e2e873b2', role: 'SINK', isSource: false},
+                {id: '59b23adaf2830629b52d5a3d', role: 'SOURCE', isSource: true}
             ]
         } ,
         W27N27: {containers: [ 
                 { id: '599b7d776ab60d4e2bc5aa9d', role: 'SOURCE', isSource: true},
                 { id: '599bd2f7e82f6d79eb4e4571', role: 'SOURCE', isSource: true},
                 { id: '59acf60b17856d163132ae42', role: 'SOURCE', isSource: true},
+                { id: '59a56008c0cfdb0fb88a4a3e', role: 'SOURCE', isSource: true, isMins: true},
                 { id: '599c644ca6502f209b65e8a1', role: 'SINK', isSource: false},
                 { id: '59a0994324116d15c606624b', role: 'SINK', isSource: false} // this one is Storage
                ],
@@ -40,11 +52,19 @@ module.exports.loop = function () {
         },
         W28N28: { containers: [
                 {id: '59a83cc7d0cf536b565f9da9', role:'SOURCE', isSource: true},
-                {id: '59a9f88311e12f44ee2c18c3', role:'SOURCE', isSource: true},
-                {id: '59acf2a0202e1464bc31ab49', role: 'SOURCE', isSource: true},                
+                {id: '59acf2a0202e1464bc31ab49', role: 'SOURCE', isSource: true}, 
+                {id: '59b009899eb1db6ba877dfc9', role: 'SOURCE', isSource: true},
                 {id: '59a90288d14c6603ae1b5bef', role:'SINK', isSource: false},
                 {id: '59ab3a8937e7dd0cb4fa63d8', role:'SOURCE', isSource:true} // Storage
             ],
+            links: [
+                { id: '59ae3ac6e95a3b294291fb39', role: 'SINK', isSource: false},
+                { id: '59ae504c6ca5c63ba48b09ca', role: 'SOURCE', isSource: true}
+            ]
+        },
+        W29N28: { containers: [
+                {id: '59b20dd28a8508401c1dd862', role: 'SOURCE', isSource:true}
+        ],
             links: [
             ]
         },
@@ -97,6 +117,31 @@ module.exports.loop = function () {
             if(roomOwner == 'MixtySix') {
                 room.numContainers = Memory.roomMaps[room.name].containers.length;
                 room.numLinks = Memory.roomMaps[room.name].links.length;
+                if(spawn.spawning) {
+                    var spawningCreep = Game.creeps[spawn.spawning.name];
+                    spawn.room.visual.text(
+                        '🛠️' + spawningCreep.memory.role,
+                        spawn.pos.x + 1,
+                        spawn.pos.y,
+                        {align: 'left', opacity: 0.8});
+                }
+                try{
+                    const sourceLinkObj = _.filter(Memory.roomMaps[room.name].links,  (l) => l.role == 'SINK')[0] ;
+                    if(sourceLinkObj) {
+                        sourceLink = Game.getObjectById(sourceLinkObj.id);  
+                        if (sourceLink.energy > (sourceLink.energyCapacity / 2)) {
+                            const targetLink = Game.getObjectById(_.filter(Memory.roomMaps[room.name].links, (l) => l.role == 'SOURCE')[0].id) ;
+                            if(targetLink.energy < targetLink.energyCapacity && sourceLink.cooldown < 1) {
+                                sourceLink.transferEnergy(targetLink);
+                                // console.log(room.name + ': transfer from link ' + sourceLink.id + ' to ' + targetLink.id);
+                            }
+                        }              
+                    }
+                    // console.log(room.name + sourceLink.id);
+                }
+                catch(err) {
+                    console.log(room.name + ": Error finding source link - " + err);
+                }
             }
         }
         catch(err) {
@@ -114,7 +159,11 @@ module.exports.loop = function () {
                             {role: 'claimer', run: roleClaimer.run},
                             {role: 'warrior', run: roleWarrior.run},
                             {role: 'builder', run: roleBuilder.run},
-                            {role: 'miner', run: roleMiner.run} ] ;
+                            {role: 'recycle', run: roleRecycle.run},
+                            {role: 'miner', run: roleMiner.run},
+                            {role: 'interhauler', run: roleInterHauler.run},
+                            {role: 'minhauler', run: roleMinHauler.run}
+                         ] ;
     //    console.log('role: ' + creepMap[0].role + " function: " + creepMap[0].run);
         
         var prioritySpawn = false; // used to prioritize spawning of harvesters when multiple creeps are needed
@@ -128,8 +177,8 @@ module.exports.loop = function () {
                 }
             }   
         }
-    //Game.creeps['Bella'].moveTo(Game.spawns['Spawn1'].pos);
-
+//        Game.creeps['Josiah'].moveTo(49,32);
+        
         // start stage defaults
         var numHaulers = 0;
         var numHarvesters = 2 ;
@@ -139,9 +188,9 @@ module.exports.loop = function () {
         var numClaimers = 0 ;
 
         if (Memory.stage == 'later') {
-            numHaulers = room.numContainers - room.numLinks - 1 ;
+            numHaulers = room.numContainers + room.numSpawns - (room.numLinks / 2) - 2 ;
             numHarvesters = room.numSpawns ;
-            numBuilders = numHarvesters + 1 ;
+            numBuilders = (numHarvesters * 2) -1 ;
             numUpgraders = 1 ;
             numHealers = 1 ;
             numClaimers = 0 ;
@@ -161,7 +210,7 @@ module.exports.loop = function () {
         if ((roomOwner == 'MixtySix') && spawn) {
             if(room.memory.foundHostiles && (_.filter(roomCreeps, (creep) => creep.memory.role == 'warrior') < 1)) {
                 var newName ; 
-                newName = spawn.createCreep([TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,MOVE,MOVE,MOVE,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,MOVE,ATTACK], undefined, {role: 'warrior'});
+                newName = spawn.createCreep([TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,MOVE,MOVE,MOVE,MOVE,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,MOVE,ATTACK], undefined, {role: 'warrior'});
                 console.log('Spawning new WARRIOR in ' + room.name);
             }
     //        console.log('running spawns for ' + room.name);
@@ -236,14 +285,7 @@ module.exports.loop = function () {
         } // end Spawning
     
 
-        if(spawn.spawning) {
-            var spawningCreep = Game.creeps[spawn.spawning.name];
-            spawn.room.visual.text(
-                '🛠️' + spawningCreep.memory.role,
-                spawn.pos.x + 1,
-                spawn.pos.y,
-                {align: 'left', opacity: 0.8});
-        }
+
         for (i in towers) {
             tower = towers[i];    
             if(!room.memory.foundHostiles && (tower.energy > tower.energyCapacity / 2)) {    
@@ -258,30 +300,14 @@ module.exports.loop = function () {
             else {
                 const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
                 if(closestHostile) {
-                    if(tower.pos.getRangeTo(closestHostile) < 6) {
+                    if(tower.pos.getRangeTo(closestHostile) < 8) {
                     tower.attack(closestHostile);
                     }
                 }
             }
         }
 
-        try{
-            const sourceLinkObj = _.filter(Memory.roomMaps[room.name].links,  (l) => l.role == 'SINK')[0] ;
-            if(sourceLinkObj) {
-                sourceLink = Game.getObjectById(sourceLinkObj.id);  
-                if (sourceLink.energy > (sourceLink.energyCapacity / 2)) {
-                    const targetLink = Game.getObjectById(_.filter(Memory.roomMaps[room.name].links, (l) => l.role == 'SOURCE')[0].id) ;
-                    if(targetLink.energy < targetLink.energyCapacity && sourceLink.cooldown < 1) {
-                        sourceLink.transferEnergy(targetLink);
-                        // console.log(room.name + ': transfer from link ' + sourceLink.id + ' to ' + targetLink.id);
-                    }
-                }              
-            }
-            // console.log(room.name + sourceLink.id);
-        }
-        catch(err) {
-            console.log(room.name + ": Error finding source link - " + err);
-        }
+
         // Console report
         if ((Game.time % 24) == 0) {
             if (towers.length > 0) {
@@ -297,6 +323,15 @@ module.exports.loop = function () {
             }
             if (room.memory.foundHostiles) {
                 console.log(room.name + " found hostile creeps!")
+            }
+        }
+
+        // renew creeps 
+        if(spawn != null) {
+            targetCreep = spawn.pos.findInRange(FIND_MY_CREEPS, 1);
+            if(targetCreep.ticksToLive < 600) {
+                spawn.renewCreep(targetCreep);
+                console.log('renewing ' + targetCreep.name + ' with TTL ' + targetCreep.ticksToLive);
             }
         }
     } // end room loop
