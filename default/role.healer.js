@@ -13,9 +13,17 @@ var roleHealer = {
     /** @param {Creep} creep **/
     run: function(creep) {
         
+        var roomMap = Memory.roomMaps[creep.room.name];
+        
         if(creep.memory.healing && creep.carry.energy == 0) {
-            creep.memory.healing = false;
-            creep.say('🔄 harvest');
+            if(creep.ticksToLive < 100) {
+                creep.say('Goodbye');
+                creep.memory.role='recycle';
+            }
+            else {
+                creep.memory.healing = false;
+                creep.say('🔄 harvest');                    
+            }
 	    }
 	    if(!creep.memory.healing && creep.carry.energy == creep.carryCapacity) {
 	        creep.memory.healing = true;
@@ -29,10 +37,28 @@ var roleHealer = {
                         return (structure.structureType == STRUCTURE_CONTAINER)  && structure.store[RESOURCE_ENERGY] > 200;
                     }
             });
-            const source = creep.pos.findClosestByPath(sources);
-            if(creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
-            }
+            for(l in roomMap.links) {
+				link = Game.getObjectById(roomMap.links[l].id);
+				link.role = roomMap.links[l].role ;
+				if(link.energy > 0) {
+					sources.push(link);
+				}
+			}
+			//console.log(creep.name + ': sources ' + sources.length);
+			if (sources.length == 0) {
+			    // creep.say('source harvest');
+                sources = creep.room.find(FIND_SOURCES_ACTIVE);
+                const source = creep.pos.findClosestByPath(sources);
+                if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(source, {visualizePathSytle: {}});
+                }
+			}
+			else {
+                const source = creep.pos.findClosestByPath(sources);
+                if(creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
+                }
+			}
 	    }
         else {
             var targets = creep.room.find(FIND_STRUCTURES, {
