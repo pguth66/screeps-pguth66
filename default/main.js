@@ -306,6 +306,9 @@ module.exports.loop = function () {
                     }
                 }
             }
+            if(tower.hits < (tower.hitsMax / 2)) {
+                room.needsSafeRoom = true;
+            }
         }
 
 
@@ -325,6 +328,16 @@ module.exports.loop = function () {
         }
         if (room.memory.foundHostiles) {
             console.log(room.name + " found hostile creeps!")
+            if(room.needsSafeRoom) {
+                console.log(room.name + "needs safe room!!!");
+                Game.notify(room.name + 'needs safe room!!!');
+            }
+        }
+        if(room.memory.foundHostiles && room.needsSafeRoom && room.isCapital) {
+            if(room.controller.safemode == undefined && room.controller.safeModeAvailable > 0) {
+                console.log(room.name + ' activating safe room!');
+                room.controller.activateSafeMode();
+            }
         }
 
 
