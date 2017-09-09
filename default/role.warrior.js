@@ -25,7 +25,6 @@ var roleWarrior = {
         // console.log(hostiles.length);
 
         var closestHostile = creep.pos.findClosestByRange(hostiles);
-        //closestHostile=Game.getObjectById('599a277ade67ba6dbbfbc16e');
         if(closestHostile) {
             switch(creep.attack(closestHostile)) {
                 case ERR_NOT_IN_RANGE: 

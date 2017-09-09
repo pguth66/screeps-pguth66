@@ -78,14 +78,6 @@ var roleBuilder = {
         }
 	    else {
 			var sources = [];
-/*	         var sources = creep.room.find(FIND_STRUCTURES, {
-                    filter: (structure) => {
-						return ((structure.structureType == STRUCTURE_CONTAINER)  
-							&& (structure.store[RESOURCE_ENERGY] > structure.storeCapacity * .8)
-							|| (structure.structureType == STRUCTURE_STORAGE 
-								&& structure.store[RESOURCE_ENERGY] > 2000 ));
-                    }
-			});*/
 			try {
 			for(c in roomMap.containers) {
 				// get the real container object

@@ -89,7 +89,6 @@ module.exports = {
                                     creep.transfer(target, resourceType);
                                 }
                             };
-        //                    creep.transfer(target, RESOURCE_ENERGY);                    
                             creep.memory.target = null;
                         }
                         else {
@@ -134,6 +133,7 @@ module.exports = {
                     else {
                         // no extensions, spawns, or towers
                         // this looks for SINKs and deposits there no matter how full
+                        // looks for containers (includes storage), links, and terminals
                         if(roomMap.links.length > 0) {
                             containersAndLinks = roomMap.containers.concat(roomMap.links);
                         }
@@ -162,27 +162,10 @@ module.exports = {
                                                 s.store[RESOURCE_ENERGY] < 5000 &&
                                                 _.sum(s.store) < s.storeCapacity); }
                         });
+                        // assume only one terminal
                         if(terminal[0]) {
                             targets.push(terminal[0]);
                         }
-                        // for now assume only 1 storage per room
-                        // only put in storage if no sink containers to drop in
- /*                       if(targets.length == 0) {
-                            storage = creep.room.find(FIND_STRUCTURES, {
-                                filter: (structure) => {
-                                    return ((structure.structureType == STRUCTURE_STORAGE ||
-                                            (structure.structureType == STRUCTURE_TERMINAL && structure.store[RESOURCE_ENERGY] < 2500)) &&
-                                        _.sum(structure.store) < structure.storeCapacity) ; 
-                                }
-                            });
-                            console.log(creep.room.name + ' found ' + storage.length + ' storage units');                            
-                            if(storage.length > 0) {
-                                storage.foreach(function(s) { targets.push(s)});
-                            }
-                            if(storage[0]) {
-                                targets.push(storage[0]);
-                            } 
-                    } */
                         try {
                             if (targets.length > 0) {
                                 target = creep.pos.findClosestByPath(targets);
@@ -238,8 +221,9 @@ module.exports = {
                         creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
                     }
                 }
-            }
+            } // end 'have a target'
 
+            // now find stuff to pick up
             else {
             // start with dropped resources
             var sources = creep.room.find(FIND_DROPPED_RESOURCES);
@@ -272,19 +256,8 @@ module.exports = {
             }
             const source=creep.pos.findClosestByPath(sources);
             creep.memory.target = source.id ;
- /*           try {
-                if(creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(source, {visualizePathStyle: {}});
-                }
-                else {
-                    if(creep.pickup(source) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(source, {visualizePathStyle: {}});
-                    }
-                }
-            }
-            catch(err) {
-                creep.say(err);
-            } */
+
+            // we're wasting a tick here, by not moving to the target now
             }
         }
             catch(err) {
