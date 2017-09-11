@@ -153,7 +153,8 @@ module.exports = {
                         for(l in roomMap.links) {
                             link = Game.getObjectById(roomMap.links[l].id);
                             link.role = roomMap.links[l].role;
-                            if((link.role == 'SINK') && link.energy < link.energyCapacity - creep.carry[RESOURCE_ENERGY]) {
+                            if((link.role == 'SINK') && link.energy < (link.energyCapacity - creep.carry[RESOURCE_ENERGY])
+                                && creep.carry[RESOURCE_ENERGY] > 0) {
                                 targets.push(link);
                             }
                         }
@@ -234,7 +235,7 @@ module.exports = {
                     container = Game.getObjectById(roomMap.containers[c].id);
                     container.role = roomMap.containers[c].role ;
                     container.isSource = roomMap.containers[c].isSource ;
-                    // console.log("creep " + creep.name +" found container info " + container.id + container.role + " isSource " + container.isSource);
+                    // console.log("creep " + creep.name +" found container info " + container.id + container.role + " isSource " + container.isSource + ' in room ' + creep.room.name);
                     if(((container.role == 'SOURCE') || container.isSource) && (container.store[RESOURCE_ENERGY] > creep.carryCapacity)){
                         sources.push(container);
                     }
@@ -252,6 +253,7 @@ module.exports = {
             }
             if (sources.length == 0 ) {
                 creep.say('Nosources!');
+                console.log(creep.name + ' no SOURCE containers found in room ' + creep.room.name);
                 return;
             }
             const source=creep.pos.findClosestByPath(sources);
