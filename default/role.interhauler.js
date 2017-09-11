@@ -14,12 +14,23 @@ module.exports = {
 
         switch(creep.pos.x) {
             case 49:
-                creep.move(LEFT);
+            case 48:
+                creep.move(BOTTOM_LEFT);
                 break;
             case 0: 
                 creep.move(RIGHT);
                 break;
             default:
+                break;
+        }
+        switch(creep.pos.y) {
+            case 0:
+                creep.move(BOTTOM);
+                break;
+            case 49:
+                creep.move(TOP);
+                break;
+            default: 
                 break;
         }
 

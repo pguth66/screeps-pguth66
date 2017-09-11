@@ -20,7 +20,7 @@ var roleMinHauler = {
     /** @param {Creep} creep **/
     run: function(creep) {
 
-        const roomMap = Memory.roomMaps[creep.room.name];
+        var roomMap = Memory.roomMaps[creep.room.name];
         var targets = [] ;
 
         if(!creep.memory.hauling && _.sum(creep.carry) == creep.carryCapacity) {
