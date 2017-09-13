@@ -14,7 +14,7 @@ var roleMinHauler = require('role.minhauler');
 module.exports.loop = function () {
 
     Memory.roomToClaim = 'W29N28'; // room to send claimers to
-    Memory.roomToHelp = 'W28N28'; // room to drop off interroom energy in
+    Memory.roomToHelp = 'W28N27'; // room to drop off interroom energy in
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
 
@@ -22,7 +22,6 @@ module.exports.loop = function () {
     Memory.roomMaps = { 
         W28N27: { containers: [ 
                 { id: '599db1672988077e7d51b7cd', role: 'SOURCE', isSource: true},
-                { id: '59a27936efdfa26afb535d45', role: 'SOURCE', isSource: true},
                 { id: '59b009899eb1db6ba877dfc9', role: 'SOURCE', isSource: true},
                 { id: '59adb2825dc96122fd4a927d', role: 'SOURCE', isSource: true},
                 { id: '599dda3dfa93cd1619f05757', role: 'SINK', isSource: false},
@@ -39,7 +38,7 @@ module.exports.loop = function () {
                 { id: '59acf60b17856d163132ae42', role: 'SOURCE', isSource: true},
                 { id: '59a56008c0cfdb0fb88a4a3e', role: 'SOURCE', isSource: true, isMins: true},
                 { id: '599c644ca6502f209b65e8a1', role: 'SINK', isSource: false},
-                { id: '59a0994324116d15c606624b', role: 'SINK', isSource: false} // this one is Storage
+                { id: '59a0994324116d15c606624b', role: 'SOURCE', isSource: true} // this one is Storage
                ],
             sources: [
                 {id: '5982fcceb097071b4adbe20a'},
@@ -56,6 +55,7 @@ module.exports.loop = function () {
                 {id: '59acf2a0202e1464bc31ab49', role: 'SOURCE', isSource: true}, 
                 {id: '59b009899eb1db6ba877dfc9', role: 'SOURCE', isSource: true},
                 {id: '59a90288d14c6603ae1b5bef', role:'SINK', isSource: false},
+                {id: '59b45fdfcf43cf6370ee5f6a', role: 'SOURCE', isSource: true}, // minerals
                 {id: '59ab3a8937e7dd0cb4fa63d8', role:'SOURCE', isSource:true} // Storage
             ],
             links: [
@@ -64,7 +64,7 @@ module.exports.loop = function () {
             ]
         },
         W29N28: { containers: [
-                {id: '59b20dd28a8508401c1dd862', role: 'SOURCE', isSource:true}
+                {id: '59b5a97641227237d538f1c7', role: 'SOURCE', isSource:true}
         ],
             links: [
             ]
@@ -178,7 +178,8 @@ module.exports.loop = function () {
                 }
             }   
         }
-//        Game.creeps['Josiah'].moveTo(49,32);
+//        Game.creeps['Ian'].moveTo(3,44);
+//Game.creeps['Ian'].dismantle(Game.getObjectById('59a27936efdfa26afb535d45'));
         
         // start stage defaults
         var numHaulers = 0;
@@ -189,12 +190,16 @@ module.exports.loop = function () {
         var numClaimers = 0 ;
 
         if (Memory.stage == 'later') {
-            numHaulers = room.numContainers + room.numSpawns - (room.numLinks / 2) - 2 ;
+            numHaulers = room.numContainers  - room.numLinks - 1 ;
             numHarvesters = room.numSpawns ;
             numBuilders = (numHarvesters * 2) -1 ;
             numUpgraders = 1 ;
             numHealers = 1 ;
             numClaimers = 0 ;
+        }
+
+        if(room.controller.level == 7) {
+            numBuilders = 2;
         }
 
         const enemies = room.find(FIND_HOSTILE_CREEPS);
@@ -245,7 +250,7 @@ module.exports.loop = function () {
                     newName = spawn.createCreep([WORK,WORK,CARRY,MOVE], undefined, {role: 'upgrader'});
                     break;
                 default:
-                    newName = spawn.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'upgrader'});
+                    newName = spawn.createCreep([WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'upgrader'});
                     break;
             }
             console.log('Spawning new upgrader in ' + room.name + ': ' + newName);
@@ -259,7 +264,7 @@ module.exports.loop = function () {
                     newName = spawn.createCreep([WORK,WORK,CARRY,MOVE], undefined, {role: 'builder'});
                     break;
                 default:
-                    newName = spawn.createCreep([WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder'});
+                    newName = spawn.createCreep([WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder'});
                     break;
             }
             console.log('Spawning new builder in ' + room.name + ': ' + newName);
@@ -291,11 +296,13 @@ module.exports.loop = function () {
             tower = towers[i];    
             if(!room.memory.foundHostiles && (tower.energy > tower.energyCapacity / 2)) {    
                 const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-                    filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 8000 ) )
+                    filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 5000 ) )
                     });
             
                 if(closestDamagedStructure) {
+                    if(!(closestDamagedStructure.id == '59a27936efdfa26afb535d45')) {
                     tower.repair(closestDamagedStructure);
+                    }
                 }
             }
             else {
@@ -306,7 +313,7 @@ module.exports.loop = function () {
                     }
                 }
             }
-            if(tower.hits < (tower.hitsMax / 2)) {
+            if(room.memory.foundHostiles && tower.hits < (tower.hitsMax / 2)) {
                 room.needsSafeRoom = true;
             }
         } // end towers
@@ -327,7 +334,10 @@ module.exports.loop = function () {
             }
         }
         if (room.memory.foundHostiles) {
-            console.log(room.name + " found hostile creeps!")
+            console.log(room.name + " found hostile creeps!");
+            if(spawn.hits < (spawn.hitsMax / 2)) {
+                room.needsSafeRoom = true;
+            }
             if(room.needsSafeRoom) {
                 console.log(room.name + "needs safe room!!!");
                 Game.notify(room.name + 'needs safe room!!!');
