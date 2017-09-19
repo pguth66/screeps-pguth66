@@ -1,4 +1,3 @@
-var roleHealer = require('role.healer');
 var roleUpgrader = require('role.upgrader');
 
 var roleBuilder = {
