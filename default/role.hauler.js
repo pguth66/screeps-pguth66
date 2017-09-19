@@ -160,7 +160,7 @@ module.exports = {
                         }
                         var terminal = creep.room.find(FIND_STRUCTURES, {
                             filter: (s) => { return (s.structureType == STRUCTURE_TERMINAL &&
-                                                s.store[RESOURCE_ENERGY] < 5000 &&
+                                                s.store[RESOURCE_ENERGY] < 10000 &&
                                                 _.sum(s.store) < s.storeCapacity); }
                         });
                         // assume only one terminal
@@ -255,10 +255,10 @@ module.exports = {
                 creep.say('Nosources!');
                 console.log(creep.name + ' no SOURCE containers found in room ' + creep.room.name);
                 return;
+            } else {
+                const source=creep.pos.findClosestByPath(sources);
+                creep.memory.target = source.id ;
             }
-            const source=creep.pos.findClosestByPath(sources);
-            creep.memory.target = source.id ;
-
             // we're wasting a tick here, by not moving to the target now
             }
         }
