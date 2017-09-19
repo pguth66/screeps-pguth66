@@ -9,11 +9,12 @@ var roleMiner = require('role.miner');
 var roleRecycle = require('role.recycle');
 var roleInterHauler = require('role.interhauler');
 var roleMinHauler = require('role.minhauler');
+var roleRemoteworker = require('role.remoteworker');
 
 
 module.exports.loop = function () {
 
-    Memory.roomToClaim = 'W29N28'; // room to send claimers to
+    Memory.roomToClaim = 'W29N29'; // room to send claimers to
     Memory.roomToHelp = 'W28N27'; // room to drop off interroom energy in
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
@@ -21,7 +22,6 @@ module.exports.loop = function () {
     // hand create room map for now
     Memory.roomMaps = { 
         W28N27: { containers: [ 
-                { id: '599db1672988077e7d51b7cd', role: 'SOURCE', isSource: true},
                 { id: '59b009899eb1db6ba877dfc9', role: 'SOURCE', isSource: true},
                 { id: '59adb2825dc96122fd4a927d', role: 'SOURCE', isSource: true},
                 { id: '599dda3dfa93cd1619f05757', role: 'SINK', isSource: false},
@@ -64,9 +64,19 @@ module.exports.loop = function () {
             ]
         },
         W29N28: { containers: [
-                {id: '59b5a97641227237d538f1c7', role: 'SOURCE', isSource:true}
+
         ],
             links: [
+            ]
+        },
+        W29N29: { containers: [
+                {id: '59bff7c1c34ea21ac8fbb55a', role: 'SOURCE', isSource:true},
+              {id: '59c000f34cbe956bd03ce850', role: 'SOURCE', isSource:true},
+                {id: '59bc4a940c06b0220c547d5c', role: 'SINK', isSource:false} // Storage
+            ],
+            links: [
+                {id: '59be9dca69be3c422cbeb4fc', role: 'SINK', isSource:false},
+                {id: '59be996f5a9d6d2344a8150d', role: 'SOURCE', isSource: true}
             ]
         },
         sim: { containers: [ ] }
@@ -77,6 +87,16 @@ module.exports.loop = function () {
             delete Memory.creeps[name];
             console.log('Clearing non-existing creep memory:', name);
         }
+    }
+
+    const numMinHaulers = _.filter(Game.creeps, (c) => { return c.memory.role == 'minhauler'});
+    //console.log(numMinHaulers.length + " mineral haulers");
+
+    //const capitalCity = _.filter(Memory.roomMaps, (r) => {return r.isCapital});
+    //console.log('capital is in '+ JSON.stringify(capitalCity, null, 4));
+
+    if(numMinHaulers < 2) {
+        Game.spawns['Spawn1'].createCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE],undefined,{role:'minhauler'});
     }
 
     for (i in Game.rooms) {
@@ -118,7 +138,7 @@ module.exports.loop = function () {
             if(roomOwner == 'MixtySix') {
                 room.numContainers = Memory.roomMaps[room.name].containers.length;
                 room.numLinks = Memory.roomMaps[room.name].links.length;
-                if(spawn.spawning) {
+                if(spawn && spawn.spawning) {
                     var spawningCreep = Game.creeps[spawn.spawning.name];
                     spawn.room.visual.text(
                         '🛠️' + spawningCreep.memory.role,
@@ -163,7 +183,8 @@ module.exports.loop = function () {
                             {role: 'recycle', run: roleRecycle.run},
                             {role: 'miner', run: roleMiner.run},
                             {role: 'interhauler', run: roleInterHauler.run},
-                            {role: 'minhauler', run: roleMinHauler.run}
+                            {role: 'minhauler', run: roleMinHauler.run},
+                            {role: 'remoteworker', run: roleRemoteworker.run}
                          ] ;
     //    console.log('role: ' + creepMap[0].role + " function: " + creepMap[0].run);
         
@@ -178,9 +199,26 @@ module.exports.loop = function () {
                 }
             }   
         }
-//        Game.creeps['Ian'].moveTo(3,44);
-//Game.creeps['Ian'].dismantle(Game.getObjectById('59a27936efdfa26afb535d45'));
-        
+
+        /*
+        try {
+dismantleCreep = Game.creeps['Adam'];
+
+ if(dismantleCreep.carry[RESOURCE_ENERGY] == dismantleCreep.carryCapacity) {
+    dismantleCreep.moveTo(38,29);
+    dismantleCreep.transfer(Game.getObjectById('599dda3dfa93cd1619f05757'),RESOURCE_ENERGY);
+}
+else {
+    dismantleCreep.moveTo(27,34);
+//    dismantleCreep.moveTo(Game.getObjectById('59a0604216e4711f10d03fb3'));
+    dismantleCreep.dismantle(Game.getObjectById('59a0604216e4711f10d03fb3'));
+
+}
+        }
+        catch(err) {
+            console.log(creep.name + room.name + ": " + err);
+        }
+*/
         // start stage defaults
         var numHaulers = 0;
         var numHarvesters = 2 ;
@@ -190,7 +228,10 @@ module.exports.loop = function () {
         var numClaimers = 0 ;
 
         if (Memory.stage == 'later') {
-            numHaulers = room.numContainers  - room.numLinks - 1 ;
+            numHaulers = room.numContainers  - room.numLinks ;
+            if (numHaulers < 1) { 
+                numHaulers = 1;
+            }
             numHarvesters = room.numSpawns ;
             numBuilders = (numHarvesters * 2) -1 ;
             numUpgraders = 1 ;
@@ -269,6 +310,7 @@ module.exports.loop = function () {
             }
             console.log('Spawning new builder in ' + room.name + ': ' + newName);
         }
+
         
         const healers = _.filter(roomCreeps, (creep) => creep.memory.role == 'healer');
         if ((healers.length < numHealers) && !prioritySpawn) {
@@ -300,7 +342,7 @@ module.exports.loop = function () {
                     });
             
                 if(closestDamagedStructure) {
-                    if(!(closestDamagedStructure.id == '59a27936efdfa26afb535d45')) {
+                    if(!(closestDamagedStructure.id == '59a0604216e4711f10d03fb3')) {
                     tower.repair(closestDamagedStructure);
                     }
                 }
@@ -308,7 +350,7 @@ module.exports.loop = function () {
             else {
                 const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
                 if(closestHostile) {
-                    if(tower.pos.getRangeTo(closestHostile) < 8) {
+                    if(tower.pos.getRangeTo(closestHostile) < 12) {
                     tower.attack(closestHostile);
                     }
                 }
