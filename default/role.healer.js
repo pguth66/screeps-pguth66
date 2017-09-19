@@ -6,7 +6,7 @@
  * var mod = require('role.healer');
  * mod.thing == 'a thing'; // true
  */
-var roleUpgrader = require('role.upgrader');
+var roleBuilder = require('role.builder');
 
 var roleHealer = {
 
@@ -71,6 +71,9 @@ var roleHealer = {
                                   structure.hits < structure.hitsMax ;
                     }
             });
+            const dontHeal = _.remove(targets, { id: '59a0604216e4711f10d03fb3'});
+            //console.log(creep.name + ' has ' + targets.length + ' heal targets')
+
             if(targets.length > 0) {
                 const target = creep.pos.findClosestByPath(targets);
                 if(creep.repair(target) == ERR_NOT_IN_RANGE) {
@@ -78,7 +81,7 @@ var roleHealer = {
                 }
             }
             else {
-                roleUpgrader.run(creep);
+                roleBuilder.run(creep);
             }
         }
 	}
