@@ -11,11 +11,16 @@ var roleClaimer = {
 
     /** @param {Creep} creep **/
     run: function(creep) {
-        
+        switch(creep.pos.y) {
+            case 0:
+                creep.move(BOTTOM);
+                break;
+            case 49:
+                creep.move(TOP);
+                break;
+        }
         if(!(creep.room.name == Memory.roomToClaim)) {
-            const exitDir = creep.room.findExitTo(Memory.roomToClaim);
-            const exit = creep.pos.findClosestByRange(exitDir);
-            creep.moveTo(exit, {visualizePathStyle: {}});
+            creep.moveTo(Game.rooms[Memory.roomToClaim].controller, {visualizePathStyle: {}});
         }
         else {
             if(creep.room.controller.owner != null) {
@@ -40,9 +45,21 @@ var roleClaimer = {
                 }
             }
             else {
+                creep.say("Claiming");
                 switch(creep.claimController(creep.room.controller)) {
                     case ERR_NOT_IN_RANGE:
-                        creep.moveTo(creep.room.controller, {visualizePathStyle: {}});
+                        switch(creep.moveTo(creep.room.controller, {visualizePathStyle: {}})) {
+                            case OK:
+                                break;
+                            case ERR_NO_PATH:
+                                creep.moveTo(26,38);
+                                console.log('nopath error');
+                                break;
+                            default:
+                                console.log('error moving');
+                                break;
+                        }
+                        creep.say("moving");
                         break;
                     case OK:
                         break;
