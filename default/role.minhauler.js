@@ -23,6 +23,15 @@ var roleMinHauler = {
         var roomMap = Memory.roomMaps[creep.room.name];
         var targets = [] ;
 
+        switch(creep.pos.y) {
+            case 0:
+                creep.move(BOTTOM);
+                break;
+            case 49:
+                creep.move(TOP);
+                break;
+        }
+        
         if(!creep.memory.hauling && _.sum(creep.carry) == creep.carryCapacity) {
             creep.memory.hauling = true;
             creep.say('Minhaul');
@@ -51,7 +60,7 @@ var roleMinHauler = {
             if(targets.length == 0) {
                 creep.say('notarget!');
                 roomMap.hasMinsToHaul = false;
-                const exitDir=creep.room.findExitTo('W28N28');
+                const exitDir=creep.room.findExitTo('W29N29');
                 const exit=creep.pos.findClosestByRange(exitDir);
                 creep.moveTo(exit);
             }
