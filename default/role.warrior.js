@@ -41,7 +41,8 @@ var roleWarrior = {
             }
         }   
         else {
-            creep.moveTo(24,24, {visualizePathStyle: {}});
+            //creep.moveTo(24,24, {visualizePathStyle: {}});
+            creep.memory.role='recycle';
         }
     }
 };
