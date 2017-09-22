@@ -24,6 +24,7 @@ module.exports.loop = function () {
         W28N27: { containers: [ 
                 { id: '59b009899eb1db6ba877dfc9', role: 'SOURCE', isSource: true},
                 { id: '59adb2825dc96122fd4a927d', role: 'SOURCE', isSource: true},
+                { id: '59bff6a0e7f4066bc299d32d', role: 'SOURCE', isSource: true},
                 { id: '599dda3dfa93cd1619f05757', role: 'SINK', isSource: false},
                 { id: '59a256249cb73d4b2b3567b3', role: 'SINK', isSource: false} // Storage 
             ],
@@ -53,7 +54,6 @@ module.exports.loop = function () {
         W28N28: { containers: [
                 {id: '59a83cc7d0cf536b565f9da9', role:'SOURCE', isSource: true},
                 {id: '59acf2a0202e1464bc31ab49', role: 'SOURCE', isSource: true}, 
-                {id: '59b009899eb1db6ba877dfc9', role: 'SOURCE', isSource: true},
                 {id: '59a90288d14c6603ae1b5bef', role:'SINK', isSource: false},
                 {id: '59b45fdfcf43cf6370ee5f6a', role: 'SOURCE', isSource: true}, // minerals
                 {id: '59ab3a8937e7dd0cb4fa63d8', role:'SOURCE', isSource:true} // Storage
@@ -72,6 +72,7 @@ module.exports.loop = function () {
         W29N29: { containers: [
                 {id: '59bff7c1c34ea21ac8fbb55a', role: 'SOURCE', isSource:true},
               {id: '59c000f34cbe956bd03ce850', role: 'SOURCE', isSource:true},
+              {id: '59c07534dffb033d28393344', role: 'SOURCE', isSource:true},
                 {id: '59bc4a940c06b0220c547d5c', role: 'SINK', isSource:false} // Storage
             ],
             links: [
@@ -89,14 +90,14 @@ module.exports.loop = function () {
         }
     }
 
-    const numMinHaulers = _.filter(Game.creeps, (c) => { return c.memory.role == 'minhauler'});
+    const numMinHaulers = _.filter(Game.creeps, (c) => { return c.memory.role == 'minhauler'}).length;
     //console.log(numMinHaulers.length + " mineral haulers");
 
     //const capitalCity = _.filter(Memory.roomMaps, (r) => {return r.isCapital});
     //console.log('capital is in '+ JSON.stringify(capitalCity, null, 4));
 
     if(numMinHaulers < 2) {
-        Game.spawns['Spawn1'].createCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE],undefined,{role:'minhauler'});
+        Game.spawns['Spawn1'].createCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE],undefined,{role:'minhauler'});
     }
 
     for (i in Game.rooms) {
@@ -120,7 +121,7 @@ module.exports.loop = function () {
         }
 
         // go back to small creeps if we're really low on energy
-        if(room.energyCapacityAvailable < 600) {
+        if(room.energyCapacityAvailable < 700) {
             Memory.stage = 'start';
         }
 
@@ -202,16 +203,19 @@ module.exports.loop = function () {
 
         /*
         try {
-dismantleCreep = Game.creeps['Adam'];
+dismantleCreep = Game.creeps['Samantha'];
+// should make this into an array, then towers can iterate over it and if it's empty won't cause problems
+dismantleTarget = Game.getObjectById('59af5b456536cb36dc0563ff');
+depositTarget = Game.getObjectById('59a90288d14c6603ae1b5bef')
 
  if(dismantleCreep.carry[RESOURCE_ENERGY] == dismantleCreep.carryCapacity) {
-    dismantleCreep.moveTo(38,29);
-    dismantleCreep.transfer(Game.getObjectById('599dda3dfa93cd1619f05757'),RESOURCE_ENERGY);
+    dismantleCreep.moveTo(depositTarget);
+    dismantleCreep.transfer(depositTarget,RESOURCE_ENERGY);
 }
 else {
-    dismantleCreep.moveTo(27,34);
+    dismantleCreep.moveTo(11,43);
 //    dismantleCreep.moveTo(Game.getObjectById('59a0604216e4711f10d03fb3'));
-    dismantleCreep.dismantle(Game.getObjectById('59a0604216e4711f10d03fb3'));
+    dismantleCreep.dismantle(dismantleTarget);
 
 }
         }
@@ -314,7 +318,7 @@ else {
         
         const healers = _.filter(roomCreeps, (creep) => creep.memory.role == 'healer');
         if ((healers.length < numHealers) && !prioritySpawn) {
-            const newName = spawn.createCreep([WORK,WORK,MOVE,MOVE,CARRY,CARRY], undefined, {role: 'healer'});
+            const newName = spawn.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'healer'});
             console.log('Spawning new healer in ' + room.name + ': ' + newName);
         }
     
@@ -327,7 +331,7 @@ else {
         const miners = _.filter(roomCreeps, (creep) => creep.memory.role == 'miner');
         if ((miners.length < 1) && (room.controller.level >= 6) &&
             (room.find(FIND_MINERALS)[0].mineralAmount > 0)) {
-            const newName = spawn.createCreep([WORK,WORK,WORK,WORK,MOVE,CARRY], undefined, {role: 'miner'});
+            const newName = spawn.createCreep([WORK,WORK,WORK,WORK,CARRY,MOVE], undefined, {role: 'miner'});
             console.log('Spawning new miner in ' + room.name + ': ' + newName);
         }
         } // end Spawning
@@ -342,9 +346,9 @@ else {
                     });
             
                 if(closestDamagedStructure) {
-                    if(!(closestDamagedStructure.id == '59a0604216e4711f10d03fb3')) {
+                 //   if(!(closestDamagedStructure == dismantleTarget)) {
                     tower.repair(closestDamagedStructure);
-                    }
+                 //   }
                 }
             }
             else {
