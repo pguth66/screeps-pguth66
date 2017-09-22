@@ -213,11 +213,18 @@ module.exports = {
                 }
                 else {
                     if(creep.pos.inRangeTo(target,1)) {
-                        if (creep.withdraw(target, RESOURCE_ENERGY) != OK) {
+                        if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_INVALID_TARGET) {
                             creep.pickup(target) ;
                             }
-                        creep.memory.target = null;
+                        else {
+                            if (_.sum(creep.carry) < creep.carryCapacity) {
+                                for(const r in (target.store)) {
+                                    creep.withdraw(target ,r);
+                                }
+                            }
                         }
+                        creep.memory.target = null;
+                    }
                     else {
                         creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
                     }
@@ -236,7 +243,7 @@ module.exports = {
                     container.role = roomMap.containers[c].role ;
                     container.isSource = roomMap.containers[c].isSource ;
                     // console.log("creep " + creep.name +" found container info " + container.id + container.role + " isSource " + container.isSource + ' in room ' + creep.room.name);
-                    if(((container.role == 'SOURCE') || container.isSource) && (container.store[RESOURCE_ENERGY] > creep.carryCapacity)){
+                    if(((container.role == 'SOURCE') || container.isSource) && (_.sum(container.store) > creep.carryCapacity)){
                         sources.push(container);
                     }
                     else {
@@ -253,7 +260,7 @@ module.exports = {
             }
             if (sources.length == 0 ) {
                 creep.say('Nosources!');
-                console.log(creep.name + ' no SOURCE containers found in room ' + creep.room.name);
+                //console.log(creep.name + ' no SOURCE containers found in room ' + creep.room.name);
                 return;
             } else {
                 const source=creep.pos.findClosestByPath(sources);
