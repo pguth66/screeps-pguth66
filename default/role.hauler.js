@@ -213,17 +213,23 @@ module.exports = {
                 }
                 else {
                     if(creep.pos.inRangeTo(target,1)) {
-                        if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_INVALID_TARGET) {
-                            creep.pickup(target) ;
-                            }
-                        else {
+                        switch (creep.withdraw(target, RESOURCE_ENERGY)) {
+                            case ERR_INVALID_TARGET:
+                                creep.pickup(target) ;
+                                break;
+                            case OK:
+                                break;
+                            default:
                             if (_.sum(creep.carry) < creep.carryCapacity) {
                                 for(const r in (target.store)) {
                                     creep.withdraw(target ,r);
                                 }
-                            }
+                            };
+                            break;
                         }
+
                         creep.memory.target = null;
+
                     }
                     else {
                         creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
@@ -271,6 +277,7 @@ module.exports = {
         }
             catch(err) {
                 creep.say(err);
+                creep.creepLog(err);
                 console.log(creep.name + ' ' + creep.room.name + ': ' + err + ', target ' + target);
                 creep.memory.target = null;
             }
