@@ -50,22 +50,27 @@ module.exports = {
             creep.memory.hauling = true;
             // if we just flipped to hauling, don't walk across the entire room if a LINK is nearby
             // find nearby LINK to deposit in 
+            // problem is if the room is empty this will refill links while we're starving
             try {
-            const sourceLinkObj = _.filter(roomMap.links,  (l) => l.role == 'SINK')[0] ;
-            if(sourceLinkObj) {
-                sourceLink = Game.getObjectById(sourceLinkObj.id);      
-                if(creep.pos.inRangeTo(sourceLink,3)) {
-                    creep.memory.target = sourceLink.id;
+                if(((creep.room.energyAvailable / creep.room.energyCapacityAvailable) > 0.7) && !(roomMap.priorityRefill)) {
+                    //creep.creepLog('hauling to link because priorityRefill is ' + roomMap.priorityRefill);
+                    const sourceLinkObj = _.filter(roomMap.links,  (l) => l.role == 'SINK')[0] ;
+                    if(sourceLinkObj) {
+                        sourceLink = Game.getObjectById(sourceLinkObj.id);      
+                        if(creep.pos.inRangeTo(sourceLink,3)) {
+                            creep.memory.target = sourceLink.id;
+                        }
+                        else {
+                            creep.memory.target = null ; 
+                        }
+                    }
+                    else {
+                        creep.memory.target = null;
+                    }
                 }
-                else {
-                    creep.memory.target = null ; 
-                }
-            }
-            else {
-                creep.memory.target = null;
-            }
             }
             catch(err) {
+                creep.creepLog(err);
                 creep.memory.target = null;
             }
             creep.say("Haul");
@@ -118,8 +123,7 @@ module.exports = {
                         }
                     });
                 }
-                    // no spawns to target, so now extensions and towers
-                    try {
+                try {
                     if(targets.length > 0) {
                         try {
                             target = creep.pos.findClosestByPath(targets);
@@ -178,10 +182,10 @@ module.exports = {
                             console.log(creep.name +" " + creep.room.name + ": " + err);
                         }
                     }
-                    }
-                    catch(err) {
-                        console.log(creep.name + ": " + err);
-                    }
+                }
+                catch(err) {
+                    console.log(creep.name + ": " + err);
+                }
             //now try to transfer to target, or else move to it
             switch(creep.transfer(target, RESOURCE_ENERGY)) {
                 case ERR_NOT_IN_RANGE:
@@ -254,7 +258,8 @@ module.exports = {
                     }
                     else {
                         // add all containers when room is below half on energy
-                        if(creep.room.energyAvailable < (creep.room.energyCapacityAvailable / 2) && (container.store[RESOURCE_ENERGY] > creep.carryCapacity)) {
+                        // TODO: add condition for when towers are low on energy as well
+                        if(((creep.room.energyAvailable < (creep.room.energyCapacityAvailable / 2)) || roomMap.priorityRefill) && (container.store[RESOURCE_ENERGY] > creep.carryCapacity)) {
                             sources.push(container);
                         }
                     }
@@ -265,6 +270,7 @@ module.exports = {
             //    console.log("Found "+ sources.length + " locations of dropped resources, first is " + sources[0].pos);
             }
             if (sources.length == 0 ) {
+                // update this to pull from storage if it's got a lot in it (>10k?)
                 creep.say('Nosources!');
                 //console.log(creep.name + ' no SOURCE containers found in room ' + creep.room.name);
                 return;
