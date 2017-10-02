@@ -54,15 +54,40 @@ var roleWarrior = {
             }
         }   
         else {
-            if(Memory.roomToAttack) {
+            if(!(Memory.roomToAttack)) {
+                creep.memory.role='recycle';
+                return;
+            }
+            if(creep.room != Game.rooms[Memory.roomToAttack]) {
                 creep.say("ToROom");
                 const exitDir=creep.room.findExitTo(Memory.roomToAttack);
                 const exit=creep.pos.findClosestByRange(exitDir);
                 creep.moveTo(exit);
             }
             else {
-                //creep.moveTo(24,24, {visualizePathStyle: {}});
-                creep.memory.role='recycle';
+                attackFlags = creep.room.find(FIND_FLAGS, {filter: {color: COLOR_BROWN}});
+                if(attackFlags.length > 0) {
+                    closestFlag = creep.pos.findClosestByPath(attackFlags);
+                    //creep.creepLog(' closestFlag is ' + closestFlag);
+                    creep.say('Flag!');
+                    if(closestFlag) {
+                        targetArr=closestFlag.pos.findInRange(FIND_STRUCTURES,0);
+                        if(targetArr.length >0) {
+                            target = targetArr[0];
+                            //creep.creepLog(' attacking ' + target.id);
+                            if (creep.attack(target) == ERR_NOT_IN_RANGE) {
+                                creep.moveTo(target, {visualizePathStyle: {}});
+                            }
+                        }
+                        else {
+                            closestFlag.remove;
+                        }
+                    }
+                }
+                else {
+                    //creep.moveTo(24,24, {visualizePathStyle: {}});
+                    creep.memory.role='recycle';
+                }
             }
         }
     }
