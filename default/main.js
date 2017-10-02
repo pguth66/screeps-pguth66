@@ -10,23 +10,36 @@ var roleRecycle = require('role.recycle');
 var roleInterHauler = require('role.interhauler');
 var roleMinHauler = require('role.minhauler');
 var roleRemoteworker = require('role.remoteworker');
+var roleCalTrans = require('role.caltrans');
+var roleVanguard = require('role.vanguard');
 
 
 module.exports.loop = function () {
 
-    Memory.roomToClaim = 'W29N29'; // room to send claimers to
+    Creep.prototype.creepLog = function (text) {
+        console.log(this.name + "-" + this.room.name + ":" + text)
+    }
+
+    Memory.roomToClaim = 'W28N26'; // room to send claimers to
     Memory.roomToHelp = 'W28N27'; // room to drop off interroom energy in
+    Memory.roomToMaintain = 'W29N28'; // room to keep roads healed in (caltrans)
+    Memory.roomToAttack = null; // room to send warriors to
+    Memory.roomToBuild = 'W28N26'; // room to send remoteworkers to
+    Memory.roomToHarvest = 'W29N28'; // room to harvest energy in (and send interhaulers to)
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
 
-    // hand create room map for now
+    var dismantleTarget ; //have to define up here so tower code can find it
+
+
+    // hand create room map for now, note this overwrites the object every tick, so
+    // any flags set in code disappear (e.g. priorityRefill)
     Memory.roomMaps = { 
         W28N27: { containers: [ 
                 { id: '59b009899eb1db6ba877dfc9', role: 'SOURCE', isSource: true},
                 { id: '59adb2825dc96122fd4a927d', role: 'SOURCE', isSource: true},
                 { id: '59bff6a0e7f4066bc299d32d', role: 'SOURCE', isSource: true},
-                { id: '599dda3dfa93cd1619f05757', role: 'SINK', isSource: false},
-                { id: '59a256249cb73d4b2b3567b3', role: 'SINK', isSource: false} // Storage 
+                { id: '59a256249cb73d4b2b3567b3', role: 'SINK', isSource: false, isStorage: true} // Storage 
             ],
             links: [
                 {id: '59b21b672219c436e2e873b2', role: 'SINK', isSource: false},
@@ -38,8 +51,7 @@ module.exports.loop = function () {
                 { id: '599bd2f7e82f6d79eb4e4571', role: 'SOURCE', isSource: true},
                 { id: '59acf60b17856d163132ae42', role: 'SOURCE', isSource: true},
                 { id: '59a56008c0cfdb0fb88a4a3e', role: 'SOURCE', isSource: true, isMins: true},
-                { id: '599c644ca6502f209b65e8a1', role: 'SINK', isSource: false},
-                { id: '59a0994324116d15c606624b', role: 'SOURCE', isSource: true} // this one is Storage
+                { id: '59a0994324116d15c606624b', role: 'SINK', isSource: false, isStorage: true} // this one is Storage
                ],
             sources: [
                 {id: '5982fcceb097071b4adbe20a'},
@@ -52,11 +64,12 @@ module.exports.loop = function () {
             isCapital: true
         },
         W28N28: { containers: [
-                {id: '59a83cc7d0cf536b565f9da9', role:'SOURCE', isSource: true},
+               // {id: '59a83cc7d0cf536b565f9da9', role:'SOURCE', isSource: true},
                 {id: '59acf2a0202e1464bc31ab49', role: 'SOURCE', isSource: true}, 
                 {id: '59a90288d14c6603ae1b5bef', role:'SINK', isSource: false},
+                {id: '59ce8ab93c09f43aecc417f2', role: 'SOURCE', isSource:true},
                 {id: '59b45fdfcf43cf6370ee5f6a', role: 'SOURCE', isSource: true}, // minerals
-                {id: '59ab3a8937e7dd0cb4fa63d8', role:'SOURCE', isSource:true} // Storage
+                {id: '59ab3a8937e7dd0cb4fa63d8', role:'SINK', isSource:false, isStorage: true} // Storage
             ],
             links: [
                 { id: '59ae3ac6e95a3b294291fb39', role: 'SINK', isSource: false},
@@ -64,6 +77,8 @@ module.exports.loop = function () {
             ]
         },
         W29N28: { containers: [
+                {id: '59c9d03eed61d34a0f15af96', role: 'SOURCE', isSource:true},
+                {id: '59c894489085db6a859e96b7', role: 'SOURCE', isSource:true}
 
         ],
             links: [
@@ -71,34 +86,62 @@ module.exports.loop = function () {
         },
         W29N29: { containers: [
                 {id: '59bff7c1c34ea21ac8fbb55a', role: 'SOURCE', isSource:true},
+                {id: '59c6c9b4f8316c63aa837f54', role: 'SOURCE', isSource:true},
               {id: '59c000f34cbe956bd03ce850', role: 'SOURCE', isSource:true},
-              {id: '59c07534dffb033d28393344', role: 'SOURCE', isSource:true},
-                {id: '59bc4a940c06b0220c547d5c', role: 'SINK', isSource:false} // Storage
+                {id: '59bc4a940c06b0220c547d5c', role: 'SINK', isSource:false, isStorage: true} // Storage
             ],
             links: [
                 {id: '59be9dca69be3c422cbeb4fc', role: 'SINK', isSource:false},
                 {id: '59be996f5a9d6d2344a8150d', role: 'SOURCE', isSource: true}
             ]
         },
+        W27N26: { containers: [
+                { id: '599c884cb9f1167d3f68eec1',role: 'SOURCE', isSource:true}
+        ]},
+        W28N26: { containers: [
+                    {id: '59cc98207842056736894ad3', role: 'SOURCE', isSource:true},
+                    { id: '59cd0cb9b0741a5fcf2fb961', role: 'SOURCE', isSource:true},
+                    { id: '59ce54cd5ce8282a254f22ff', role: 'SINK', isSink:true, isStorage:true}
+        ],
+                    links: []},
         sim: { containers: [ ] }
     }
 
     for(var name in Memory.creeps) {
         if(!Game.creeps[name]) {
             delete Memory.creeps[name];
-            console.log('Clearing non-existing creep memory:', name);
+            //console.log('Clearing non-existing creep memory:', name);
         }
     }
 
     const numMinHaulers = _.filter(Game.creeps, (c) => { return c.memory.role == 'minhauler'}).length;
+    if (Memory.spawnCaltrans > 0) {
+        Memory.spawnCaltrans -= 1
+    }
+    else {
+        if(Memory.spawnCaltrans == 0) {
+            Game.spawns['Spawn1'].createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE],undefined,{role:'caltrans'});
+            console.log('spawning caltrans and setting memory to null');
+            Memory.spawnCaltrans = null;
+        }
+        else {
+            const numCaltrans = _.filter(Game.creeps, (c) => { return c.memory.role == 'caltrans'}).length;
+            if(numCaltrans < 1) {
+                Memory.spawnCaltrans = 400 ;
+            }
+        }
+    }
     //console.log(numMinHaulers.length + " mineral haulers");
 
     //const capitalCity = _.filter(Memory.roomMaps, (r) => {return r.isCapital});
     //console.log('capital is in '+ JSON.stringify(capitalCity, null, 4));
 
-    if(numMinHaulers < 2) {
+    // minhaulers aren't per room but global so they spawn outside the room loops
+    if(numMinHaulers < 1) {
         Game.spawns['Spawn1'].createCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE],undefined,{role:'minhauler'});
     }
+
+
 
     for (i in Game.rooms) {
         const room = Game.rooms[i];
@@ -108,6 +151,8 @@ module.exports.loop = function () {
         const spawn = room.find(FIND_MY_SPAWNS)[0];
         const towers = room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}} );
 
+        var prioritySpawn = false; // used to prioritize spawning of harvesters when multiple creeps are needed
+        
         Memory.noBuild = false ; // used to flag when there are no construction sites, to prevent spawning builders
         switch(room.controller.level) {
             case 0:
@@ -121,8 +166,9 @@ module.exports.loop = function () {
         }
 
         // go back to small creeps if we're really low on energy
-        if(room.energyCapacityAvailable < 700) {
+        if(room.energyAvailable < 700) {
             Memory.stage = 'start';
+           // prioritySpawn = true;
         }
 
         var roomOwner = undefined; 
@@ -139,6 +185,16 @@ module.exports.loop = function () {
             if(roomOwner == 'MixtySix') {
                 room.numContainers = Memory.roomMaps[room.name].containers.length;
                 room.numLinks = Memory.roomMaps[room.name].links.length;
+                //console.log(room.name + ' has storage ' + room.storage.id);
+                for (i in towers) {
+                    tower = towers[i];    
+                    if(tower.energy < (tower.energyCapacity * 0.7)) {
+                        Memory.roomMaps[room.name].priorityRefill=true;
+                    }
+                    else {
+                        Memory.roomMaps[room.name].priorityRefill=false;
+                    }
+                }
                 if(spawn && spawn.spawning) {
                     var spawningCreep = Game.creeps[spawn.spawning.name];
                     spawn.room.visual.text(
@@ -185,11 +241,12 @@ module.exports.loop = function () {
                             {role: 'miner', run: roleMiner.run},
                             {role: 'interhauler', run: roleInterHauler.run},
                             {role: 'minhauler', run: roleMinHauler.run},
+                            {role: 'caltrans', run: roleCalTrans.run},
+                            {role: 'vanguard', run: roleVanguard.run},
                             {role: 'remoteworker', run: roleRemoteworker.run}
                          ] ;
     //    console.log('role: ' + creepMap[0].role + " function: " + creepMap[0].run);
         
-        var prioritySpawn = false; // used to prioritize spawning of harvesters when multiple creeps are needed
         
         // loop over creeps in room, have them run the right role based on creepRoles
         for(var name in roomCreeps) {  
@@ -201,33 +258,54 @@ module.exports.loop = function () {
             }   
         }
 
-        /*
+        
         try {
-dismantleCreep = Game.creeps['Samantha'];
-// should make this into an array, then towers can iterate over it and if it's empty won't cause problems
-dismantleTarget = Game.getObjectById('59af5b456536cb36dc0563ff');
-depositTarget = Game.getObjectById('59a90288d14c6603ae1b5bef')
+            dismantleCreep = _.filter(Game.creeps, (c) => { return c.memory.role == 'dismantle'})[0];
+            // dismantleCreep = Game.creeps['Tristan'];
+            dismantleFlags = room.find(FIND_FLAGS, {filter: {color: COLOR_RED}});
+            if((dismantleFlags.length > 0) && dismantleCreep) {
+                dismantleTargets = dismantleFlags[0].pos.lookFor(LOOK_STRUCTURES);
+                if(dismantleTargets.length == 0) {
+                    dismantleFlags[0].remove();
+                }
+                //console.log(room.name + dismantleTargets[0]);
+            
+                // should make this into an array, then towers can iterate over it and if it's empty won't cause problems
+                if(dismantleTargets.length > 0) {
+                    dismantleTarget = dismantleTargets[0];
+                    const depositTarget = Game.getObjectById('59a90288d14c6603ae1b5bef');
 
- if(dismantleCreep.carry[RESOURCE_ENERGY] == dismantleCreep.carryCapacity) {
-    dismantleCreep.moveTo(depositTarget);
-    dismantleCreep.transfer(depositTarget,RESOURCE_ENERGY);
-}
-else {
-    dismantleCreep.moveTo(11,43);
-//    dismantleCreep.moveTo(Game.getObjectById('59a0604216e4711f10d03fb3'));
-    dismantleCreep.dismantle(dismantleTarget);
+                    if(dismantleCreep.carry[RESOURCE_ENERGY] == dismantleCreep.carryCapacity) {
+                        if(dismantleCreep.transfer(depositTarget,RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                            dismantleCreep.moveTo(depositTarget);
+                        }
+                    }
+                    else {
+                        if(dismantleCreep.dismantle(dismantleTarget) == ERR_NOT_IN_RANGE) {
+                            dismantleCreep.moveTo(dismantleTarget);
+                        }
 
-}
+                    }
+                }
+            }
         }
         catch(err) {
             console.log(creep.name + room.name + ": " + err);
         }
-*/
+
         // start stage defaults
-        var numHaulers = 0;
+       switch(room.controller.level) {
+        case 0:
+        case 1:
+        case 2:
+            var numHaulers = 0;
+            break;
+        default:
+            var numHaulers = 1;
+       }
         var numHarvesters = 2 ;
         var numUpgraders = 1 ;
-        var numBuilders = 4;
+        var numBuilders = 3;
         var numHealers = 0 ;
         var numClaimers = 0 ;
 
@@ -237,15 +315,24 @@ else {
                 numHaulers = 1;
             }
             numHarvesters = room.numSpawns ;
-            numBuilders = (numHarvesters * 2) -1 ;
+            numBuilders = numHarvesters ;
             numUpgraders = 1 ;
             numHealers = 1 ;
             numClaimers = 0 ;
         }
 
-        if(room.controller.level == 7) {
-            numBuilders = 2;
+        room.storageObj = _.filter(Memory.roomMaps[room.name].containers, ('isStorage'))[0];
+        if(room.storageObj) {
+            room.storage = Game.getObjectById(room.storageObj.id);
+            if (room.storage.store[RESOURCE_ENERGY] < 2000) {
+                numBuilders -= 1;
+               // console.log(room + " has no energy in storage, reducing numBuilders to " + numBuilders);
+            }
+            if (room.storage.store[RESOURCE_ENERGY] > 150000) {
+                numBuilders += 1;
+            }
         }
+    
 
         const enemies = room.find(FIND_HOSTILE_CREEPS);
         switch (enemies.length) {
@@ -254,6 +341,8 @@ else {
                 break;
             default:
                 room.memory.foundHostiles = true;
+                prioritySpawn = true;
+
                 break;
         }
         
@@ -281,7 +370,7 @@ else {
         }
 
         const haulers = _.filter(roomCreeps, (creep) => creep.memory.role == 'hauler');
-        if((haulers.length < numHaulers) && !prioritySpawn) {
+        if(((haulers.length < numHaulers) && !prioritySpawn) || (haulers.length == 0 && Memory.stage != 'start') ) {
             const newName = spawn.createCreep([CARRY,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'hauler'});
             prioritySpawn = true;
             console.log('Spawning new hauler in ' + room.name + ': ' + newName);
@@ -330,7 +419,8 @@ else {
 
         const miners = _.filter(roomCreeps, (creep) => creep.memory.role == 'miner');
         if ((miners.length < 1) && (room.controller.level >= 6) &&
-            (room.find(FIND_MINERALS)[0].mineralAmount > 0)) {
+            (room.find(FIND_MINERALS)[0].mineralAmount > 0) &&
+            (room.energyAvailable == room.energyCapacityAvailable)) {
             const newName = spawn.createCreep([WORK,WORK,WORK,WORK,CARRY,MOVE], undefined, {role: 'miner'});
             console.log('Spawning new miner in ' + room.name + ': ' + newName);
         }
@@ -340,15 +430,21 @@ else {
 
         for (i in towers) {
             tower = towers[i];    
+            if(tower.energy < (tower.energyCapacity * 0.7)) {
+                Memory.roomMaps[room.name].priorityRefill=true;
+            }
+            else {
+                Memory.roomMaps[room.name].priorityRefill=false;
+            }
             if(!room.memory.foundHostiles && (tower.energy > tower.energyCapacity / 2)) {    
                 const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
                     filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 5000 ) )
                     });
             
                 if(closestDamagedStructure) {
-                 //   if(!(closestDamagedStructure == dismantleTarget)) {
-                    tower.repair(closestDamagedStructure);
-                 //   }
+                        if(!(closestDamagedStructure == dismantleTarget)) {
+                        tower.repair(closestDamagedStructure);
+                        }
                 }
             }
             else {
@@ -378,11 +474,15 @@ else {
                 room.energyAvailable + '/' + room.energyCapacityAvailable + 
                 ' Creeps: ' + _.size(roomCreeps));
             }
-        }
+        } // end console report
+        
+        // Safe Room
         if (room.memory.foundHostiles) {
-            console.log(room.name + " found hostile creeps!");
-            if(spawn.hits < (spawn.hitsMax / 2)) {
-                room.needsSafeRoom = true;
+            //console.log(room.name + " found hostile creeps!");
+            if(roomOwner == 'MixtySix' && spawn) {
+                if(spawn.hits < (spawn.hitsMax / 2)) {
+                    room.needsSafeRoom = true;
+                }
             }
             if(room.needsSafeRoom) {
                 console.log(room.name + "needs safe room!!!");
@@ -394,7 +494,7 @@ else {
                 console.log(room.name + ' activating safe room!');
                 room.controller.activateSafeMode();
             }
-        } // end console report
+        } // End safe room
 
 
         // renew creeps 
@@ -405,7 +505,7 @@ else {
                 if(targetCreeps[0].ticksToLive < 600 && targetCreeps[0].ticksToLive > 101) {
                     if(spawn.energy > 150 && !spawn.spawning) {
                         spawn.renewCreep(targetCreeps[0]);
-                        console.log(room.name + ': renewing ' + targetCreeps[0].name + ' with TTL ' + targetCreeps[0].ticksToLive);
+                        console.log(room.name + ': renewing ' + targetCreeps[0].name + '(' + targetCreeps[0].memory.role + ') with TTL ' + targetCreeps[0].ticksToLive);
                     }
                 }
             }
