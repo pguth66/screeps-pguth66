@@ -20,7 +20,10 @@ var roleClaimer = {
                 break;
         }
         if(!(creep.room.name == Memory.roomToClaim)) {
-            creep.moveTo(Game.rooms[Memory.roomToClaim].controller, {visualizePathStyle: {}});
+            //creep.moveTo(Game.rooms[Memory.roomToClaim].controller, {visualizePathStyle: {}});
+            const exitDir = creep.room.findExitTo(Memory.roomToClaim);
+            const exit = creep.pos.findClosestByRange(exitDir);
+            creep.moveTo(exit, {visualizePathStyle: {}});
         }
         else {
             if(creep.room.controller.owner != null) {
