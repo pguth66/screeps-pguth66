@@ -64,14 +64,16 @@ var roleHealer = {
             var targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
                         return (structure.structureType == STRUCTURE_ROAD || 
-                                 (structure.structureType == STRUCTURE_WALL && structure.hits < ((creep.room.controller.level * creep.room.controller.level) * 6000)) ||
-                                 (structure.structureType == STRUCTURE_RAMPART  && structure.hits < ((creep.room.controller.level * creep.room.controller.level) * 6000)) || 
+                                 (structure.structureType == STRUCTURE_WALL && structure.hits < ((creep.room.controller.level * creep.room.controller.level) * 7000)) ||
+                                 (structure.structureType == STRUCTURE_RAMPART  && structure.hits < ((creep.room.controller.level * creep.room.controller.level) * 7000)) || 
                                  structure.structureType == STRUCTURE_CONTAINER ||
                                   structure.structureType == STRUCTURE_TOWER) && 
                                   structure.hits < structure.hitsMax ;
                     }
             });
-            const dontHeal = _.remove(targets, { id: '59a0604216e4711f10d03fb3'});
+            const dontHeal = _.remove(targets, { id: '59a920423e04d963771e364c'});
+//            const dontHeal = _.remove(targets, dismantleTarget);
+            
             //console.log(creep.name + ' has ' + targets.length + ' heal targets')
 
             if(targets.length > 0) {
