@@ -1,0 +1,17 @@
+basic idea is to give creeps orders, not have them figure evertything out each tick
+start with travel orders
+give creep a destination - already have _move.dest
+basic logic is (assume harvester)
+    director figures out which source this harvester should be at
+    says "Creep, go harvest source at pos XY"
+    Creep sets memory.underOrders to true
+    Creep sets memory.assignedSource to 
+    Creep then moves to XY
+    When next to it, starts to harvest
+    After harvesting, goes to deposit 
+    After depositing, sets memory.needsOrders to true
+
+how does director know where to send the harvester?
+store a map of the room 
+    actually an array? or object? containing objects for all sources, e.g.
+    roomSources = [ source1object source2object]

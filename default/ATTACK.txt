@@ -1,0 +1,24 @@
+general strategy may be to send a creep that waits on the periphery and can heal itself,
+    purpose being to drain energy
+    so this would be something that can heal 150/tick (one tower) or (300/tick for two towers)
+    150/tick is 13 HEAL parts, which costs 3250
+    max my room has is 5000, at 250 per HEAL that would be 20 HEALs with nothing else
+    so if 13 HEALs, 10 MOVEs, 27 TOUGHs = 3250 + 500 + 270 = 4020
+    that creep needs to be able to move to a room to attack, then wait on the edge, and heal itself every tick
+
+    role = bait
+
+    move to room to attack
+    move as far away from tower as possible while staying in room
+        for now set a flag to move to?
+    sit and heal yourself
+    if you get below say 400 total health, move back to other room and heal up more
+    if no room to attack move to SPAWN so you get healed (maybe make spawns heal these creeps at all HP)
+
+once towers are down, send in a WARRIOR
+
+need to fix code to deal with walls
+    if no path to a target but hostile targets in room, then get PathByRange(?), walk that till you get to
+    a wall, then break it down
+    in the short term let me set a flag and then go attack that wall if no creeps/buildings reachable
+    

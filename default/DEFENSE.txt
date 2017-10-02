@@ -1,0 +1,26 @@
+OK, just got worked
+
+came into my secondary room with a creep that had tons of healing
+my tower attacked him but he healed himsefl up
+when he broke through the wall and got close to my spawn, I activated safe mode. 
+he died shortly after, not sure if because of safe mode or because of range to tower
+then he attacked my main room - you can't have more than one room in safe mode at a time
+main room exhausted tower energy and extension energy
+I turned everyone into a hauler but it was too late and/or not enough
+I changed tower to only attack people within 5 range
+tower was mostly out of energy when he got there, it was hitting him at 5 range but he appeare3d to be able to heal through the damage
+his creep has 10 HEAL, 12 RANGED_ATTACK, 7 MOVE, 6 TOUGH (says 35 parts)
+    10 HEAL allows to heal 120 pts/damage per tick
+    towers do 600 at less than 5
+    creeps do 30 per ATTACK or 10 per RANGED_ATTACK
+    so 20 ATTACK is the same as a tower (cost 1600)
+    would need a creep with 5 ATTACK just to damage him past healing (and this is pre-boosts)
+    or 60 RANGED is the same as a tower (9000 cost)
+done different
+    don't waste energy attacking him at range
+    spawn a bruiser creep with tons of attack when he was close (sacrifice the walls)
+    would have to distinguish between a bruiser attack vs just a scout
+    walls were useless as he could just sit there and heal himself while busting through them
+    need to be able to apply MAJOR damage over short period of time
+    wonder if ranged attackers would be protected behind walls?
+    have walls closer to towers

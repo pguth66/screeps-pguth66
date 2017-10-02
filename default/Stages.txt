@@ -1,0 +1,28 @@
+Bootstrapping
+
+First stage is just to get to RCL 1
+    Basic creeps (WORK CARRY MOVE)
+    No roads needed (creeps don't carry much so won't be that slow)
+    No containers
+    3 workers (upgrading, no healing)
+    All these creeps need to come from another room!
+    so have that room defined as RoomToClaim 
+    if Game.rooms[roomname] doesn't exist, or exists but isn't owned by me, send a single claimer
+    if it does exist and isn't owned by me, wait for the claimer to get there
+    if it does exist and is owned by me, send 3 worker creeps
+After RCL1, focus on building a spawn
+    Workers switch to building until we have the spawn
+    Once we have a spawn, focus is on getting to RCL2
+    For now keep this with basic creeps, no roads
+    Workers focus on upgrading, harvesters to keep spawn full
+    Workers pulling from sources?
+    (if distance is really long, use 2 containers with haulers?)
+RCL2 - extensions
+    Place extensions - diamond around spawn?
+    Workers build extensions until they're all ready - now we have 550 energy capacity
+    WHere do workers get energy? source? spawn? harvesters are still harvesting....
+    After extensions are built we specialize - haulers, harvesters, workers
+    So build containers next to source(s) - so need some code to know how many we have
+RCL3 - containers?
+    now speicalized dudes, lay down new extensions, build container
+    dudes will pull from container, so want to speed up harvesting, build 3-4 with 2 WORKs

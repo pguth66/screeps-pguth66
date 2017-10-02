@@ -1,0 +1,211 @@
+main loop
+
+clean up creep memory
+some definition of rooms - purpose/stage for each
+
+    foreach room
+        figure out stage it's in
+        figure out if it should be doing anything for a differnt room
+            like if another room is under attack, send a soldier
+            or if another room is starting out, send basic workers
+        runCreeps
+        runTowers
+        spawnCreeps
+        report
+
+runCreeps  DONE
+    parameters: role, function to run
+    foreach role, find all creeps with that role and have them run that function (duh
+
+spawnCreeps
+    parameters: role, stage?, energy available, energycapacity?, (currently # of existing creeps with that role),
+        currently structure of creep to spawn, but probably want to pull that into a creepBuilder function
+
+    maybe proiritize by setting a flag when you find a creep you need to build and having that be the while condition
+    restart logic
+        if no haulers and there is energy in storage, or containers, spawn a hauler
+        if no harvesters and there is no energy in storage or containers, spawn a harvester (real restart)
+        no builders or healers until harvesters/haulers back up and running 
+        no upgrader needed until it gets to maybe 1/2 TTL
+    WORK 100
+    MOVE 50
+    CARRY 50
+    basic creep is WORK, CARRY, MOVE = 200 
+    haulers are mostly move, which is relatively cheap
+    harvesters are mostly work, which is expensive
+    workers are mix of work and carry, move less important as long as there are roads
+    so stage 2 worker is WORK WORK CARRY CARRY MOVE = 350
+    stage 2 harvester is WORK WORK WORK CARRY MOVE = 400
+    stage 2 hauler is CARRY CARRY CARRY MOVE MOVE = 400
+    in general, spawn creeps of about 1/2 of total energy capacity
+    minimum set at start stage is harvester, upgrader, builder 
+    minimum set at second stage is harvester, upgrader, hauler?
+    parts is an array so start with basic layout then push parts onto the array
+
+common creep methods
+    working vs gathering - check if working, flip back and forth when full or when empty
+    work towards goal
+        find targets (build an array)
+        select closest target
+        act on it, or move to it
+    gather resources
+        find sources (build an array)
+            find SINKs
+            find all storage/containers/links
+            maybe one method with arguments, e.g.
+                creep.energysource(all) or creep.energysource(sinks)
+                creep.findallsources creep.findallsinks
+            returns an array of the sources, or should it return the closest one?
+            
+        select closest target
+        act on it or move to it
+kinds of Creeps 
+    harvesters - small MOVE, small CARRY, lots of WORK
+        methods
+            find source to work on
+            move to that source
+            harvest and deposit in your nearby container
+            if no nearby non-empty container, take to nearest spawn/extension/container
+    haulers - no WORK, lots of CARRY, some MOVE
+        methods
+            find targets
+                SPAWNS
+                EXTENSIONS
+                TOWERS
+                CONTAINERS
+                STORAGE
+            pick the right target out of that list (closest, priorities)
+            go to that target
+            when there, deposit all your stuff
+    warriors - TOUGH, ATTACK, some MOVE
+    workers - WORK, CARRY, and MOVE
+        combination of builder, upgrader, and healer
+    interroom - MOVE, WORK, CARRY?
+        go to other rooms, and 1) claim, 2) harvest resources and bring them back
+
+assigning SOURCEs to harvesters
+    each room map has an array of sources
+    harvester should get assigned one when created, in same code that does spawns
+    done by memory.target (also used by haulers) - except will not get erased ever
+    so when spawned, want to go through the array and find out how many creeps already have that source
+    so logic is something like 
+        how many sources?
+        foreach source
+            how many harvesters have that source as a target
+        pick the source with the least harvesters pointed at it
+
+    this worked for returning a count of 'true' for that target
+     JSON.stringify(_.countBy(Game.creeps, function(c) { return c.memory.target == '5982fcceb097071b4adbe20c'}) )
+    this worked to filter out the creeps with that target = returns an arry so can use .length
+     JSON.stringify(_.filter(Game.creeps, function(c) { return c.memory.target == '5982fcceb097071b4adbe20c'}),null,4 )
+
+    sourceToTarget = sourceCandidates[0];
+    var harvsonsource = [] ;
+    for(i=0; i < sourceCandidates.length ; i++) {
+        var harvsOnSource[i] = _.filter(Game.creeps, function(c) { return (c.memory.role == 'harvester' && c.memory.target == sourceToTarget)})
+    }
+    sourceToTarget = _.maxBy(sourceCandidates, 'harvsOnSource')
+    console.log(creep.name + ' targeting source ' + sourceToTarget)
+
+designating SINKs and SOURCEs
+    extend SOURCE object to have new property with value of SOURCE or SINK
+    or no, create a new map of the room object that lists all containers and says which is a SOURCE or SINK
+    roomMaps [ room: roomID, map: mapRoom ]
+    mapRoom { containers: [containerarray]}
+    mapRoom { containers:  [ { id: 599db1672988077e7d51b7cd, role: 'SOURCE'} ]}
+    so like the map would haev an array of containers
+        [ container1 container2 container3]
+        [ { id: 599db1672988077e7d51b7cd, role: 'SOURCE'} ]
+    and each container has 
+        { id: objectid, role: SOURCE or SINK, }
+        { id: 599db1672988077e7d51b7cd, role: 'SOURCE'}
+    so the code for seeing which it is is like this, assuming only one SOURCE container
+        containers=mapRoom.containers
+        for(c in containers)
+            container=getObjectById(c)
+            if(container.role == SOURCE)
+            target = container
+    or maybe these are methods?
+        container.isSink
+        container.isSource
+        actually for now want to keep it as roles so we can pull out the ARRY of sources and then go to the
+            right one (fullest, or closest)
+        changed my midn on that so that I can have one container act as BOTH in weird cases (like when you only have one container)
+hauler behavior
+    need to label containers as either SOURCE containers or SINK containers
+    haulers pull from SOURCE and put into SINK, except in exceptional conditions (attack, restart, empty SOURCE)
+    so hauler behavior is basically
+        am I hauling?
+            if YES, find a target (spawn/extension/tower, if those full then a SINK container or storage)
+                move to target and drop your stuff there, then turn off hauling
+            if NO, find a source (SOURCE container that's non-empty), 
+                move to it and harvest from it, then turn on hauling
+            GENERAL: find target, move to target, do your action, flip state
+            
+building roads
+    find paths with
+        PathFinder.search(Game.spawns['Spawn1'].pos,{pos: Game.rooms['sim'].find(FIND_SOURCES)[0].pos, range:1}).path
+    that returns an array of positions
+    walk that array and create construction sites for roads
+    so like
+        roads = that pathfinder search
+        for r in roads
+            room.createConstructionSite(r.pos, STRUCTURE_ROAD)
+        that's wrong, it's for(i=0;i<path.length;i++)
+            room.createConstructionSite(roads[i].pos, STRUCTURE_ROAD)
+    for(r in (PathFinder.search(Game.spawns['Spawn1'].pos,{pos: Game.rooms['sim'].find(FIND_SOURCES)[0].pos, range:1}).path)) { Game.rooms['sim'].createConstructionSite(r, STRUCTURE_ROAD)}))
+
+    test wihtout for (for doesn't work)
+
+    Game.rooms['sim'].createConstructionSite(PathFinder.search(Game.spawns['Spawn1'].pos,{pos: Game.rooms['sim'].find(FIND_SOURCES)[0].pos, range:1}).path[0], STRUCTURE_ROAD)
+    above works to create the first location of that road, so should be able to walk the array to create them all
+    walking it manually like this
+        Game.rooms['sim'].createConstructionSite(PathFinder.search(Game.spawns['Spawn1'].pos,{pos: Game.rooms['sim'].find(FIND_SOURCES)[3].pos, range:1}).path[22], STRUCTURE_ROAD)
+
+linkers
+    need to put energy in each link, then just transfer to the other link
+    so I'll designate links as SOURCE and SINK
+    haulers deposit in SOURCE, and builders etc pull from SINK
+
+mineral haulers
+    find all containers with non-energy resources DONE
+    go grab them, bring them to terminal done
+        if in same room with terminal great DONE
+        if not, go to room with terminal WIP
+    should have these guys on recycle behavior so they don't drop vauable stuff DONE
+    if current room has no targets, check next room
+
+interhaulers
+    need to have a target room and a dropoff room
+    if not hauling and not in target room, move to target room
+    if hauling and not in dropoff room, move to dropoff room
+    otherwise, just be a hauler - will pick up from SOURCE in target room and drop in SINK in dropoff room
+
+remote workers
+    on spawn, go to room to help
+    once there determine what to do
+        if room is owned by me and RCL < 1 or TTL on controller < 150, become an upgrader
+        if construction sites, build them
+        if no container per source, build a container
+        if container but no harvester, become a harvester
+        if harvester
+            if build sites, become a builder
+            else become a healer
+    when about to die, call for a new remoteworker spawn frmo room with most energy
+    so when room is "done", one creep is a harvester, one is a healer
+
+caltrans
+    maintain roads/containers in a room
+    go to room, run healer code
+    redundant with remoteworker?
+
+market
+    to get BUY orders for CATALYST over 0.9 cr
+     Game.market.getAllOrders(o => o.type == ORDER_BUY && o.resourceType == RESOURCE_CATALYST && o.price > 0.9)
+
+spawning maintainer creeps
+    don't want to lose all energy in my main rooms sending creeps to their death
+    so if there are no caltrans or remoteworker creeps (and if Memory.roomToBuild/Maintain is set)
+    then set a timer in Memory.ticksToSpawnCaltrans for 500 
+    every tick, --
+    when it == 0, set it to null, then spawn a creep (check to see if not spawning before null?)

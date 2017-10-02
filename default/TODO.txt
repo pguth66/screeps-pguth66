@@ -1,0 +1,160 @@
+Handle different stages
+    startup - goal is to get to stage 2, so mostly upgraders with a harvester so you can keep spawning upgraders
+        actually don't need harvesters because upgraders pull from spawn in the beginning
+        first step is to get to RC1 - which is just upgraders pulling from spawn
+        then at RC1 drop a spawn and go mostly builders, with just one upgrader to keep things going
+        once you have a spawn can go for upgraders again and build roads, then extensions
+        no containers
+        300 energy
+        spawn 300 energy creeps
+            harvesters bring back to spawn and extensions
+            builders pull from spawn and build containers
+            single upgrader to keep things moving
+            this might be too expensive, containers cost 5000 and RC2 only takes a few hundred
+        ends at rc2? - then you build 5 extensions (containers were too expensive to build here)
+    stage 2
+        build roads - roads cost 300
+            containers to upgrader first? (most used)
+            or containers to spawn?
+        build extensions - extensions cost 3000
+            try to build 2 squares away from spawn - left right up down
+            then in the corners (2+2)
+        ends when you have 5 extensions and roads to each spawn
+        need a lot of builders in this stage (like 5) and probably 2 harvesters, and no roads since you're still at 300 cost creeps
+    stage 3
+        build containers (four containers at RC1, try to put them at closest spawn)
+        switch harvesters to no CARRY
+        switch builders to pull from containers (maybe they already could have been)
+
+mineral hauler 
+    goes and picks up all non-energy stuff from containers etc 
+        and brings them to some central dropoff DONE
+    have regular hauler flip to one of these if there are minerals outside storage/terminal
+    then flip back to regular hauler after dropoff
+    still need to handle the auto-spawning
+
+make upgraders pull from links - DONE
+switch parts to have MOVE last so when someone gets attacked they can move out of the way if they're not dead - DONE
+check for only having working MOVE parts, if so, recycle yourself
+add logic to spawn another worker (builder) if SINK containers and links are full
+if zero harvesters and can't spawn harvester you want, spawn one that costs <300
+    fixed by making it go to 'start' stage if energy in room is under 700, that should allow spawning a harvester
+make harvesters divide between sources and stick there DONE
+    BUT doesn't handle sources with only one access point well
+    should have it assign as is, but then try to path there and if no path available, try second one and if that works, assign that as target
+    OR can count how many spots there are for harvesters
+    OR just spawn one with 6 WORK parts (solution i picked) - costs 700 with 6 work, 1 carry, and 1 move, so can build it from RCL 3 on easily
+Make haulers prioritize towers
+Make haulers drop target if it's full of energy DONE
+Have haulers pull out of storage if no other sources available
+    Interactively I did this by flpping the Storage to SOURCE instead of SINK
+Add flee bheaviors when creeps are attacked
+Have non-harvesters move away from sources if they're on them
+Make generic worker creeps that do builder,upgrader,healer
+should harvetser and miner be the same creep?
+should haulers and minhaulers be the same creep?
+    minhaulers are different in that they need to go to terminal which may be in another room
+    so that's like interhauler
+Make a recycle role that just moves to spawn, then spawn recycles it - DONE
+    really disappointing - it drops like 10 energy (based on TTL of creep)
+    but still some value as now you can have it recycle when it's done working so doesn't disappear mid-work
+Add renew or recycle of creeps - start with haulers as they move near spawn regularly - DONE
+    like spawn searches for nearby creeps and if they need it, renews them
+Add links - DONE
+    haulers deposit in links DONE
+    links tagged as source or sink (DONE - note they are backwards from containers)
+    have haulers deposit in non-empty links FIRST if they are nearby (before spawns etc) DONE
+        so when flip to hauling, check range to nearest SINK link, if < 3 make it target
+        wonder if this could eventually lead to starvation?
+    builders and upgraders pull from links DONE
+    automatically send between links DONE
+    make haulers pull from links to fill spawn/extensions (SOURCE links) DONE (when room under half energy)
+use links to transfer energy to spawn/extensions
+    have one creep that just keesp SOURCE links full
+    other haulers pull from SINK link
+make so terminal is kept at reasonable level before putting energy in storage
+interroom harvesting 
+    builders that go to another room and build roads and containers (pulling from source)
+        container first, then switch to using harvesters while builders build roads
+    harvesters that go to another room and harvesting
+    haulers that go into another room, pick up from containers, and bring back to container in other room
+attackers
+    melee creep and healer creep
+    teaming code so they wait for each other
+    have a leader that records previous .pos and then have other guy move to that .pos (follow method)
+Have claimers sign rooms (based on array of EQ dungeon names preferably)
+fix report code to include all towers
+Clean up old bestPath code - DONE
+Better error handling (add dfeault at least for errors)
+Make healers only heal walls up to some reasonable number (10k?) - DONE
+Make healers pick walls to heal intelligently
+Make haulers pick up dropped energy if there is any (via FIND_DROPPED_ENERGY) - DONE
+    also used FIND_DROPPED_ENERGY at first and it told me to use FIND_DROPPED_RESOURCES - not sure if then 
+        I need to specially handle whether it's ernergy or resources that I found.... - FIXED
+Optimize creep design based off energy available
+Reduce code duplication in spawner code
+Reduce code duplication in creep runner code DONE
+Make tower heal walls only a little bit (100k) - DONE
+if no spawns in range for a harvester, make them deposit before doing anything else - DONE
+add locking on to target for hauler SOURCES as well as SINKs
+Build claimer creep - DONE
+    CLAIM,CLAIM,MOVE
+    go to another room 
+        how to know which room? hardcode in Memory for now
+    once there, reservecontroller || move to controller
+    spawn another one when it dies (not doing this, manual for now to avoid losing them over and over)
+Seems like building and upgrading are opopsites - when I want to build I want to stop upgrading - DONE
+    so if we make upgraders be something that builders run after they don't have anything to build that could work
+    keep one upgrader just so we always have upgrades 
+Stop claimers from spawning if they're getting killed (otherwise wastes all resources)
+    set a flag not to build
+    send a notification
+    flag has to be manually cleared from console (?)
+Build attacker creeps when room is under attack DONE
+    do a find for hostile creeps - if true set room.memory.foundHostiles = true DONE
+    if foundHostiles, spawn warrior DONE 
+    if no hostiles found, set room.memory.foundHostiles = false DONE
+Make attack creeps stay on ramparts - not sure there's any value here
+Activate safe mode when attacked (when it hits controller? or spawn?) DONE
+    did this when towers are at half health
+    should probably add same for spawns
+Build ranged attacker creeps, have them stay within walls/ramparts
+Make code run per room - DONE
+Make haulers deposit in STORAGE - DONE
+have creeps SAY errors (and not much else)
+Optimize storage and container hauling
+    right now haulers deposit in storage, then pull right out
+        temporarily fixed by not using anything as a source unless it's half full
+        fully fixed by designating SOURCEs and SINKs
+    so want to sort by which ones are more full?
+    really only want to put in storage when containers are full, but don't want to take from storage to 
+        put in containers unless they are close to empty
+    should sort container list to find the one that's got the least energy and deposit there
+    proritize SOURCE containers that are close to full to prevent harvesters from having to drag stuff
+    prioritize containers over storage?
+    mark some containers as sources and some as sinks? DONE
+    haulers should empty containers to fill spawns/extensions - so when room is below say 50% capacity, remove the energy requirement on pulling from containers
+    if you have non-energy resources, pick a CONTAINER target
+Make creeps run inside walls when attacked
+
+add creeps (interharveter and interhaulr) to harvest from nextdoor room that I don't owner
+    probably into a container next to the source
+fix tower code to cycle through all of them - DONE
+make claimers try to claim first, then reserve if that doesn't work
+make non-harvesters move away from source if they aren't harvesting
+fix claim logic so it will send builders and an upgrader to the room until the spawn is built
+make harvesters split themselves between sources if more than one
+    if sources = 1 then just go to that one
+    if sources = 2 then alternate between the two (start with closest to spawn)
+base harvester numbers etc on how quickly you can empty the source before restore (have to do the math)
+
+
+NOTES
+    find tower with
+        Game.rooms['W46N97'].find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}})
+    to get all rooms you can see
+        for(i in Game.rooms) { console.log(Game.rooms[i].name) }
+    find owner of room 
+        Game.rooms['W46N97'].controller.owner.username
+
+

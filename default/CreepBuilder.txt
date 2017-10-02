@@ -1,0 +1,22 @@
+Basic idea
+    Take prototype (smallest version) of each kind of creep
+        harvester
+        hauler
+        worker
+        soldier
+    Decide what the best makeup is based on
+        energy available
+        work to do (ex: no sense in harvesters that can drain a source too fast)
+    so parameters are: creep type, energy available, energy capacity, RCL (or stage)
+    for harvesters
+        2 energy/tick/WORK
+        sources are 3k energy, regenerate in 300 ticks
+        so with 100% efficiency, need to harvest 10 energy per tick, or 5 WORK parameters
+        so 2 with 3 parts (400 cost) or 1 with 6 (700) should do it
+        PRESUMPTION: 2 per source with 3 WORKs should work in most rooms once we have containers to drop in
+        Prior to that, 2 per source with basic makeup
+    for haulers
+    for workers
+        generally mix of WORK, CARRY, MOVE - which is 200 for a grouping
+        so generally they go 200, 400, 600 (although maybe 550 not sure you ever need 3 MOVEs)
+    

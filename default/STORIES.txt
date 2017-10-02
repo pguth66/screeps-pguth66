@@ -1,0 +1,10 @@
+INVASION
+    spawned a warrior, it attacked and did some damage but didn't kill the invader
+    towers were set to <8 range, the creep was outside that attacking my walls
+    haulers went to get the dropped resources
+    haulers got hurt bad enough they had only MOVE, no CARRY - but still counted as haulers for the spawning logic
+    healer went to fix the walls, somehow got stuck on the rampart with no MOVE parts
+    so next warrior spawned had no path to the invader, so it went to another room!
+    now I'm out of energy in spawn/extensions, and my haulers are alivebut can't haul
+    eventually room shut down, as workers drained the containers of energy and new harvesters couldn't spawn
+    also new haulers wouldn't spawn because it prioritizes harvesters!!!!
