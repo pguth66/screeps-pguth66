@@ -34,8 +34,8 @@ module.exports = {
                 break;
         }
 
-        if(!creep.memory.hauling && !(creep.room.name == Memory.roomToClaim)) {
-            const exitDir = creep.room.findExitTo(Memory.roomToClaim);
+        if(!creep.memory.hauling && !(creep.room.name == Memory.roomToHarvest)) {
+            const exitDir = creep.room.findExitTo(Memory.roomToHarvest);
             const exit = creep.pos.findClosestByRange(exitDir);
             creep.moveTo(exit, {visualizePathStyle: {}}); 
             creep.memory.target=null;
