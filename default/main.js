@@ -463,17 +463,47 @@ module.exports.loop = function () {
 
         // Console report
         if ((Game.time % 24) == 0) {
+            var msg = '';
+            msg = 'Room '.concat(room.name, "(", room.controller.level, "): ");
+            msg = msg.concat(room.energyAvailable, "/", room.energyCapacityAvailable);
+            msg = msg.concat(' Creeps: ', _.size(roomCreeps));
             if (towers.length > 0) {
-            console.log('Room ' + room.name + '(' + room.controller.level + '): ' + 
-                room.energyAvailable + '/' + room.energyCapacityAvailable + 
-                ' Creeps: ' + _.size(roomCreeps) + ' Tower: ' +
-                tower.energy + '/' + tower.energyCapacity);
+                msg = msg.concat(" Towers:");
+                var tcolor='green';
+                towers.forEach(function(t) {
+                    if(t.energy < 500) {
+                        tcolor='red';
+                    }
+                    else {
+                        if(t.energy < 700) {
+                            tcolor='yellow';
+                        }
+                    }
+                    msg = msg.concat(" <font color='",tcolor,"'>",t.energy,"</font>");
+                });
+            if(room.storage) {
+                var stcolor='green';
+                if(room.storage.store[RESOURCE_ENERGY] < 10000) {
+                    stcolor='red'
+                } 
+                else {
+                    if(room.storage.store[RESOURCE_ENERGY] < 50000) {
+                        stcolor='yellow';
+                    }
+                }
+                msg = msg.concat(" Storage: <font color='",stcolor,"'>",room.storage.store[RESOURCE_ENERGY],"</font>");
+            }
+          //  console.log('Room ' + room.name + '(' + room.controller.level + '): ' + 
+          //      room.energyAvailable + '/' + room.energyCapacityAvailable + 
+          //      ' Creeps: ' + _.size(roomCreeps) + ' Tower: ' +
+          //     tower.energy + '/' + tower.energyCapacity);
             }
             else {
-                console.log('Room ' + room.name + '(' + room.controller.level + '): ' + 
-                room.energyAvailable + '/' + room.energyCapacityAvailable + 
-                ' Creeps: ' + _.size(roomCreeps));
+           //     console.log('Room ' + room.name + '(' + room.controller.level + '): ' + 
+           //     room.energyAvailable + '/' + room.energyCapacityAvailable + 
+           //     ' Creeps: ' + _.size(roomCreeps));
             }
+            console.log(msg);            
         } // end console report
         
         // Safe Room
