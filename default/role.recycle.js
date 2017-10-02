@@ -13,6 +13,12 @@ var roleRecycle = {
     run: function(creep) {
         
         spawn = creep.room.find(FIND_MY_SPAWNS)[0];
+        // if no spawn in this room, just start going back towards the capital
+        if(spawn == null) {
+            const exitDir=creep.room.findExitTo('W27N27');
+            const exit=creep.pos.findClosestByPath(exitDir);
+            creep.moveTo(exit);
+        }
         if(creep.pos.getRangeTo(spawn) == 1) {
             spawn.recycleCreep(creep);
             console.log('Recycling ' + creep.name);
