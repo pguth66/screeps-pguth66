@@ -38,7 +38,8 @@ var roleHarvester = {
 
         if(!creep.memory.depositing) {
             // we're harvesting, so find sources 
-            if(creep.memory.target != null) {
+            if(creep.hasTarget()) {                
+            // if(creep.memory.target != null) {
                 try {
                     target = Game.getObjectById(creep.memory.target);
                     if(creep.pos.inRangeTo(target,1)) {

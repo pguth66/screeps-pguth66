@@ -84,7 +84,7 @@ module.exports = {
             var targets = [];
             var target = null ;
             // if we have a target, either drop in there or move to there
-            if(creep.memory.target != null) {
+            if(creep.hasTarget()) {
                 try {
                     target = Game.getObjectById(creep.memory.target);
                     if(!isFull(target)) {
@@ -107,6 +107,7 @@ module.exports = {
                 }
                 catch(err) {
                     creep.memory.target = null;
+                    creep.creepLog(err);
                     creep.say('memwipe');
                 }
             }
@@ -209,7 +210,7 @@ module.exports = {
             var target = null ;
             // if we have a target, either pick up there or move to there
             try{
-            if(creep.memory.target != null) {
+            if(creep.hasTarget()) {
                 target = Game.getObjectById(creep.memory.target);
                 if(target == null) {
                     creep.memory.target = null ; 
