@@ -34,12 +34,25 @@ module.exports = {
                 break;
         }
 
+        try{
         if(!creep.memory.hauling && !(creep.room.name == Memory.roomToHarvest)) {
-            const exitDir = creep.room.findExitTo(Memory.roomToHarvest);
-            const exit = creep.pos.findClosestByRange(exitDir);
-            creep.moveTo(exit, {visualizePathStyle: {}}); 
+            const targetRoom = Game.rooms[Memory.roomToHarvest];
+            //console.log(targetRoom.name);    
+            if(targetRoom) {        
+                creep.moveTo(targetRoom.controller);
+            }
+            else {
+                const exitDir = creep.room.findExitTo(Memory.roomToHarvest);
+                const exit = creep.pos.findClosestByRange(exitDir);
+                creep.moveTo(exit, {visualizePathStyle: {}}); 
+            }
+            
             creep.memory.target=null;
             return;       
+        }
+        }
+        catch(err) {
+            creep.creepLog(err + " while trying to go to target room");
         }
 
         if(creep.memory.hauling && (creep.room.name != Memory.roomToHelp)) {
