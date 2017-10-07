@@ -13,6 +13,7 @@ var roleRemoteworker = require('role.remoteworker');
 var roleCalTrans = require('role.caltrans');
 var roleVanguard = require('role.vanguard');
 var roleScavenger = require('role.scavenger');
+var harvestRole = require('func.harvestRoles');
 
 
 module.exports.loop = function () {
@@ -183,7 +184,14 @@ module.exports.loop = function () {
     }
 
     const numMinHaulers = _.filter(Game.creeps, (c) => { return c.memory.role == 'minhauler'}).length;
-    if (Memory.spawnCaltrans > 0) {
+
+    // Harvest room logic
+
+    const harvestRoles = [ 'caltrans' , 'harvester' ];
+
+    harvestRoles.forEach(function(role) {harvestRole.run(role,'W29N28')});
+
+/*    if (Memory.spawnCaltrans > 0) {
         Memory.spawnCaltrans -= 1
     }
     else {
@@ -199,6 +207,8 @@ module.exports.loop = function () {
             }
         }
     }
+    */
+
     //console.log(numMinHaulers.length + " mineral haulers");
 
     //const capitalCity = _.filter(Memory.roomMaps, (r) => {return r.isCapital});
