@@ -12,6 +12,9 @@ var roleRecycle = {
     /** @param {Creep} creep **/
     run: function(creep) {
         
+        if(creep.memory.targetRoom) {
+            creep.memory.targetRoom = undefined;
+        }
         spawn = creep.room.find(FIND_MY_SPAWNS)[0];
         // if no spawn in this room, just start going back towards the capital
         if(spawn == null) {
