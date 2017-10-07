@@ -54,11 +54,11 @@ var roleWarrior = {
             }
         }   
         else {
-            if(!(Memory.roomToAttack)) {
+            if(!(Memory.roomToAttack) && (hostiles.length == 0)) {
                 creep.memory.role='recycle';
                 return;
             }
-            if(creep.room != Game.rooms[Memory.roomToAttack]) {
+            if((creep.room != Game.rooms[Memory.roomToAttack]) && (creep.room.name != creep.memory.targetRoom)) {
                 creep.say("ToROom");
                 const exitDir=creep.room.findExitTo(Memory.roomToAttack);
                 const exit=creep.pos.findClosestByRange(exitDir);
