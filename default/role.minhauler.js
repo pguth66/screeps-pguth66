@@ -49,6 +49,7 @@ var roleMinHauler = {
         }
 
         if(!creep.memory.hauling) {
+            try {
             for(c in roomMap.containers) {
                 // get the real container object
                 container = Game.getObjectById(roomMap.containers[c].id);
@@ -60,9 +61,20 @@ var roleMinHauler = {
             if(targets.length == 0) {
                 creep.say('notarget!');
                 roomMap.hasMinsToHaul = false;
-                const exitDir=creep.room.findExitTo('W29N29');
-                const exit=creep.pos.findClosestByRange(exitDir);
-                creep.moveTo(exit);
+                if(creep.room.name == 'W29N29') {
+                    if(_.sum(creep.carry) == 0) {
+                        creep.memory.role='recycle';
+                        return;
+                    }
+                    else {
+                        creep.memory.hauling=true;
+                    }
+                }
+                else {
+                    const exitDir=creep.room.findExitTo('W29N29');
+                    const exit=creep.pos.findClosestByRange(exitDir);
+                    creep.moveTo(exit);
+                }
             }
             else {
                 target = creep.pos.findClosestByRange(targets);
@@ -75,6 +87,10 @@ var roleMinHauler = {
                 else {
                     creep.moveTo(target, { visualizePathStyle: {}});
                 }
+            }
+            }
+            catch(err) {
+                creep.creepLog(err);
             }
         }
 
