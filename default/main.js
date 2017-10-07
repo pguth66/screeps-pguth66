@@ -12,12 +12,73 @@ var roleMinHauler = require('role.minhauler');
 var roleRemoteworker = require('role.remoteworker');
 var roleCalTrans = require('role.caltrans');
 var roleVanguard = require('role.vanguard');
+var roleScavenger = require('role.scavenger');
 
 
 module.exports.loop = function () {
 
     Creep.prototype.creepLog = function (text) {
         console.log(this.name + "-" + this.room.name + ":" + text)
+    }
+    Creep.prototype.hasTarget = function () {
+        if(this.memory.target != null) {
+            //this.say('HasTarget!');
+            return true;
+        }
+        else {
+            //this.say('Notarget!');
+            return false;
+        }
+    }
+    Creep.prototype.inRangeToTarget = function(target) {
+        switch(target.structureType) {
+            default: 
+                range = 1;
+                break;
+        }
+        if(this.pos.inRangeTo(target,range)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    Creep.prototype.moveToRoom = function(room) {
+        // expects room to be a room NAME
+        targetRoom = Game.rooms[room];
+        if (targetRoom) {
+            this.moveTo(targetRoom.controller);
+        }
+        else {
+            const exitDir = this.room.findExitTo(room);
+            const exit = this.pos.findClosestByRange(exitDir);
+            this.moveTo(exit, {visualizePathStyle: {}}); 
+        }
+    }
+    Creep.prototype.getResources = function(target) {
+        // target should be a game object
+        if(this.pos.inRangeTo(target,1)) {
+            switch (this.withdraw(target, RESOURCE_ENERGY)) {
+                case ERR_INVALID_TARGET:
+                    this.pickup(target) ;
+                    break;
+                case OK:
+                    break;
+                default:
+                if (_.sum(this.carry) < this.carryCapacity) {
+                    for(const r in (target.store)) {
+                        this.withdraw(target ,r);
+                    }
+                };
+                break;
+            }
+
+            this.memory.target = null;
+
+        }
+        else {
+            this.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+        }
     }
 
     Memory.roomToClaim = 'W28N26'; // room to send claimers to
@@ -49,7 +110,8 @@ module.exports.loop = function () {
         W27N27: {containers: [ 
                 { id: '599b7d776ab60d4e2bc5aa9d', role: 'SOURCE', isSource: true},
                 { id: '599bd2f7e82f6d79eb4e4571', role: 'SOURCE', isSource: true},
-                { id: '59acf60b17856d163132ae42', role: 'SOURCE', isSource: true},
+                { id: '59d3c74c8b3b857455e5c1f7', role: 'SOURCE', isSource: true},
+                { id: '59d3c74c8b3b857455e5c1f6', role: 'SOURCE', isSource: true},
                 { id: '59a56008c0cfdb0fb88a4a3e', role: 'SOURCE', isSource: true, isMins: true},
                 { id: '59a0994324116d15c606624b', role: 'SINK', isSource: false, isStorage: true} // this one is Storage
                ],
@@ -101,9 +163,15 @@ module.exports.loop = function () {
         W28N26: { containers: [
                     {id: '59cc98207842056736894ad3', role: 'SOURCE', isSource:true},
                     { id: '59cd0cb9b0741a5fcf2fb961', role: 'SOURCE', isSource:true},
+                    { id: '59d29332aefa860d29decd94', role: 'SOURCE', isSource:true},
+                    { id: '59d29332aefa860d29decd95', role: 'SOURCE', isSource:true},
+                    { id: '59d677edb4fc723dfb270d77', role: 'SOURCE', isSource:true, isMins:true},
                     { id: '59ce54cd5ce8282a254f22ff', role: 'SINK', isSink:true, isStorage:true}
         ],
-                    links: []},
+                links: [
+                    { id: '59d25f20abda762ee496f901', role: 'SINK', isSource:false},
+                    { id: '59d2624a7aa36063f34475d4', role: 'SOURCE', isSource:true}
+                ]},
         sim: { containers: [ ] }
     }
 
@@ -120,13 +188,13 @@ module.exports.loop = function () {
     }
     else {
         if(Memory.spawnCaltrans == 0) {
-            Game.spawns['Spawn1'].createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE],undefined,{role:'caltrans'});
+            Game.spawns['Spawn4'].createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE],undefined,{role:'caltrans'});
             console.log('spawning caltrans and setting memory to null');
             Memory.spawnCaltrans = null;
         }
         else {
             const numCaltrans = _.filter(Game.creeps, (c) => { return c.memory.role == 'caltrans'}).length;
-            if(numCaltrans < 1) {
+            if(numCaltrans < 2) {
                 Memory.spawnCaltrans = 400 ;
             }
         }
@@ -154,23 +222,8 @@ module.exports.loop = function () {
         var prioritySpawn = false; // used to prioritize spawning of harvesters when multiple creeps are needed
         
         Memory.noBuild = false ; // used to flag when there are no construction sites, to prevent spawning builders
-        switch(room.controller.level) {
-            case 0:
-            case 1:
-            case 2:
-                Memory.stage = 'start';
-                break;
-            default:
-                Memory.stage = 'later';
-                break;
-        }
-
-        // go back to small creeps if we're really low on energy
-        if(room.energyAvailable < 700) {
-            Memory.stage = 'start';
-           // prioritySpawn = true;
-        }
-
+        
+      
         var roomOwner = undefined; 
         try {
             roomOwner = room.controller.owner.username;
@@ -178,21 +231,36 @@ module.exports.loop = function () {
         catch(err) {
         // console.log(err);
         } 
-        room.numSpawns = room.find(FIND_SOURCES).length;
-        //    console.log("room " + room.name + "has " + room.numSpawns + "spawns.");
+        room.numSources = room.find(FIND_SOURCES).length;
+        //    console.log("room " + room.name + "has " + room.numSources + "spawns.");
         
         try {
+            switch(room.controller.level) {
+                case 0:
+                case 1:
+                case 2:
+                    Memory.stage = 'start';
+                    break;
+                default:
+                    Memory.stage = 'later';
+                    break;
+            }
+    
+            // go back to small creeps if we're really low on energy
+            if(room.energyAvailable < 700) {
+                Memory.stage = 'start';
+               // prioritySpawn = true;
+            }
+    
             if(roomOwner == 'MixtySix') {
                 room.numContainers = Memory.roomMaps[room.name].containers.length;
                 room.numLinks = Memory.roomMaps[room.name].links.length;
                 //console.log(room.name + ' has storage ' + room.storage.id);
+                Memory.roomMaps[room.name].priorityRefill=false;
                 for (i in towers) {
                     tower = towers[i];    
                     if(tower.energy < (tower.energyCapacity * 0.7)) {
                         Memory.roomMaps[room.name].priorityRefill=true;
-                    }
-                    else {
-                        Memory.roomMaps[room.name].priorityRefill=false;
                     }
                 }
                 if(spawn && spawn.spawning) {
@@ -223,7 +291,7 @@ module.exports.loop = function () {
             }
         }
         catch(err) {
-            console.log(err);
+            console.log(err + ' during init of room ' + room.name);
         }
         //console.log("room " + room.name + "has " + room.numContainers + " containers.");
 
@@ -243,58 +311,74 @@ module.exports.loop = function () {
                             {role: 'minhauler', run: roleMinHauler.run},
                             {role: 'caltrans', run: roleCalTrans.run},
                             {role: 'vanguard', run: roleVanguard.run},
+                            {role: 'scavenger', run: roleScavenger.run},                            
                             {role: 'remoteworker', run: roleRemoteworker.run}
                          ] ;
     //    console.log('role: ' + creepMap[0].role + " function: " + creepMap[0].run);
         
         
         // loop over creeps in room, have them run the right role based on creepRoles
-        for(var name in roomCreeps) {  
+        for (var name in roomCreeps) {
             var creep = roomCreeps[name];
-            for(i=0; i < creepRoles.length; i++) {
-                if(creep.memory.role == creepRoles[i].role) {
-                    creepRoles[i].run(creep);
+            if (!creep.spawning) {
+                if (creep.memory.targetRoom && (creep.memory.targetRoom != creep.room.name) ) {
+                    creep.moveToRoom(creep.memory.targetRoom);
+                }
+                else {
+                    for(i=0; i < creepRoles.length; i++) {
+                        if(creep.memory.role == creepRoles[i].role) {
+                            creepRoles[i].run(creep);
+                        }
+                    }
+                }
+            }
+            else { // initialization stuff
+                if(!creep.memory.spawnRoom) {
+                    creep.memory.spawnRoom = room.name;
                 }
             }   
-        }
+        } // end creepRuns
 
         
         try {
             dismantleCreep = _.filter(Game.creeps, (c) => { return c.memory.role == 'dismantle'})[0];
             // dismantleCreep = Game.creeps['Tristan'];
-            dismantleFlags = room.find(FIND_FLAGS, {filter: {color: COLOR_RED}});
-            if((dismantleFlags.length > 0) && dismantleCreep) {
-                dismantleTargets = dismantleFlags[0].pos.lookFor(LOOK_STRUCTURES);
-                if(dismantleTargets.length == 0) {
-                    dismantleFlags[0].remove();
-                }
-                //console.log(room.name + dismantleTargets[0]);
-            
-                // should make this into an array, then towers can iterate over it and if it's empty won't cause problems
-                if(dismantleTargets.length > 0) {
-                    dismantleTarget = dismantleTargets[0];
-                    const depositTarget = Game.getObjectById('59a90288d14c6603ae1b5bef');
-
-                    if(dismantleCreep.carry[RESOURCE_ENERGY] == dismantleCreep.carryCapacity) {
-                        if(dismantleCreep.transfer(depositTarget,RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            dismantleCreep.moveTo(depositTarget);
-                        }
+            if(dismantleCreep) {
+                dismantleFlags = room.find(FIND_FLAGS, {filter: {color: COLOR_RED}});
+                if((dismantleFlags.length > 0) && dismantleCreep) {
+                    dismantleTargets = dismantleFlags[0].pos.lookFor(LOOK_STRUCTURES);
+                    if(dismantleTargets.length == 0) {
+                        dismantleFlags[0].remove();
                     }
-                    else {
-                        if(dismantleCreep.dismantle(dismantleTarget) == ERR_NOT_IN_RANGE) {
-                            dismantleCreep.moveTo(dismantleTarget);
-                        }
+                    //console.log(room.name + dismantleTargets[0]);
+                
+                    // should make this into an array, then towers can iterate over it and if it's empty won't cause problems
+                    if(dismantleTargets.length > 0) {
+                        dismantleTarget = dismantleTargets[0];
+                        const depositTarget = Game.getObjectById('59d29332aefa860d29decd95');
 
+                        if(dismantleCreep.carry[RESOURCE_ENERGY] == dismantleCreep.carryCapacity) {
+                            if(dismantleCreep.transfer(depositTarget,RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                                dismantleCreep.moveTo(depositTarget);
+                            }
+                        }
+                        else {
+                            if(dismantleCreep.dismantle(dismantleTarget) == ERR_NOT_IN_RANGE) {
+                                dismantleCreep.moveTo(dismantleTarget);
+                            }
+
+                        }
                     }
                 }
             }
         }
         catch(err) {
             console.log(creep.name + room.name + ": " + err);
-        }
+        } // end dismantle
 
+        if(roomOwner == 'MixtySix') {
         // start stage defaults
-       switch(room.controller.level) {
+        switch(room.controller.level) {
         case 0:
         case 1:
         case 2:
@@ -302,7 +386,7 @@ module.exports.loop = function () {
             break;
         default:
             var numHaulers = 1;
-       }
+        }
         var numHarvesters = 2 ;
         var numUpgraders = 1 ;
         var numBuilders = 3;
@@ -314,24 +398,51 @@ module.exports.loop = function () {
             if (numHaulers < 1) { 
                 numHaulers = 1;
             }
-            numHarvesters = room.numSpawns ;
+            numHarvesters = room.numSources ;
             numBuilders = numHarvesters ;
             numUpgraders = 1 ;
             numHealers = 1 ;
             numClaimers = 0 ;
         }
-
-        room.storageObj = _.filter(Memory.roomMaps[room.name].containers, ('isStorage'))[0];
-        if(room.storageObj) {
-            room.storage = Game.getObjectById(room.storageObj.id);
-            if (room.storage.store[RESOURCE_ENERGY] < 2000) {
-                numBuilders -= 1;
-               // console.log(room + " has no energy in storage, reducing numBuilders to " + numBuilders);
+        }
+        
+        try {
+            if(roomOwner == 'MixtySix') {
+            room.storageObj = _.filter(Memory.roomMaps[room.name].containers, ('isStorage'))[0];
+            if(room.storageObj) {
+                room.storage = Game.getObjectById(room.storageObj.id);
+                if (room.storage.store[RESOURCE_ENERGY] < 5000) {
+                    numBuilders -= 1;
+                // console.log(room + " has no energy in storage, reducing numBuilders to " + numBuilders);
+                }
+                if (room.storage.store[RESOURCE_ENERGY] > 150000) {
+                    numBuilders += 1;
+                }
+                if(room.storage.store[RESOURCE_ENERGY] > 350000) {
+                    numBuilders += 1;
+                }
             }
-            if (room.storage.store[RESOURCE_ENERGY] > 150000) {
-                numBuilders += 1;
+            var sourceContainers = _.filter(Memory.roomMaps[room.name].containers, (c) => c.isSource);
+            //console.log(room + ' has ' + sourceContainers.length + ' source containers');
+            var sourceEnergy = 0 ;
+            sourceContainers.forEach(function(c) {
+                //console.log('processing ' + c.id);
+                containerObj = Game.getObjectById(c.id);
+                if(containerObj.store[RESOURCE_ENERGY] > 1950) {
+                    //console.log('need another hauler in room ' + room.name);
+                    numHaulers += 1;
+                }
+                sourceEnergy += containerObj.store[RESOURCE_ENERGY];
+                //console.log('adding ' + c.store[RESOURCE_ENERGY] + ' to sourceEnergy');
+            })
+            // this provides a percentage of total if needed in future
+            //console.log((sourceEnergy / (sourceContainers.length * 2000) * 100).toFixed(0));
+
             }
         }
+        catch(err) {
+            console.log(room.name + " " + err);
+        } // end numCreep adjustments
     
 
         const enemies = room.find(FIND_HOSTILE_CREEPS);
@@ -345,8 +456,14 @@ module.exports.loop = function () {
 
                 break;
         }
+        const harvesters = _.filter(roomCreeps, (creep) => creep.memory.role == 'harvester');
+        const haulers = _.filter(roomCreeps, (creep) => creep.memory.role == 'hauler');
+        const upgraders = _.filter(roomCreeps, (creep) => creep.memory.role == 'upgrader');
+        const builders = _.filter(roomCreeps, (creep) => creep.memory.role == 'builder');
+        const healers = _.filter(roomCreeps, (creep) => creep.memory.role == 'healer');
+        const miners = _.filter(roomCreeps, (creep) => creep.memory.role == 'miner');
         
-
+        // spawning
         if ((roomOwner == 'MixtySix') && spawn) {
             if(room.memory.foundHostiles && (_.filter(roomCreeps, (creep) => creep.memory.role == 'warrior') < 1)) {
                 var newName ; 
@@ -354,7 +471,6 @@ module.exports.loop = function () {
                 console.log('Spawning new WARRIOR in ' + room.name);
             }
     //        console.log('running spawns for ' + room.name);
-        const harvesters = _.filter(roomCreeps, (creep) => creep.memory.role == 'harvester');
         if(harvesters.length < numHarvesters) {
             var newName ;
             switch (Memory.stage) {
@@ -369,14 +485,12 @@ module.exports.loop = function () {
             console.log('Spawning new harvester in ' + room.name + ': ' + newName);
         }
 
-        const haulers = _.filter(roomCreeps, (creep) => creep.memory.role == 'hauler');
         if(((haulers.length < numHaulers) && !prioritySpawn) || (haulers.length == 0 && Memory.stage != 'start') ) {
             const newName = spawn.createCreep([CARRY,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'hauler'});
             prioritySpawn = true;
             console.log('Spawning new hauler in ' + room.name + ': ' + newName);
         }
 
-        const upgraders = _.filter(roomCreeps, (creep) => creep.memory.role == 'upgrader');
         if((upgraders.length < numUpgraders) && !prioritySpawn) {
             var newName ;
             switch (Memory.stage) {
@@ -390,7 +504,6 @@ module.exports.loop = function () {
             console.log('Spawning new upgrader in ' + room.name + ': ' + newName);
         }
         
-        const builders = _.filter(roomCreeps, (creep) => creep.memory.role == 'builder');
         if((builders.length < numBuilders) && !prioritySpawn ) {
             var newName;
             switch (Memory.stage) {
@@ -405,7 +518,6 @@ module.exports.loop = function () {
         }
 
         
-        const healers = _.filter(roomCreeps, (creep) => creep.memory.role == 'healer');
         if ((healers.length < numHealers) && !prioritySpawn) {
             const newName = spawn.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'healer'});
             console.log('Spawning new healer in ' + room.name + ': ' + newName);
@@ -417,10 +529,9 @@ module.exports.loop = function () {
             console.log('Spawning new claimer in ' + room.name + ': ' + newName);
         }
 
-        const miners = _.filter(roomCreeps, (creep) => creep.memory.role == 'miner');
         if ((miners.length < 1) && (room.controller.level >= 6) &&
             (room.find(FIND_MINERALS)[0].mineralAmount > 0) &&
-            (room.energyAvailable == room.energyCapacityAvailable)) {
+            (room.energyAvailable > (room.energyCapacityAvailable * 0.9))) {
             const newName = spawn.createCreep([WORK,WORK,WORK,WORK,CARRY,MOVE], undefined, {role: 'miner'});
             console.log('Spawning new miner in ' + room.name + ': ' + newName);
         }
@@ -430,12 +541,12 @@ module.exports.loop = function () {
 
         for (i in towers) {
             tower = towers[i];    
-            if(tower.energy < (tower.energyCapacity * 0.7)) {
+            /* if(tower.energy < (tower.energyCapacity * 0.7)) {
                 Memory.roomMaps[room.name].priorityRefill=true;
             }
             else {
                 Memory.roomMaps[room.name].priorityRefill=false;
-            }
+            } */
             if(!room.memory.foundHostiles && (tower.energy > tower.energyCapacity / 2)) {    
                 const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
                     filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 5000 ) )
@@ -464,27 +575,35 @@ module.exports.loop = function () {
         // Console report
         if ((Game.time % 24) == 0) {
             var msg = '';
-            msg = 'Room '.concat(room.name, "(", room.controller.level, "): ");
-            msg = msg.concat(room.energyAvailable, "/", room.energyCapacityAvailable);
+            msg = 'Room '.concat(room.name);
+            if(roomOwner == 'MixtySix') {
+                const RCLprogress = (room.controller.progress / room.controller.progressTotal * 100).toFixed(0);
+                msg = msg.concat("(", room.controller.level, "-",RCLprogress, "%): ");
+                msg = msg.concat(room.energyAvailable, "/", room.energyCapacityAvailable);                
+            }
             msg = msg.concat(' Creeps: ', _.size(roomCreeps));
             if (towers.length > 0) {
                 msg = msg.concat(" Towers:");
-                var tcolor='green';
+                var tcolor='lawngreen';
                 towers.forEach(function(t) {
                     if(t.energy < 500) {
-                        tcolor='red';
+                        tcolor='salmon';
                     }
                     else {
                         if(t.energy < 700) {
                             tcolor='yellow';
                         }
+                        else {
+                            tcolor='lawngreen';
+                        }
                     }
+                    
                     msg = msg.concat(" <font color='",tcolor,"'>",t.energy,"</font>");
                 });
             if(room.storage) {
-                var stcolor='green';
+                var stcolor='lawngreen';
                 if(room.storage.store[RESOURCE_ENERGY] < 10000) {
-                    stcolor='red'
+                    stcolor='salmon'
                 } 
                 else {
                     if(room.storage.store[RESOURCE_ENERGY] < 50000) {
@@ -493,17 +612,21 @@ module.exports.loop = function () {
                 }
                 msg = msg.concat(" Storage: <font color='",stcolor,"'>",room.storage.store[RESOURCE_ENERGY],"</font>");
             }
+            msg = msg.concat(" ",harvesters.length,"/",haulers.length,"/",upgraders.length,"/",healers.length,"/",builders.length);
           //  console.log('Room ' + room.name + '(' + room.controller.level + '): ' + 
           //      room.energyAvailable + '/' + room.energyCapacityAvailable + 
           //      ' Creeps: ' + _.size(roomCreeps) + ' Tower: ' +
           //     tower.energy + '/' + tower.energyCapacity);
             }
-            else {
+           // else {
            //     console.log('Room ' + room.name + '(' + room.controller.level + '): ' + 
            //     room.energyAvailable + '/' + room.energyCapacityAvailable + 
            //     ' Creeps: ' + _.size(roomCreeps));
+            //}
+            console.log(msg); 
+            if((Game.time % 14400) == 0) {
+                Game.notify(msg);
             }
-            console.log(msg);            
         } // end console report
         
         // Safe Room
@@ -522,6 +645,7 @@ module.exports.loop = function () {
         if(room.memory.foundHostiles && room.needsSafeRoom && room.isCapital) {
             if(room.controller.safemode == undefined && room.controller.safeModeAvailable > 0) {
                 console.log(room.name + ' activating safe room!');
+                Game.notify(room.name + ' activating safe room!');
                 room.controller.activateSafeMode();
             }
         } // End safe room
@@ -532,13 +656,16 @@ module.exports.loop = function () {
             targetCreeps = spawn.pos.findInRange(FIND_MY_CREEPS, 1);
             if(targetCreeps.length > 0) {
                 // console.log('creep in range of spawn in ' +room.name + ': ' + targetCreeps[0].name);
-                if(targetCreeps[0].ticksToLive < 600 && targetCreeps[0].ticksToLive > 101) {
+                if(targetCreeps[0].ticksToLive < 900 && targetCreeps[0].ticksToLive > 101) {
                     if(spawn.energy > 150 && !spawn.spawning) {
                         spawn.renewCreep(targetCreeps[0]);
-                        console.log(room.name + ': renewing ' + targetCreeps[0].name + '(' + targetCreeps[0].memory.role + ') with TTL ' + targetCreeps[0].ticksToLive);
+                        //console.log(room.name + ': renewing ' + targetCreeps[0].name + '(' + targetCreeps[0].memory.role + ') with TTL ' + targetCreeps[0].ticksToLive);
                     }
                 }
             }
         } // end renew creeps
     } // end room loop
+    if ((Game.time % 24) == 12) {
+        console.log('GCL ' + Game.gcl.level + "-" + ((Game.gcl.progress / Game.gcl.progressTotal) * 100).toFixed(0) + "%");
+    }
 }
