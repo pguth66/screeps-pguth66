@@ -106,7 +106,7 @@ module.exports.loop = function () {
     Creep.prototype.respawn = function () {
         var body = [];
 
-        switch (this.role) {
+        switch (this.memory.role) {
             case 'dismantle':
                 body = [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE];
                 break;
