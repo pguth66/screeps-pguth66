@@ -42,8 +42,11 @@ var roleBuilder = {
 	    }
 	    if(!creep.memory.building && creep.carry.energy == creep.carryCapacity) {
 	        creep.memory.building = true;
-	        creep.say('🚧 build');
-	        creep.move(BOTTOM_LEFT);
+			creep.say('🚧 build');
+			const adjacentSource = creep.pos.findInRange(FIND_SOURCES, 1)[0];
+			if (adjacentSource) {
+				creep.flee(adjacentSource);
+			}
 	    }
 
 	    if(creep.memory.building) {
