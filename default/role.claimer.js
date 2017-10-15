@@ -19,13 +19,6 @@ var roleClaimer = {
                 creep.move(TOP);
                 break;
         }
-        if(!(creep.room.name == Memory.roomToClaim)) {
-            //creep.moveTo(Game.rooms[Memory.roomToClaim].controller, {visualizePathStyle: {}});
-            const exitDir = creep.room.findExitTo(Memory.roomToClaim);
-            const exit = creep.pos.findClosestByRange(exitDir);
-            creep.moveTo(exit, {visualizePathStyle: {}});
-        }
-        else {
             if(creep.room.controller.owner != null) {
                 switch(creep.attackController(creep.room.controller)) {
                     case ERR_NOT_IN_RANGE:
@@ -62,7 +55,7 @@ var roleClaimer = {
                                 console.log('error moving');
                                 break;
                         }
-                        creep.say("moving");
+                        //creep.say("moving");
                         break;
                     case OK:
                         break;
@@ -76,7 +69,6 @@ var roleClaimer = {
                 }
             }
         }
-	}
 };
 
 module.exports = roleClaimer;
