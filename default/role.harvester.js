@@ -28,6 +28,7 @@ var roleHarvester = {
         if(creep.memory.depositing && creep.carry.energy == 0) {
             creep.memory.depositing = false;
             creep.say('🔄 harvest');
+            creep.memory.locked=false;
 	    }
 	    if(!creep.memory.depositing && creep.carry.energy == creep.carryCapacity) {
             if(creep.carry.energy > 0) {
@@ -43,6 +44,26 @@ var roleHarvester = {
                 try {
                     target = Game.getObjectById(creep.memory.target);
                     if(creep.pos.inRangeTo(target,1)) {
+                        if (!creep.memory.locked) {
+                            const structures = creep.pos.lookFor(LOOK_STRUCTURES);
+                            const containers = _.filter(structures, {structureType: STRUCTURE_CONTAINER});
+                            //creep.creepLog(containers.length + ' containers');
+                            if (containers.length == 0) {
+                                const depositContainers = target.pos.findInRange(FIND_STRUCTURES, 1, {
+                                    filter: {structureType: STRUCTURE_CONTAINER}
+                                });
+                                if (depositContainers.length > 0) {
+                                    creep.creepLog('move to container ' + depositContainers[0]);
+                                    creep.moveTo(creep.pos.findClosestByPath(depositContainers));
+                                }
+                                else {
+                                    // no containers by source
+                                    creep.memory.locked = true;
+                                }
+                            } else {
+                                creep.memory.locked=true;
+                            }
+                        }
                         creep.harvest(target);  
     //                    creep.memory.target = null;
                     }
