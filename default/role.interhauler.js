@@ -34,17 +34,16 @@ module.exports = {
                 break;
         }
 
+        // need to make this use workRoom and baseRoom instead of (or in addition to) the Memory rooms
         try{
-        if(!creep.memory.hauling && !(creep.room.name == Memory.roomToHarvest)) {
-            const targetRoom = Game.rooms[Memory.roomToHarvest];
+        if(!creep.memory.hauling && !(creep.room.name == creep.memory.workRoom)) {
+            const targetRoom = Game.rooms[creep.memory.workRoom];
             //console.log(targetRoom.name);    
             if(targetRoom) {        
                 creep.moveTo(targetRoom.controller);
             }
             else {
-                const exitDir = creep.room.findExitTo(Memory.roomToHarvest);
-                const exit = creep.pos.findClosestByRange(exitDir);
-                creep.moveTo(exit, {visualizePathStyle: {}}); 
+                creep.moveToRoom(creep.memory.workRoom);
             }
             
             creep.memory.target=null;
@@ -55,10 +54,8 @@ module.exports = {
             creep.creepLog(err + " while trying to go to target room");
         }
 
-        if(creep.memory.hauling && (creep.room.name != Memory.roomToHelp)) {
-            const exitDir = creep.room.findExitTo(Memory.roomToHelp);
-            const exit = creep.pos.findClosestByRange(exitDir);
-            creep.moveTo(exit, {visualizePathStyle: {}});   
+        if(creep.memory.hauling && (creep.room.name != creep.memory.baseRoom)) {
+            creep.moveToRoom(creep.memory.baseRoom);
             creep.memory.target=null;               
             return;    
         }
