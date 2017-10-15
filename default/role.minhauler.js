@@ -22,6 +22,7 @@ var roleMinHauler = {
 
         var roomMap = Memory.roomMaps[creep.room.name];
         var targets = [] ;
+        const finalRoom = 'W28N28';
 
         switch(creep.pos.y) {
             case 0:
@@ -61,7 +62,7 @@ var roleMinHauler = {
             if(targets.length == 0) {
                 creep.say('notarget!');
                 roomMap.hasMinsToHaul = false;
-                if(creep.room.name == 'W29N29') {
+                if(creep.room.name == finalRoom) {
                     if(_.sum(creep.carry) == 0) {
                         creep.memory.role='recycle';
                         return;
@@ -71,7 +72,7 @@ var roleMinHauler = {
                     }
                 }
                 else {
-                    const exitDir=creep.room.findExitTo('W29N29');
+                    const exitDir=creep.room.findExitTo(finalRoom);
                     const exit=creep.pos.findClosestByRange(exitDir);
                     creep.moveTo(exit);
                 }
@@ -95,7 +96,14 @@ var roleMinHauler = {
         }
 
         if(creep.memory.hauling) {
-            terminal = Game.getObjectById(Memory.terminal);
+            var terminals = creep.room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TERMINAL}} );
+            var terminal = {} ;
+            if (terminals.length == 0) {
+                terminal = Game.getObjectById(Memory.terminal);
+            }
+            else {
+                terminal = terminals[0];
+            }
 
             if(creep.pos.inRangeTo(terminal, 1)) {
                 for(r in creep.carry) {
