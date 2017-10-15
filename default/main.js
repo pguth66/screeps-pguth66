@@ -105,10 +105,28 @@ module.exports.loop = function () {
     }
     Creep.prototype.respawn = function () {
         var body = [];
+        var newCreepMemory = { role: this.memory.role, respawn: true } ;
 
         switch (this.memory.role) {
             case 'dismantle':
                 body = [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE];
+                newCreepMemory.targetRoom = this.memory.targetRoom ;                
+                break;
+            case 'interhauler':
+                body = [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
+                newCreepMemory.targetRoom = this.memory.targetRoom; 
+                newCreepMemory.workRoom = this.memory.workRoom;
+                newCreepMemory.baseRoom = this.memory.baseRoom;
+                break;
+            case 'harvester':
+                if (Game.rooms[this.memory.targetRoom].controller.level > 3 ){
+                    body = [WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE];
+                }
+                else {
+                    body = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
+                }
+                newCreepMemory.targetRoom = this.memory.targetRoom;
+                newCreepMemory.target = this.memory.target;
                 break;
             default:
                 body = [TOUGH];
@@ -116,9 +134,9 @@ module.exports.loop = function () {
         }
         const spawnRoom = Game.rooms[this.memory.spawnRoom];
         const spawn = spawnRoom.find(FIND_MY_SPAWNS)[0];
-        if (spawn.spawnCreep(body, spawnRoom.name + '-' + Game.time, { memory: { role: this.memory.role, targetRoom: this.memory.targetRoom, respawn: true }, dryRun: true}) == OK ) {
+        if (spawn.spawnCreep(body, spawnRoom.name + '-' + Game.time, { memory: newCreepMemory, dryRun: true}) == OK ) {
             this.memory.respawn = false ;
-            return spawn.spawnCreep(body, spawnRoom.name + '-' + Game.time, { memory: { role: this.memory.role, targetRoom: this.memory.targetRoom, respawn: true } });
+            return spawn.spawnCreep(body, spawnRoom.name + '-' + Game.time, { memory: newCreepMemory });
         } else {
             return false;
         }
@@ -219,11 +237,6 @@ module.exports.loop = function () {
                 { id: '59be996f5a9d6d2344a8150d', role: 'SOURCE', isSource: true }
             ]
         },
-        W27N26: {
-            containers: [
-                { id: '599c884cb9f1167d3f68eec1', role: 'SOURCE', isSource: true }
-            ]
-        },
         W28N26: {
             containers: [
                 { id: '59dd9082212bf11ba6fa83ee', role: 'SOURCE', isSource: true },
@@ -247,7 +260,8 @@ module.exports.loop = function () {
             ],
             links: []
         },
-        sim: { containers: [] }
+        sim: { containers: [],
+                links: [] }
     }
 
     for (var name in Memory.creeps) {
@@ -260,8 +274,13 @@ module.exports.loop = function () {
     const numMinHaulers = _.filter(Game.creeps, (c) => { return c.memory.role == 'minhauler' }).length;
 
     // Harvest room logic
-    const harvestRoles = ['caltrans', 'harvester', 'interhauler', 'patrol'];
-    harvestRoles.forEach(function (role) { harvestRole.run(role, 'W29N28', 'W28N27') });
+    try {
+        const harvestRoles = ['caltrans', 'harvester', 'interhauler', 'patrol'];
+        harvestRoles.forEach(function (role) { harvestRole.run(role, 'W29N28', 'W28N27') });
+    }
+    catch (err) {
+        //console.log('Error running harvest rooms');
+    }
 
     /*    if (Memory.spawnCaltrans > 0) {
             Memory.spawnCaltrans -= 1
@@ -434,7 +453,7 @@ module.exports.loop = function () {
 
 
         try {
-            dismantleCreep = _.filter(Game.creeps, (c) => { return c.memory.role == 'dismantle' })[0];
+            const dismantleCreep = _.filter(Game.creeps, (c) => { return c.memory.role == 'dismantle' })[0];
             // dismantleCreep = Game.creeps['Tristan'];
             if (dismantleCreep) {
                 dismantleFlags = room.find(FIND_FLAGS, { filter: { color: COLOR_RED } });
@@ -453,10 +472,10 @@ module.exports.loop = function () {
                         if (dismantleCreep.carry[RESOURCE_ENERGY] == dismantleCreep.carryCapacity) {
                             if (dismantleCreep.transfer(depositTarget, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                                 dismantleCreep.moveTo(depositTarget);
-                                creep.say('Moving');
+                                dismantleCreep.say('Moving');
                             }
                             else {
-                                creep.say('wut');
+                                dismantleCreep.say('deposited');
                             }
                         }
                         else {
@@ -529,7 +548,7 @@ module.exports.loop = function () {
                     //console.log('processing ' + c.id);
                     containerObj = Game.getObjectById(c.id);
                     if (containerObj.store[RESOURCE_ENERGY] > 1950) {
-                        //console.log('need another hauler in room ' + room.name);
+                        // console.log('need another hauler in room ' + room.name + ' because container full: ' + containerObj.id);
                         numHaulers += 1;
                     }
                     sourceEnergy += containerObj.store[RESOURCE_ENERGY];
@@ -763,7 +782,7 @@ module.exports.loop = function () {
 
         // renew creeps 
         if (spawn != null) {
-            targetCreeps = spawn.pos.findInRange(FIND_MY_CREEPS, 1);
+            const targetCreeps = spawn.pos.findInRange(FIND_MY_CREEPS, 1);
             if (targetCreeps.length > 0) {
                 // console.log('creep in range of spawn in ' +room.name + ': ' + targetCreeps[0].name);
                 if (targetCreeps[0].ticksToLive < 900 && targetCreeps[0].ticksToLive > 101) {
