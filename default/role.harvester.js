@@ -42,7 +42,7 @@ var roleHarvester = {
             if(creep.hasTarget()) {                
             // if(creep.memory.target != null) {
                 try {
-                    target = Game.getObjectById(creep.memory.target);
+                    const target = Game.getObjectById(creep.memory.target);
                     if(creep.pos.inRangeTo(target,1)) {
                         if (!creep.memory.locked) {
                             const structures = creep.pos.lookFor(LOOK_STRUCTURES);
@@ -77,7 +77,7 @@ var roleHarvester = {
             }   
             else {
                 var sources = creep.room.find(FIND_SOURCES);
-                sourceToTarget = sources[0];
+                var sourceToTarget = sources[0];
                 var harvsOnSource = [] ;
                 try{ 
                 for(i=0; i < sources.length ; i++) {
