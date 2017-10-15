@@ -651,9 +651,15 @@ module.exports.loop = function () {
                 Memory.roomMaps[room.name].priorityRefill=false;
             } */
             if (!room.memory.foundHostiles && (tower.energy > tower.energyCapacity / 2)) {
-                const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-                    filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 5000))
+                var DamagedStructures = tower.room.find(FIND_STRUCTURES, {
+                    filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 5000))                    
                 });
+                DamagedStructures.forEach(function(s) {
+                    if (s.pos.lookFor(LOOK_FLAGS, {filter: {color: COLOR_RED}}).length > 0) {
+                        _.remove(DamagedStructures, s);
+                    }
+                })
+                const closestDamagedStructure = tower.pos.findClosestByRange(DamagedStructures);
 
                 if (closestDamagedStructure) {
                     if (!(closestDamagedStructure == dismantleTarget)) {
