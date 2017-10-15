@@ -71,7 +71,18 @@ var roleHealer = {
                                   structure.hits < structure.hitsMax ;
                     }
             });
-            const dontHeal = _.remove(targets, { id: '59a920423e04d963771e364c'});
+            const dismantleFlags = creep.room.find(FIND_FLAGS, { filter: { color: COLOR_RED } });
+            if (dismantleFlags.length > 0) {
+                dismantleFlags.forEach(function(flag) {
+                    const dismantleStructures = flag.pos.lookFor(LOOK_STRUCTURES);
+                    dismantleStructures.forEach(function(s) {
+                        _.pull(targets,s);
+                        //creep.creepLog('pulling from heal targets: ' + s);
+                    })
+                })
+               // const dontHeal = _.pullAll(targets, dismantleFlags);
+                //creep.creepLog('pulled ' + dontHeal.length + ' dismantle targets');
+            }
 //            const dontHeal = _.remove(targets, dismantleTarget);
             
             //console.log(creep.name + ' has ' + targets.length + ' heal targets')
