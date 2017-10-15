@@ -16,8 +16,8 @@ var roleRemoteworker = {
     /** @param {Creep} creep **/
     run: function(creep) {
 
-        if(creep.ticksToLive == 100 && Game.rooms[Memory.roomToBuild].controller.level < 3) {
-            Game.spawns['Spawn1'].createCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE],undefined,{role:'remoteworker'});
+        if(creep.ticksToLive == 100 && creep.room.controller.level < 3) {
+            Game.spawns['Spawn1'].createCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE],undefined,{role:'remoteworker',targetRoom:creep.room.name});
         }
 
         switch(creep.pos.y) {
@@ -29,32 +29,23 @@ var roleRemoteworker = {
                 break;
         }
 
-        if(!(creep.room.name == Memory.roomToBuild)) {
-            const exitDir = creep.room.findExitTo(Memory.roomToBuild);
-            const exit = creep.pos.findClosestByRange(exitDir);
-            creep.moveTo(exit, {visualizePathStyle: {}});
+        if(creep.room.controller.my && (creep.room.controller.upgradeBlocked < 1) && (creep.room.controller.ticksToDowngrade < 300 || creep.room.controller.level < 1)) {
+            //creep.say('upradering');
+            roleUpgrader.run(creep);
+            return;
         }
-        else {
-
-
-            if(creep.room.controller.my && (creep.room.controller.ticksToDowngrade < 300 || creep.room.controller.level == 0)) {
-                creep.say('upradering');
-                roleUpgrader.run(creep);
-                return;
-            }
-            if(creep.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
-                roleBuilder.run(creep);
-                return;
-            }
-            const containers=creep.room.find(FIND_STRUCTURES, {filter: 
-                {structureType: STRUCTURE_CONTAINER}});
-            //creep.creepLog('containers ' + containers.length);
-            const roomCreeps = _.filter(Game.creeps, (c) => { return c.room.name == creep.room.name});
-           // creep.creepLog('creeps  ' + roomCreeps.length);
-           
-            roleHealer.run(creep);
-
+        if(creep.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
+            roleBuilder.run(creep);
+            return;
         }
+        const containers=creep.room.find(FIND_STRUCTURES, {filter: 
+            {structureType: STRUCTURE_CONTAINER}});
+        //creep.creepLog('containers ' + containers.length);
+        const roomCreeps = _.filter(Game.creeps, (c) => { return c.room.name == creep.room.name});
+        // creep.creepLog('creeps  ' + roomCreeps.length);
+        
+        roleHealer.run(creep);
+
     }
 };
 
