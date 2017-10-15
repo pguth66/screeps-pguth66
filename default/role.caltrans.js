@@ -14,9 +14,11 @@ var roleCalTrans = {
     /** @param {Creep} creep **/
     run: function(creep) {
 
-        if(creep.ticksToLive == 100) {
-            Game.spawns['Spawn1'].createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE],undefined,{role:'caltrans'});
+        /*
+        if (creep.ticksToLive == 100) {
+            Game.spawns['Spawn4'].createCreep([WORK, WORK, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'caltrans' });
         }
+        */
 
         switch(creep.pos.y) {
             case 0:
