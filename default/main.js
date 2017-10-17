@@ -15,6 +15,7 @@ var roleVanguard = require('role.vanguard');
 var roleScavenger = require('role.scavenger');
 var rolePatrol = require('role.patrol');
 var harvestRole = require('func.harvestRoles');
+var roleDismantle = require('role.dismantle');
 
 
 module.exports.loop = function () {
@@ -144,16 +145,20 @@ module.exports.loop = function () {
     Creep.prototype.findAnyDepositTarget = function () {
         var roomMap = Memory.roomMaps[this.room.name];
         var targets = [];
-        for(c in roomMap.containers) {
+        //this.creepLog(roomMap.containers.length + ' containers found')
+        roomMap.containers.forEach(function(c, i) {
             // get the real container object
-            container = Game.getObjectById(roomMap.containers[c].id);
-            container.role = roomMap.containers[c].role ;
-            if((_.sum(container.store) < (container.storeCapacity - _.sum(creep.carry)))) {
+            container = Game.getObjectById(c.id);
+            //this.creepLog('processing container ' + container.id);
+            container.role = c.role ;
+            if((_.sum(container.store) < (container.storeCapacity - _.sum(this.carry)))) {
                 targets.push(container);
             }
-            return this.pos.findClosestByPath(targets);
+        } , this);
+        //this.creepLog('found ' + targets.length + ' containers to deposit in, picking closest');
+        return this.pos.findClosestByPath(targets);
         }
-    }
+    
 
     Memory.roomToClaim = 'W28N26'; // room to send claimers to
     Memory.roomToHelp = 'W28N27'; // room to drop off interroom energy in
@@ -247,8 +252,8 @@ module.exports.loop = function () {
                 { id: '59ce54cd5ce8282a254f22ff', role: 'SINK', isSink: true, isStorage: true }
             ],
             links: [
-                { id: '59d25f20abda762ee496f901', role: 'SINK', isSource: false },
-                { id: '59d2624a7aa36063f34475d4', role: 'SOURCE', isSource: true }
+             //   { id: '59d25f20abda762ee496f901', role: 'SINK', isSource: false },
+             //   { id: '59d2624a7aa36063f34475d4', role: 'SOURCE', isSource: true }
             ]
         },
         W27N26: {
@@ -417,6 +422,7 @@ module.exports.loop = function () {
         { role: 'vanguard', run: roleVanguard.run },
         { role: 'scavenger', run: roleScavenger.run },
         { role: 'patrol', run: rolePatrol.run },
+        { role: 'dismantle', run:roleDismantle.run},
         { role: 'remoteworker', run: roleRemoteworker.run }
         ];
         //    console.log('role: ' + creepMap[0].role + " function: " + creepMap[0].run);
@@ -452,7 +458,7 @@ module.exports.loop = function () {
         } // end creepRuns
 
 
-        try {
+/*        try {
             const dismantleCreep = _.filter(Game.creeps, (c) => { return c.memory.role == 'dismantle' })[0];
             // dismantleCreep = Game.creeps['Tristan'];
             if (dismantleCreep) {
@@ -491,6 +497,7 @@ module.exports.loop = function () {
         catch (err) {
             console.log(creep.name + room.name + ": " + err);
         } // end dismantle
+        */
 
         if (roomOwner == 'MixtySix') {
             // start stage defaults
