@@ -50,7 +50,7 @@ module.exports.loop = function () {
         // expects room to be a room NAME
         targetRoom = Game.rooms[room];
         if (targetRoom) {
-            this.moveTo(targetRoom.controller);
+            this.moveTo(targetRoom.controller, {visualizePathStyle: {}});
         }
         else {
             const exitDir = this.room.findExitTo(room);
