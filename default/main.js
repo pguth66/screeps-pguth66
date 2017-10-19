@@ -158,6 +158,18 @@ module.exports.loop = function () {
         //this.creepLog('found ' + targets.length + ' containers to deposit in, picking closest');
         return this.pos.findClosestByPath(targets);
         }
+    Creep.prototype.hasOnlyMoveParts = function () {
+        const workparts = [ CARRY , WORK , ATTACK , RANGED_ATTACK, HEAL];
+        var numWorkingParts = 0 ;
+        workparts.forEach(function(part) {
+            numWorkingParts += this.getActiveBodyparts(part);
+        },this);
+        if (numWorkingParts > 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
     
 
     Memory.roomToClaim = 'W28N26'; // room to send claimers to
@@ -246,20 +258,21 @@ module.exports.loop = function () {
             containers: [
                 { id: '59dd9082212bf11ba6fa83ee', role: 'SOURCE', isSource: true },
                 { id: '59cd0cb9b0741a5fcf2fb961', role: 'SOURCE', isSource: true },
-                //    { id: '59d29332aefa860d29decd94', role: 'SOURCE', isSource:true},
+                { id: '59e145969574a42396556bd9', role: 'SOURCE', isSource:true},
                 //   { id: '59d29332aefa860d29decd95', role: 'SOURCE', isSource:true},
                 { id: '59ddb5a666e6033520372ea0', role: 'SOURCE', isSource: true, isMins: true },
                 { id: '59ce54cd5ce8282a254f22ff', role: 'SINK', isSink: true, isStorage: true }
             ],
             links: [
-             //   { id: '59d25f20abda762ee496f901', role: 'SINK', isSource: false },
-             //   { id: '59d2624a7aa36063f34475d4', role: 'SOURCE', isSource: true }
+                { id: '59d25f20abda762ee496f901', role: 'SINK', isSource: false },
+                { id: '59d2624a7aa36063f34475d4', role: 'SOURCE', isSource: true }
             ]
         },
         W27N26: {
             containers: [
                 { id: '59def12f7c84c61abd6ae73d', role: 'SOURCE', isSource: true },
                 { id: '59df09f26277326fe8296703', role: 'SOURCE', isSource: true },
+                { id: '59e72e8810a3d4295847a67d', role: 'SOURCE', isSource: true, isMins: true},
                 { id: '59e068c3fefc294ace78595f', role: 'SINK', isSource: false, isStorage:true},
                 { id: '59dfbaf690ab355d143b485c', role: 'SINK', isSink: true }
             ],
@@ -432,6 +445,10 @@ module.exports.loop = function () {
         for (var name in roomCreeps) {
             var creep = roomCreeps[name];
             if (!creep.spawning) {
+                if (creep.hasOnlyMoveParts()) {
+                    creep.creepLog('has only move parts, recycling')
+                    creep.memory.role = 'recycle';
+                }
                 if (creep.memory.targetRoom && (creep.memory.targetRoom != creep.room.name)) {
                     creep.moveToRoom(creep.memory.targetRoom);
                 }
