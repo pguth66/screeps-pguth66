@@ -165,7 +165,7 @@ module.exports = {
                         }
                         var terminal = creep.room.find(FIND_STRUCTURES, {
                             filter: (s) => { return (s.structureType == STRUCTURE_TERMINAL &&
-                                                s.store[RESOURCE_ENERGY] < 10000 &&
+                                                s.store[RESOURCE_ENERGY] < 20000 &&
                                                 _.sum(s.store) < s.storeCapacity); }
                         });
                         // assume only one terminal
