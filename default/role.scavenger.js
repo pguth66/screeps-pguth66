@@ -11,8 +11,8 @@ var roleHauler = require('role.hauler');
 var roleScavenger = {
     /** @param {Creep} creep **/
     run: function(creep) {
-        // creep should have targetRoom and baseRoom properties
-        // go to targetRoom
+        // creep should have workRoom and baseRoom properties
+        // go to workRoom
         // find all structures with resources
         // scavenge the resources
         // go to baseRoom
