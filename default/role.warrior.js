@@ -15,7 +15,8 @@ var roleWarrior = {
         // build array of targets, then attack closest one
         // if target is controller, have to use different method
 
-        var hostiles ;
+        var hostiles = [] ;
+        var closestHostile = {} ;
 
         const hostileCreeps = creep.room.find(FIND_HOSTILE_CREEPS);
         const hostileStructures = creep.room.find(FIND_HOSTILE_STRUCTURES);
@@ -23,8 +24,13 @@ var roleWarrior = {
 
         hostiles = hostileCreeps.concat(hostileStructures);
         hostileTowers = _.remove(hostiles, {structureType: STRUCTURE_TOWER});
-        _.remove(hostiles, {structureType: STRUCTURE_RAMPART}); 
-        _.remove(hostiles, {structureType: STRUCTURE_CONTROLLER}); 
+        hostileSpawns = _.remove(hostiles, {structureType: STRUCTURE_SPAWN});
+        typesToRemove = [ STRUCTURE_RAMPART, STRUCTURE_CONTROLLER, STRUCTURE_STORAGE, STRUCTURE_TERMINAL ];
+        typesToRemove.forEach(function (t) {
+            _.remove(hostiles, {structure_type: t});
+        })
+//        _.remove(hostiles, {structureType: STRUCTURE_RAMPART}); 
+//        _.remove(hostiles, {structureType: STRUCTURE_CONTROLLER}); 
         
 
         // need to prioritize towers here, and attack/heal creeps
@@ -32,10 +38,15 @@ var roleWarrior = {
         // console.log(hostiles.length);
 
         if(hostileTowers.length > 0) {
-            var closestHostile = creep.pos.findClosestByPath(hostileTowers);
+            closestHostile = creep.pos.findClosestByPath(hostileTowers);
         }
         else {
-            var closestHostile = creep.pos.findClosestByPath(hostiles);
+            if (hostileSpawns.length > 0) {
+                closestHostile = creep.pos.findClosestByPath(hostileSpawns);
+            }
+            else {
+                closestHostile = creep.pos.findClosestByPath(hostiles);
+            }
         }
     
         if(closestHostile) {
