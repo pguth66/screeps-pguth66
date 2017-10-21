@@ -13,9 +13,10 @@ var roleDismantle = {
 
         const dismantleFlags = creep.room.find(FIND_FLAGS, { filter: { color: COLOR_RED } });
         if (dismantleFlags.length > 0) {
-            var dismantleTargets = creep.pos.findClosestByPath(dismantleFlags).pos.lookFor(LOOK_STRUCTURES);
+            const dismantleFlag = creep.pos.findClosestByPath(dismantleFlags);
+            var dismantleTargets = dismantleFlag.pos.lookFor(LOOK_STRUCTURES);
             if (dismantleTargets.length == 0) {
-                dismantleFlags[0].remove();
+                dismantleFlag.remove();
             }
             //console.log(room.name + dismantleTargets[0]);
 
