@@ -235,9 +235,18 @@ module.exports = {
 
                         creep.memory.target = null;
 
-                    }
-                    else {
-                        creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                    } else {
+                        switch (creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}})) {
+                            case ERR_NO_PATH:
+                                creep.moveTo(target, {ignoreCreeps: true});
+                                creep.creepLog('no path to ' + target);
+                                break;
+                            case ERR_INVALID_TARGET:
+                                creep.creepLog('invalid target ' + target);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             } // end 'have a target'
@@ -246,6 +255,7 @@ module.exports = {
             else {
             // start with dropped resources
             var sources = creep.room.find(FIND_DROPPED_RESOURCES);
+            var fullsources = [];
             // if no dropped resources of > 50 units, then cycle through containers and find SOURCEs
             if((sources.length == 0) || sources[0].amount < 50) {
                 for(c in roomMap.containers) {
@@ -256,6 +266,10 @@ module.exports = {
                     // console.log("creep " + creep.name +" found container info " + container.id + container.role + " isSource " + container.isSource + ' in room ' + creep.room.name);
                     if(((container.role == 'SOURCE') || container.isSource) && (_.sum(container.store) > creep.carryCapacity)){
                         sources.push(container);
+                        if (_.sum(container.store) == container.storeCapacity) {
+                            fullsources.push(container);
+                            creep.say('Fullsource');
+                        }
                     }
                     else {
                         // add all containers when room is below half on energy
@@ -269,6 +283,9 @@ module.exports = {
             else {
                 creep.say("Dropped");
             //    console.log("Found "+ sources.length + " locations of dropped resources, first is " + sources[0].pos);
+            }
+            if (fullsources.length > 0) {
+                sources = fullsources ; 
             }
             if (sources.length == 0 ) {
                 // update this to pull from storage if it's got a lot in it (>10k?)
