@@ -278,7 +278,17 @@ module.exports = {
                             sources.push(container);
                         }
                     }
+
                 }
+                roomMap.links.forEach(function (l) {
+                    link = Game.getObjectById(l.id);
+                    link.isSource = l.isSource;
+                    creep.creepLog('found link ' + link.id);
+                    if (link.isSource && (link.energy > creep.carryCapacity)) {
+                        sources.push(link);
+                    }
+
+                })
             }
             else {
                 creep.say("Dropped");
