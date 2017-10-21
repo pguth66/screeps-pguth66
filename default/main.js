@@ -88,6 +88,11 @@ module.exports.loop = function () {
         const newY = this.pos.y + (this.pos.y - fleeTarget.pos.y);
         this.moveTo(newX, newY);
     }
+    Creep.prototype.tellCreepToMove = function (creep) {
+        const randomDir = Math.floor(Math.random() * 8 + 1);
+        creep.creepLog('moving in dir ' + randomDir);
+        creep.move(randomDir);
+    }
     Creep.prototype.getBody = function () {
         //        body = JSON.stringify(_.values(_.pick(this.body[0], ['type'])),null,4);
         function pullParts(part) {
@@ -273,9 +278,7 @@ module.exports.loop = function () {
                 { id: '59def12f7c84c61abd6ae73d', role: 'SOURCE', isSource: true },
                 { id: '59df09f26277326fe8296703', role: 'SOURCE', isSource: true },
                 { id: '59e72e8810a3d4295847a67d', role: 'SOURCE', isSource: true, isMins: true},
-                { id: '59e068c3fefc294ace78595f', role: 'SINK', isSource: false, isStorage:true},
-                { id: '59dfbaf690ab355d143b485c', role: 'SINK', isSink: true }
-            ],
+                { id: '59e068c3fefc294ace78595f', role: 'SINK', isSource: false, isStorage:true}            ],
             links: []
         },
         sim: { containers: [],
@@ -633,7 +636,7 @@ module.exports.loop = function () {
             }
 
             if (((haulers.length < numHaulers) && !prioritySpawn) || (haulers.length == 0 && Memory.stage != 'start')) {
-                const newName = spawn.createCreep([CARRY, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'hauler' });
+                const newName = spawn.createCreep([CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], undefined, { role: 'hauler' });
                 prioritySpawn = true;
                 console.log('Spawning new hauler in ' + room.name + ': ' + newName);
             }
@@ -658,7 +661,7 @@ module.exports.loop = function () {
                         newName = spawn.createCreep([WORK, WORK, CARRY, MOVE], undefined, { role: 'builder' });
                         break;
                     default:
-                        newName = spawn.createCreep([WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'builder' });
+                        newName = spawn.createCreep([WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE], undefined, { role: 'builder' });
                         break;
                 }
                 console.log('Spawning new builder in ' + room.name + ': ' + newName);
@@ -678,7 +681,7 @@ module.exports.loop = function () {
             if ((miners.length < 1) && (room.controller.level >= 6) &&
                 (room.find(FIND_MINERALS)[0].mineralAmount > 0) &&
                 (room.energyAvailable > (room.energyCapacityAvailable * 0.9))) {
-                const newName = spawn.createCreep([WORK, WORK, WORK, WORK, CARRY, MOVE], undefined, { role: 'miner' });
+                const newName = spawn.createCreep([WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE ], undefined, { role: 'miner' });
                 console.log('Spawning new miner in ' + room.name + ': ' + newName);
             }
         } // end Spawning
