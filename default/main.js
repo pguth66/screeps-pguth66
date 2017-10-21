@@ -303,30 +303,11 @@ module.exports.loop = function () {
         //console.log('Error running harvest rooms');
     }
 
-    /*    if (Memory.spawnCaltrans > 0) {
-            Memory.spawnCaltrans -= 1
-        }
-        else {
-            if(Memory.spawnCaltrans == 0) {
-                Game.spawns['Spawn4'].createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE],undefined,{role:'caltrans'});
-                console.log('spawning caltrans and setting memory to null');
-                Memory.spawnCaltrans = null;
-            }
-            else {
-                const numCaltrans = _.filter(Game.creeps, (c) => { return c.memory.role == 'caltrans'}).length;
-                if(numCaltrans < 2) {
-                    Memory.spawnCaltrans = 400 ;
-                }
-            }
-        }
-        */
-
-    //console.log(numMinHaulers.length + " mineral haulers");
-
     //const capitalCity = _.filter(Memory.roomMaps, (r) => {return r.isCapital});
     //console.log('capital is in '+ JSON.stringify(capitalCity, null, 4));
 
     // minhaulers aren't per room but global so they spawn outside the room loops
+    //console.log(numMinHaulers.length + " mineral haulers");
     if (numMinHaulers < 1) {
         Game.spawns['Spawn1'].createCreep([CARRY, CARRY, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'minhauler' });
     }
@@ -476,48 +457,6 @@ module.exports.loop = function () {
                 }
             }
         } // end creepRuns
-
-
-/*        try {
-            const dismantleCreep = _.filter(Game.creeps, (c) => { return c.memory.role == 'dismantle' })[0];
-            // dismantleCreep = Game.creeps['Tristan'];
-            if (dismantleCreep) {
-                dismantleFlags = room.find(FIND_FLAGS, { filter: { color: COLOR_RED } });
-                if ((dismantleFlags.length > 0) && dismantleCreep) {
-                    dismantleTargets = dismantleFlags[0].pos.lookFor(LOOK_STRUCTURES);
-                    if (dismantleTargets.length == 0) {
-                        dismantleFlags[0].remove();
-                    }
-                    //console.log(room.name + dismantleTargets[0]);
-
-                    // should make this into an array, then towers can iterate over it and if it's empty won't cause problems
-                    if (dismantleTargets.length > 0) {
-                        dismantleTarget = dismantleCreep.pos.findClosestByPath(dismantleTargets);
-                        const depositTarget = Game.getObjectById('59def12f7c84c61abd6ae73d');
-
-                        if (dismantleCreep.carry[RESOURCE_ENERGY] == dismantleCreep.carryCapacity) {
-                            if (dismantleCreep.transfer(depositTarget, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                                dismantleCreep.moveTo(depositTarget);
-                                dismantleCreep.say('Moving');
-                            }
-                            else {
-                                dismantleCreep.say('deposited');
-                            }
-                        }
-                        else {
-                            if (dismantleCreep.dismantle(dismantleTarget) == ERR_NOT_IN_RANGE) {
-                                dismantleCreep.moveTo(dismantleTarget);
-                            }
-
-                        }
-                    }
-                }
-            }
-        }
-        catch (err) {
-            console.log(creep.name + room.name + ": " + err);
-        } // end dismantle
-        */
 
         if (roomOwner == 'MixtySix') {
             // start stage defaults
@@ -769,16 +708,6 @@ module.exports.loop = function () {
                 msg = msg.concat(" Storage: <font color='", stcolor, "'>", room.storage.store[RESOURCE_ENERGY], "</font>");
             }
             msg = msg.concat(" ", harvesters.length, "/", haulers.length, "/", upgraders.length, "/", healers.length, "/", builders.length);
-            //  console.log('Room ' + room.name + '(' + room.controller.level + '): ' + 
-            //      room.energyAvailable + '/' + room.energyCapacityAvailable + 
-            //      ' Creeps: ' + _.size(roomCreeps) + ' Tower: ' +
-            //     tower.energy + '/' + tower.energyCapacity);
-
-            // else {
-            //     console.log('Room ' + room.name + '(' + room.controller.level + '): ' + 
-            //     room.energyAvailable + '/' + room.energyCapacityAvailable + 
-            //     ' Creeps: ' + _.size(roomCreeps));
-            //}
             console.log(msg);
             if ((Game.time % 14400) == 0) {
                 Game.notify(msg);
