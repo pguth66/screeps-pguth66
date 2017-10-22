@@ -27,8 +27,10 @@ var roleWarrior = {
         hostileSpawns = _.remove(hostiles, {structureType: STRUCTURE_SPAWN});
         typesToRemove = [ STRUCTURE_RAMPART, STRUCTURE_CONTROLLER, STRUCTURE_STORAGE, STRUCTURE_TERMINAL ];
         typesToRemove.forEach(function (t) {
-            _.remove(hostiles, {structure_type: t});
+            const removed = _.remove(hostiles, {structureType: t});
+            //creep.creepLog('removed ' + removed.length + ' targets of type ' + t);
         })
+        
 //        _.remove(hostiles, {structureType: STRUCTURE_RAMPART}); 
 //        _.remove(hostiles, {structureType: STRUCTURE_CONTROLLER}); 
         
