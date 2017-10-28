@@ -16,10 +16,30 @@ var roleScavenger = require('role.scavenger');
 var rolePatrol = require('role.patrol');
 var harvestRole = require('func.harvestRoles');
 var roleDismantle = require('role.dismantle');
-
+var roleContractHauler = require('role.contracthauler');
 
 module.exports.loop = function () {
 
+           
+    Creep.prototype.moveToTarget = function (target) {
+        //this.creepLog('moving to target ' + target.id);
+        switch (this.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}})) {
+            case ERR_NO_PATH:
+                const path = this.pos.findPathTo(target, {ignoreCreeps:true});
+                path.forEach(function(path){
+                    pathSpot = new RoomPosition(path.x, path.y, this.room.name);
+                    blockingCreeps = pathSpot.lookFor(LOOK_CREEPS);
+                    if (blockingCreeps.length > 0) {
+                        this.creepLog('blocked by creep ' + blockingCreeps[0].name);
+                        this.tellCreepToMove(blockingCreeps[0]);
+                        return;
+                    }
+                },this)
+                break;
+            default:
+                break;
+            }
+    }
     Creep.prototype.creepLog = function (text) {
         console.log(this.name + "-" + this.room.name + ":" + text)
     }
@@ -84,6 +104,7 @@ module.exports.loop = function () {
         }
     }
     Creep.prototype.flee = function (fleeTarget) {
+        // right now this only works when the fleeTarget is close to (really, next to) the creep
         const newX = this.pos.x + (this.pos.x - fleeTarget.pos.x);
         const newY = this.pos.y + (this.pos.y - fleeTarget.pos.y);
         this.moveTo(newX, newY);
@@ -151,6 +172,7 @@ module.exports.loop = function () {
         var roomMap = Memory.roomMaps[this.room.name];
         var targets = [];
         //this.creepLog(roomMap.containers.length + ' containers found')
+        // need to add links, spawns, extensions to this
         roomMap.containers.forEach(function(c, i) {
             // get the real container object
             container = Game.getObjectById(c.id);
@@ -164,7 +186,7 @@ module.exports.loop = function () {
         return this.pos.findClosestByPath(targets);
         }
     Creep.prototype.hasOnlyMoveParts = function () {
-        const workparts = [ CARRY , WORK , ATTACK , RANGED_ATTACK, HEAL];
+        const workparts = [ CARRY , WORK , ATTACK , RANGED_ATTACK, HEAL, CLAIM];
         var numWorkingParts = 0 ;
         workparts.forEach(function(part) {
             numWorkingParts += this.getActiveBodyparts(part);
@@ -278,7 +300,15 @@ module.exports.loop = function () {
                 { id: '59def12f7c84c61abd6ae73d', role: 'SOURCE', isSource: true },
                 { id: '59df09f26277326fe8296703', role: 'SOURCE', isSource: true },
                 { id: '59e72e8810a3d4295847a67d', role: 'SOURCE', isSource: true, isMins: true},
-                { id: '59e068c3fefc294ace78595f', role: 'SINK', isSource: false, isStorage:true}            ],
+                { id: '59e068c3fefc294ace78595f', role: 'SINK', isSource: false, isStorage:true}   
+                ],
+            links: []
+        },
+        W29N27: {
+            containers: [
+                { id: '59f39545a0e88a4a9b893efe', role: 'SOURCE', isSource: true },
+                { id: '59f39ee327c3bb6658f88081', role: 'SOURCE', isSource: true }
+                ],
             links: []
         },
         sim: { containers: [],
@@ -420,6 +450,7 @@ module.exports.loop = function () {
         { role: 'scavenger', run: roleScavenger.run },
         { role: 'patrol', run: rolePatrol.run },
         { role: 'dismantle', run:roleDismantle.run},
+        { role: 'contracthauler', run:roleContractHauler.run},
         { role: 'remoteworker', run: roleRemoteworker.run }
         ];
         //    console.log('role: ' + creepMap[0].role + " function: " + creepMap[0].run);
@@ -505,7 +536,7 @@ module.exports.loop = function () {
                     }
                 }
                 if (room.controller.level == 8) {
-                    numBuilders = 1;
+                    numBuilders -= 2;
                 }
                 var sourceContainers = _.filter(Memory.roomMaps[room.name].containers, (c) => c.isSource);
                 //console.log(room + ' has ' + sourceContainers.length + ' source containers');
