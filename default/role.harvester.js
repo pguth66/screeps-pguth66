@@ -53,7 +53,7 @@ var roleHarvester = {
                                     filter: {structureType: STRUCTURE_CONTAINER}
                                 });
                                 if (depositContainers.length > 0) {
-                                    creep.creepLog('move to container ' + depositContainers[0]);
+                                    //creep.creepLog('move to container ' + depositContainers[0]);
                                     creep.moveTo(creep.pos.findClosestByPath(depositContainers));
                                 }
                                 else {
