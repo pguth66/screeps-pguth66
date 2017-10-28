@@ -296,6 +296,9 @@ module.exports = {
                 return;
             } else {
                 const source=creep.pos.findClosestByPath(sources);
+                if (!source) {
+                    source=creep.pos.findClosestByRange(sources);
+                }
                 creep.memory.target = source.id ;
             }
             // we're wasting a tick here, by not moving to the target now
