@@ -11,7 +11,7 @@ module.exports = {
     /** @param {Creep} creep **/
     run: function(creep) {
         // find containers with energy, bring them to fill spawns and extensions
-        
+ 
         function isFull(structure) {
             var b = false;
   
@@ -97,7 +97,9 @@ module.exports = {
                             creep.memory.target = null;
                         }
                         else {
-                            creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                            // here's where we add the stuff to tell a creep to move if it's in the way
+                            //creep.creepLog('moving to ' + target.id);
+                                creep.moveToTarget(target);
                         }
                     }
                     else {
@@ -236,17 +238,7 @@ module.exports = {
                         creep.memory.target = null;
 
                     } else {
-                        switch (creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}})) {
-                            case ERR_NO_PATH:
-                                creep.moveTo(target, {ignoreCreeps: true});
-                                creep.creepLog('no path to ' + target);
-                                break;
-                            case ERR_INVALID_TARGET:
-                                creep.creepLog('invalid target ' + target);
-                                break;
-                            default:
-                                break;
-                        }
+                        creep.moveToTarget(target);
                     }
                 }
             } // end 'have a target'
@@ -283,7 +275,7 @@ module.exports = {
                 roomMap.links.forEach(function (l) {
                     link = Game.getObjectById(l.id);
                     link.isSource = l.isSource;
-                    creep.creepLog('found link ' + link.id);
+                    //creep.creepLog('found link ' + link.id);
                     if (link.isSource && (link.energy > creep.carryCapacity)) {
                         sources.push(link);
                     }
