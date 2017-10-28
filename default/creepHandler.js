@@ -33,7 +33,9 @@ module.exports = {
         // takes a creep as an argument
         // handles init etc and runs the appropriate role for that creep
         // meant to be called from the room loop
-
+        Creep.prototype.creepLog = function (text) {
+            console.log(this.name + "-" + this.room.name + "-" + this.memory.role + ": " + text)
+        }
         const creepRoles = [
             { role: 'harvester', run: roleHarvester.run },
             { role: 'upgrader', run: roleUpgrader.run },
