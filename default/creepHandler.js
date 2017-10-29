@@ -22,9 +22,191 @@ var roleCalTrans = require('role.caltrans');
 var roleVanguard = require('role.vanguard');
 var roleScavenger = require('role.scavenger');
 var rolePatrol = require('role.patrol');
-var harvestRole = require('func.harvestRoles');
 var roleDismantle = require('role.dismantle');
 var roleContractHauler = require('role.contracthauler');
+
+Creep.prototype.creepLog = function (text) {
+    console.log(this.name + "-" + this.room.name + "-" + this.memory.role + ": " + text)
+}
+Creep.prototype.moveToTarget = function (target) {
+    //this.creepLog('moving to target ' + target.id);
+    switch (this.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}})) {
+        case ERR_NO_PATH:
+            const path = this.pos.findPathTo(target, {ignoreCreeps:true});
+            path.forEach(function(path){
+                pathSpot = new RoomPosition(path.x, path.y, this.room.name);
+                blockingCreeps = pathSpot.lookFor(LOOK_CREEPS);
+                if (blockingCreeps.length > 0) {
+                    this.creepLog('blocked by creep ' + blockingCreeps[0].name);
+                    this.tellCreepToMove(blockingCreeps[0]);
+                    return;
+                }
+            },this)
+            break;
+        default:
+            break;
+        }
+}
+
+Creep.prototype.hasTarget = function () {
+    if (this.memory.target != null) {
+        //this.say('HasTarget!');
+        return true;
+    }
+    else {
+        //this.say('Notarget!');
+        return false;
+    }
+}
+Creep.prototype.inRangeToTarget = function (target) {
+    switch (target.structureType) {
+        default:
+            range = 1;
+            break;
+    }
+    if (this.pos.inRangeTo(target, range)) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+Creep.prototype.moveToRoom = function (room) {
+    // expects room to be a room NAME
+    targetRoom = Game.rooms[room];
+    if (targetRoom) {
+        this.moveTo(targetRoom.controller, {visualizePathStyle: {}});
+    }
+    else {
+        const exitDir = this.room.findExitTo(room);
+        const exit = this.pos.findClosestByRange(exitDir);
+        this.moveTo(exit, { visualizePathStyle: {} });
+    }
+}
+Creep.prototype.getResources = function (target) {
+    // target should be a game object
+    if (this.pos.inRangeTo(target, 1)) {
+        switch (this.withdraw(target, RESOURCE_ENERGY)) {
+            case ERR_INVALID_TARGET:
+                this.pickup(target);
+                break;
+            case OK:
+                break;
+            default:
+                if (_.sum(this.carry) < this.carryCapacity) {
+                    for (const r in (target.store)) {
+                        this.withdraw(target, r);
+                    }
+                };
+                break;
+        }
+
+        this.memory.target = null;
+
+    }
+    else {
+        this.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+    }
+}
+Creep.prototype.flee = function (fleeTarget) {
+    // right now this only works when the fleeTarget is close to (really, next to) the creep
+    const newX = this.pos.x + (this.pos.x - fleeTarget.pos.x);
+    const newY = this.pos.y + (this.pos.y - fleeTarget.pos.y);
+    this.moveTo(newX, newY);
+}
+Creep.prototype.tellCreepToMove = function (creep) {
+    const randomDir = Math.floor(Math.random() * 8 + 1);
+    creep.creepLog('moving in dir ' + randomDir);
+    creep.move(randomDir);
+}
+Creep.prototype.getBody = function () {
+    //        body = JSON.stringify(_.values(_.pick(this.body[0], ['type'])),null,4);
+    function pullParts(part) {
+        var r = _.values(_.pick(part, ['type']));
+        //console.log(JSON.stringify(r,null,4));            
+    }
+
+    var bodyArr = this.body.map(pullParts);
+    var newarr = [];
+
+    bodyArr.forEach(function (e) {
+        newarr.concat(e);
+    })
+    console.log(bodyArr);
+    //        console.log(body);
+}
+Creep.prototype.respawn = function () {
+    var body = [];
+    var newCreepMemory = { role: this.memory.role, respawn: true } ;
+
+    try {
+        switch (this.memory.role) {
+            case 'dismantle':
+                body = [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE];
+                newCreepMemory.targetRoom = this.memory.targetRoom ;                
+                break;
+            case 'interhauler':
+                body = [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
+                newCreepMemory.targetRoom = this.memory.targetRoom; 
+                newCreepMemory.workRoom = this.memory.workRoom;
+                newCreepMemory.baseRoom = this.memory.baseRoom;
+                break;
+            case 'harvester':
+                if (Game.rooms[this.memory.targetRoom].controller.level > 3 ){
+                    body = [WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE];
+                }
+                else {
+                    body = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
+                }
+                newCreepMemory.targetRoom = this.memory.targetRoom;
+                newCreepMemory.target = this.memory.target;
+                break;
+            default:
+                body = [TOUGH];
+                break;
+        }
+        const spawnRoom = Game.rooms[this.memory.spawnRoom];
+        const spawn = spawnRoom.find(FIND_MY_SPAWNS)[0];
+        if (spawn.spawnCreep(body, spawnRoom.name + '-' + Game.time, { memory: newCreepMemory, dryRun: true}) == OK ) {
+            this.memory.respawn = false ;
+            return spawn.spawnCreep(body, spawnRoom.name + '-' + Game.time, { memory: newCreepMemory });
+        } else {
+            return false;
+        }
+    }
+    catch (err) {
+        this.creepLog(err);
+    }
+}
+Creep.prototype.findAnyDepositTarget = function () {
+    var roomMap = Memory.roomMaps[this.room.name];
+    var targets = [];
+    //this.creepLog(roomMap.containers.length + ' containers found')
+    // need to add links, spawns, extensions to this
+    roomMap.containers.forEach(function(c, i) {
+        // get the real container object
+        container = Game.getObjectById(c.id);
+        //this.creepLog('processing container ' + container.id);
+        container.role = c.role ;
+        if((_.sum(container.store) < (container.storeCapacity - _.sum(this.carry)))) {
+            targets.push(container);
+        }
+    } , this);
+    //this.creepLog('found ' + targets.length + ' containers to deposit in, picking closest');
+    return this.pos.findClosestByPath(targets);
+    }
+Creep.prototype.hasOnlyMoveParts = function () {
+    const workparts = [ CARRY , WORK , ATTACK , RANGED_ATTACK, HEAL, CLAIM];
+    var numWorkingParts = 0 ;
+    workparts.forEach(function(part) {
+        numWorkingParts += this.getActiveBodyparts(part);
+    },this);
+    if (numWorkingParts > 0) {
+        return false;
+    } else {
+        return true;
+    }
+}
 
 module.exports = {
 
@@ -33,9 +215,7 @@ module.exports = {
         // takes a creep as an argument
         // handles init etc and runs the appropriate role for that creep
         // meant to be called from the room loop
-        Creep.prototype.creepLog = function (text) {
-            console.log(this.name + "-" + this.room.name + "-" + this.memory.role + ": " + text)
-        }
+  
         const creepRoles = [
             { role: 'harvester', run: roleHarvester.run },
             { role: 'upgrader', run: roleUpgrader.run },
