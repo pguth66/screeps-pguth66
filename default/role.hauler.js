@@ -295,7 +295,7 @@ module.exports = {
                 //console.log(creep.name + ' no SOURCE containers found in room ' + creep.room.name);
                 return;
             } else {
-                const source=creep.pos.findClosestByPath(sources);
+                var source=creep.pos.findClosestByPath(sources);
                 if (!source) {
                     source=creep.pos.findClosestByRange(sources);
                 }
