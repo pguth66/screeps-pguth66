@@ -9,6 +9,8 @@
 
 var harvestRoles = {
 
+    // this module's purpose is to handle spawning of creeps to harvest remote rooms
+    // normally creeps spawn inside the room loop but these are a special case
     run: function(role, roomToHarvest, roomToHelp) {
         //console.log('running harvest role for ' + role);
 
@@ -23,16 +25,16 @@ var harvestRoles = {
             if(Memory.spawn[role] == 0) {
                 switch(role) {
                     case 'caltrans':
-                        Game.spawns['Spawn4'].createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE],undefined,{role:'caltrans',workRoom:roomToHarvest});
+                        Game.spawns['Spawn7'].createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE],undefined,{role:'caltrans',workRoom:roomToHarvest});
                         break;
                     case 'harvester':
-                        Game.spawns['Spawn4'].createCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE],undefined,{role:'harvester',targetRoom:roomToHarvest});
+                        Game.spawns['Spawn7'].createCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE],undefined,{role:'harvester',targetRoom:roomToHarvest});
                         break;
                     case 'interhauler':
-                        Game.spawns['Spawn5'].createCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE],undefined,{role:'interhauler',workRoom:roomToHarvest,baseRoom:roomToHelp});
+                        Game.spawns['Spawn10'].createCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE],undefined,{role:'interhauler',workRoom:roomToHarvest,baseRoom:roomToHelp});
                         break;
                     case 'patrol':
-                        Game.spawns['Spawn4'].createCreep([TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE],undefined,{role:'patrol',targetRoom:roomToHarvest});
+                        Game.spawns['Spawn7'].createCreep([TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE],undefined,{role:'patrol',targetRoom:roomToHarvest});
                         break;
                 }
                 console.log('spawning ' + role + ' and setting memory to null');
