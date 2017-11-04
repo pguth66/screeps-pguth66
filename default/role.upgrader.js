@@ -20,7 +20,7 @@ var roleUpgrader = {
         else 
         {
 			var source;
-			var sources = creep.room.find(FIND_STRUCTURES, {
+			/*var sources = creep.room.find(FIND_STRUCTURES, {
                  filter: (structure) => {
 						return ((structure.structureType == STRUCTURE_CONTAINER ||
 								structure.structureType == STRUCTURE_STORAGE ) 
@@ -28,6 +28,15 @@ var roleUpgrader = {
 								(structure.structureType == STRUCTURE_LINK && structure.energy > 0));
                     }
 				});
+				*/
+			var containers = _.filter(creep.room.containers, (c) => { return c.store[RESOURCE_ENERGY] > 0});
+			const links = creep.room.find(FIND_STRUCTURES, {
+				filter: (structure) => { return (structure.structureType == STRUCTURE_LINK &&
+				structure.energy > 0)}
+			});
+			
+			var sources = containers.concat(links);
+			//creep.creepLog('found ' + sources.length + ' containers and links to pull from');
 			if(sources.length == 0 && (creep.room.energyAvailable === creep.room.energyCapacityAvailable)) {
 				sources = creep.room.find(FIND_MY_STRUCTURES, {
 					filter: (structure) => {

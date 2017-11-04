@@ -1,5 +1,6 @@
 var creepHandler = require('creepHandler');
 var harvestRole = require('func.harvestRoles');
+require('roomHandler');
 
 module.exports.loop = function () {
 
@@ -9,7 +10,7 @@ module.exports.loop = function () {
     Memory.roomToAttack = null; // room to send warriors to
     Memory.roomToBuild = 'W28N26'; // room to send remoteworkers to
     Memory.roomToHarvest = 'W29N28'; // room to harvest energy in (and send interhaulers to)
-    Memory.roomToObserve = 'W29N27';
+    Memory.roomToObserve = 'W30N27';
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
 
@@ -65,7 +66,7 @@ module.exports.loop = function () {
         },
         W29N28: {
             containers: [
-                { id: '59f5ec14d67e256da0f8a583', role: 'SOURCE', isSource: true },
+                { id: '59f9248643a6f21494ac51cb', role: 'SOURCE', isSource: true },
                 { id: '59f5f06cdfd6af587fd52b6e', role: 'SOURCE', isSource: true }
 
             ],
@@ -76,7 +77,7 @@ module.exports.loop = function () {
             containers: [
                 { id: '59dd70980a04da472f8414ed', role: 'SOURCE', isSource: true },
                 { id: '59dd99e7aed33f53598642b0', role: 'SOURCE', isSource: true },
-                { id: '59dd82121047461ab24d8018', role: 'SOURCE', isSource: true, isMins: true },
+                { id: '59f97cc941899941525e0590', role: 'SOURCE', isSource: true, isMins: true },
                 { id: '59bc4a940c06b0220c547d5c', role: 'SINK', isSource: false, isStorage: true } // Storage
             ],
             links: [
@@ -110,7 +111,8 @@ module.exports.loop = function () {
         W29N27: {
             containers: [
                 { id: '59f39545a0e88a4a9b893efe', role: 'SOURCE', isSource: true },
-                { id: '59f39ee327c3bb6658f88081', role: 'SOURCE', isSource: true }
+                { id: '59f39ee327c3bb6658f88081', role: 'SOURCE', isSource: true },
+                { id: '59f62a2f8ef04852260efd63', role: 'SINK', isSource:false, isStorage:true}
                 ],
             links: []
         },
@@ -165,7 +167,7 @@ module.exports.loop = function () {
         catch (err) {
             // console.log(err);
         }
-        room.numSources = room.find(FIND_SOURCES).length;
+        room.numSources = room.sources.length;
         //    console.log("room " + room.name + "has " + room.numSources + "spawns.");
 
         try {
@@ -275,9 +277,9 @@ module.exports.loop = function () {
 
         try {
             if (roomOwner == 'MixtySix') {
-                room.storageObj = _.filter(Memory.roomMaps[room.name].containers, ('isStorage'))[0];
-                if (room.storageObj) {
-                    room.storage = Game.getObjectById(room.storageObj.id);
+                //room.storageObj = _.filter(Memory.roomMaps[room.name].containers, ('isStorage'))[0];
+                //if (room.storageObj) {
+                //    room.storage = Game.getObjectById(room.storageObj.id);
                     if (room.storage.store[RESOURCE_ENERGY] < 5000) {
                         numBuilders -= 1;
                         // console.log(room + " has no energy in storage, reducing numBuilders to " + numBuilders);
@@ -288,7 +290,7 @@ module.exports.loop = function () {
                     if (room.storage.store[RESOURCE_ENERGY] > 350000) {
                         numBuilders += 1;
                     }
-                }
+                //}
                 if (room.controller.level == 8) {
                     numBuilders -= 2;
                 }
@@ -315,7 +317,7 @@ module.exports.loop = function () {
         } // end numCreep adjustments
 
 
-        const enemies = room.find(FIND_HOSTILE_CREEPS);
+        var enemies = room.find(FIND_HOSTILE_CREEPS);
         // whitelist for nice dude next to me
         if (room.name == 'W27N26') {
             _.remove(enemies, { owner: 'Totalschaden' });
@@ -438,7 +440,7 @@ module.exports.loop = function () {
                 }
             }
             else {
-                const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+                const closestHostile = tower.pos.findClosestByRange(enemies);
                 if (closestHostile) {
                     if (tower.pos.getRangeTo(closestHostile) < 12) {
                         tower.attack(closestHostile);

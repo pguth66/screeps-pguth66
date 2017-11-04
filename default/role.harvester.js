@@ -76,7 +76,7 @@ var roleHarvester = {
                 }
             }   
             else {
-                var sources = creep.room.find(FIND_SOURCES);
+                var sources = creep.room.sources;
                 var sourceToTarget = sources[0];
                 var harvsOnSource = [] ;
                 try{ 

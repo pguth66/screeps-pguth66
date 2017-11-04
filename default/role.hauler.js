@@ -142,21 +142,21 @@ module.exports = {
                         // this looks for SINKs and deposits there no matter how full
                         // looks for containers (includes storage), links, and terminals
                         if(roomMap.links.length > 0) {
-                            containersAndLinks = roomMap.containers.concat(roomMap.links);
+                            containersAndLinks = creep.room.containers.concat(roomMap.links);
                         }
                         else {
-                            containersAndLinks = roomMap.containers;
+                            containersAndLinks = creep.room.containers;
                         }
                         //console.log('room ' + creep.room.name + ' has ' + containersAndLinks.length + ' cont/links');
 
-                        for(c in roomMap.containers) {
+                        creep.room.containers.forEach(function(container) {
                             // get the real container object
-                            container = Game.getObjectById(roomMap.containers[c].id);
-                            container.role = roomMap.containers[c].role ;
-                            if((container.role == 'SINK') && (_.sum(container.store) < (container.storeCapacity - _.sum(creep.carry)))) {
+                            //container = Game.getObjectById(roomMap.containers[c].id);
+                            //container.role = roomMap.containers[c].role ;
+                            if((!container.isSource) && (_.sum(container.store) < (container.storeCapacity - _.sum(creep.carry)))) {
                                 targets.push(container);
                             }
-                        }
+                        })
                         for(l in roomMap.links) {
                             link = Game.getObjectById(roomMap.links[l].id);
                             link.role = roomMap.links[l].role;
@@ -187,7 +187,7 @@ module.exports = {
                     }
                 }
                 catch(err) {
-                    console.log(creep.name + ": " + err);
+                    console.log(creep.name + ": " + err + 'whyile finding a target to haul to');
                 }
             //now try to transfer to target, or else move to it
             switch(creep.transfer(target, RESOURCE_ENERGY)) {
@@ -250,13 +250,13 @@ module.exports = {
             var fullsources = [];
             // if no dropped resources of > 50 units, then cycle through containers and find SOURCEs
             if((sources.length == 0) || sources[0].amount < 50) {
-                for(c in roomMap.containers) {
+                creep.room.containers.forEach(function (container) {
                     // get the real container object
-                    container = Game.getObjectById(roomMap.containers[c].id);
-                    container.role = roomMap.containers[c].role ;
-                    container.isSource = roomMap.containers[c].isSource ;
-                    // console.log("creep " + creep.name +" found container info " + container.id + container.role + " isSource " + container.isSource + ' in room ' + creep.room.name);
-                    if(((container.role == 'SOURCE') || container.isSource) && (_.sum(container.store) > creep.carryCapacity)){
+                    //container = Game.getObjectById(roomMap.containers[c].id);
+                    //container.role = roomMap.containers[c].role ;
+                    //container.isSource = roomMap.containers[c].isSource ;
+                    //console.log("creep " + creep.name +" found container info " + container.id + container.role + " isSource " + container.isSource + ' in room ' + creep.room.name);
+                    if((container.isSource) && (_.sum(container.store) > creep.carryCapacity)){
                         sources.push(container);
                         if (_.sum(container.store) == container.storeCapacity) {
                             fullsources.push(container);
@@ -271,16 +271,21 @@ module.exports = {
                         }
                     }
 
-                }
-                roomMap.links.forEach(function (l) {
-                    link = Game.getObjectById(l.id);
-                    link.isSource = l.isSource;
-                    //creep.creepLog('found link ' + link.id);
-                    if (link.isSource && (link.energy > creep.carryCapacity)) {
-                        sources.push(link);
-                    }
-
                 })
+                try {
+                    roomMap.links.forEach(function (l) {
+                        link = Game.getObjectById(l.id);
+                        link.isSource = l.isSource;
+                        //creep.creepLog('found link ' + link.id);
+                        if (link.isSource && (link.energy > creep.carryCapacity)) {
+                            sources.push(link);
+                        }
+
+                    })
+                }
+                catch (err) {
+                    creep.creepLog(err + " while processing links");
+                }
             }
             else {
                 creep.say("Dropped");
@@ -305,9 +310,9 @@ module.exports = {
             }
         }
             catch(err) {
-                creep.say(err);
-                creep.creepLog(err);
-                console.log(creep.name + ' ' + creep.room.name + ': ' + err + ', target ' + target);
+                //creep.say(err);
+                creep.creepLog(err + ' while finding a target to pickc up from');
+                //console.log(creep.name + ' ' + creep.room.name + ': ' + err + ', target ' + target);
                 creep.memory.target = null;
             }
         }

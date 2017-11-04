@@ -81,7 +81,7 @@ var roleBuilder = {
 	    else {
 			var sources = [];
 			try {
-			for(c in roomMap.containers) {
+/*			for(c in roomMap.containers) {
 				// get the real container object
 				container = Game.getObjectById(roomMap.containers[c].id);
 				container.role = roomMap.containers[c].role ;
@@ -91,6 +91,12 @@ var roleBuilder = {
 					sources.push(container);
 				}
 			}
+			*/
+			creep.room.containers.forEach(function(container) {
+				if(container.store[RESOURCE_ENERGY] > (creep.carryCapacity + 150)) {
+				sources.push(container);
+				}					
+			})
 			for(l in roomMap.links) {
 				link = Game.getObjectById(roomMap.links[l].id);
 				link.role = roomMap.links[l].role ;
