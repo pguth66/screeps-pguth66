@@ -32,16 +32,17 @@ Creep.prototype.moveToTarget = function (target) {
     //this.creepLog('moving to target ' + target.id);
     switch (this.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}})) {
         case ERR_NO_PATH:
+            this.creepLog('entering NO_PATH code');
             const path = this.pos.findPathTo(target, {ignoreCreeps:true});
-            path.forEach(function(path){
-                pathSpot = new RoomPosition(path.x, path.y, this.room.name);
-                blockingCreeps = pathSpot.lookFor(LOOK_CREEPS);
+            for (var i = 0  ; i < path.length; i++ ) {
+                const pathSpot = new RoomPosition(path[i].x, path[i].y, this.room.name);
+                const blockingCreeps = pathSpot.lookFor(LOOK_CREEPS);
                 if (blockingCreeps.length > 0) {
                     this.creepLog('blocked by creep ' + blockingCreeps[0].name);
                     this.tellCreepToMove(blockingCreeps[0]);
-                    return;
                 }
-            },this)
+                break;
+            };
             break;
         default:
             break;
