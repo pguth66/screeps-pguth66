@@ -34,12 +34,7 @@ var roleHealer = {
             // healers should pull from any container regardless of SOURCE/SINK since walls may be 
             // anywhere on the map
             var sources = _.filter(creep.room.containers, (c) => { return c.store[RESOURCE_ENERGY] > 200});
-            
-           /* var sources = creep.room.find(FIND_STRUCTURES, {
-                    filter: (structure) => {
-                        return (structure.structureType == STRUCTURE_CONTAINER)  && structure.store[RESOURCE_ENERGY] > 200;
-                    }
-            });*/
+
             for(l in roomMap.links) {
 				link = Game.getObjectById(roomMap.links[l].id);
 				link.role = roomMap.links[l].role ;

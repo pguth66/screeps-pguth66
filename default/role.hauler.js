@@ -150,9 +150,6 @@ module.exports = {
                         //console.log('room ' + creep.room.name + ' has ' + containersAndLinks.length + ' cont/links');
 
                         creep.room.containers.forEach(function(container) {
-                            // get the real container object
-                            //container = Game.getObjectById(roomMap.containers[c].id);
-                            //container.role = roomMap.containers[c].role ;
                             if((!container.isSource) && (_.sum(container.store) < (container.storeCapacity - _.sum(creep.carry)))) {
                                 targets.push(container);
                             }
@@ -251,11 +248,6 @@ module.exports = {
             // if no dropped resources of > 50 units, then cycle through containers and find SOURCEs
             if((sources.length == 0) || sources[0].amount < 50) {
                 creep.room.containers.forEach(function (container) {
-                    // get the real container object
-                    //container = Game.getObjectById(roomMap.containers[c].id);
-                    //container.role = roomMap.containers[c].role ;
-                    //container.isSource = roomMap.containers[c].isSource ;
-                    //console.log("creep " + creep.name +" found container info " + container.id + container.role + " isSource " + container.isSource + ' in room ' + creep.room.name);
                     if((container.isSource) && (_.sum(container.store) > creep.carryCapacity)){
                         sources.push(container);
                         if (_.sum(container.store) == container.storeCapacity) {

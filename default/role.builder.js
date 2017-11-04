@@ -81,17 +81,6 @@ var roleBuilder = {
 	    else {
 			var sources = [];
 			try {
-/*			for(c in roomMap.containers) {
-				// get the real container object
-				container = Game.getObjectById(roomMap.containers[c].id);
-				container.role = roomMap.containers[c].role ;
-	 //          console.log("creep " + creep.name +" found container info " + container.id + container.role);
-				if(container.store[RESOURCE_ENERGY] > (creep.carryCapacity + 150)) {
-//				if(container.role == 'SINK' && (container.store[RESOURCE_ENERGY] > creep.carryCapacity)) {
-					sources.push(container);
-				}
-			}
-			*/
 			creep.room.containers.forEach(function(container) {
 				if(container.store[RESOURCE_ENERGY] > (creep.carryCapacity + 150)) {
 				sources.push(container);
