@@ -33,9 +33,50 @@ mineral hauler
     then flip back to regular hauler after dropoff
     still need to handle the auto-spawning
 
+OMG you lose boosts when you renew a creep!!!!
+make haulers treat Links as sources so they wil take stuff from link to storage etc - DONE
+make warriors only attack spawns and towers, so they don't destroy structures with energy in them - DONE
+build roomMaps automatically
+remove SOURCE/SINK code
+switch to forEach for iterating over spawns in room
+automatically sell minerals when I have too many
+have creeps send message when blocked for > 5 ticks, and have other creep flee from them
+    done via having blocking creep move randomly - but didn't implement the 5 tick limit
+switch to a build queue in each room
+have builders move away from source if they are full and near one - DONE
+    say the source is at 23,24
+    and the creep is at 24,24
+    creep should move to 25,24
+    so want to go 1 more in the direction the creep already is - 24 - 23 = 1 so go to 24 + 1 =5
+    if reversed, creep at 23,24 source at 24,24
+        then 23 - 24 = -1 23 + -1 = 22 - work
+    so logic is creep.x + (creep.x - flee.x), same for y
+    newX = creep.pos.x + (creep.pos.x - fleeTarget.pos.x)
+    newY = creep.pos.y + (creep.pos.y - fleeTarget.pos.y)
+    creep.moveTo(newX, newY)
+make haulers deposit minerals in terminals instead of storage
+do the lab logic 
+    fill with energy
+    select 2 as reactors and one as destination
+    put the right mineral in the right place
+    run the reaction 
+    move the result to storage? or use it to boost creeps?
+fix mineral logic to move to terminal in own room first - DONE ?
+    only need minhaulers to gather from rooms without terminals
+    temporarily fixed by having minhauler only move through room with no terminals
+add logic to send energy from rooms with excess to rooms with deficit
+    first via creep
+        maybe use interhaulers? like with workROom = excessRoom and baseRoom= room to help
+        so interhauler logic needs to support this, not sure if it does now (it does now!)
+        not much point in this IMO
+    then via terminal
 make upgraders pull from links - DONE
+add counter to creeps to count how long it takes to the first time they start working
+add 'patrol' creep that will just sit in an unowned room - so has to handle the invaders of that size - DONE
+add 'renew' flag to creeps that makes them respawn themselves - DONE
+    make it happen at TTL = how long it took to get there
 switch parts to have MOVE last so when someone gets attacked they can move out of the way if they're not dead - DONE
-check for only having working MOVE parts, if so, recycle yourself
+check for only having working MOVE parts, if so, recycle yourself - DONE
 add logic to spawn another worker (builder) if SINK containers and links are full
 if zero harvesters and can't spawn harvester you want, spawn one that costs <300
     fixed by making it go to 'start' stage if energy in room is under 700, that should allow spawning a harvester
@@ -83,7 +124,7 @@ attackers
     teaming code so they wait for each other
     have a leader that records previous .pos and then have other guy move to that .pos (follow method)
 Have claimers sign rooms (based on array of EQ dungeon names preferably)
-fix report code to include all towers
+fix report code to include all towers - DONE
 Clean up old bestPath code - DONE
 Better error handling (add dfeault at least for errors)
 Make healers only heal walls up to some reasonable number (10k?) - DONE
@@ -136,6 +177,7 @@ Optimize storage and container hauling
     haulers should empty containers to fill spawns/extensions - so when room is below say 50% capacity, remove the energy requirement on pulling from containers
     if you have non-energy resources, pick a CONTAINER target
 Make creeps run inside walls when attacked
+Handle multiple terminals
 
 add creeps (interharveter and interhaulr) to harvest from nextdoor room that I don't owner
     probably into a container next to the source

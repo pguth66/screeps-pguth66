@@ -42,11 +42,30 @@ spawnCreeps
     minimum set at second stage is harvester, upgrader, hauler?
     parts is an array so start with basic layout then push parts onto the array
 
+renew
+    at TTL = something, have it spawn a copy of itself
+    use spawnRoom to get the Spawn
+        or find closest?
+    process the .body object to figure out what to spawn
+    for now just use a switch statement and the role?
+    then check if it can spawn the creep, if so do it
+    if the creep gets killed early, this will never run - normal room spawner logic will handle that
+    if (creep.memory.spawn && (creep.timeToLive < 100))
+        { spawn.spawnCreep(body, spawn.name + '-' + Game.time, {memory: {role:'dismantle',targetRoom:creep.memory.targetRoom},dryRun:true})
+
 common creep methods
     working vs gathering - check if working, flip back and forth when full or when empty
+        genericize as working vs not working?
+        harvester: working = harvesting, not working = depositing in SINK
+        hauler: working = hauling, not working = depositing in SINK
+        upgrader: working = upgrading, not working = picking up from containers/links or sources
+        builder: working = buiding, not working = same as upgrader
+        healer: working = healing, not working = same as upgrader/builder
+
     work towards goal
+        if you have a target go to it, else
         find targets (build an array)
-        select closest target
+        select closest target and store it
         act on it, or move to it
     gather resources
         find sources (build an array)
@@ -59,6 +78,74 @@ common creep methods
             
         select closest target
         act on it or move to it
+    generic creepRunner does things like:
+        check if spawning, if so just wait
+        if memory.target and not in range of target, moveTo target (is range always 1? not for workers)
+        right now only harvesters and haulers have targets! do the others need them?
+        if no target
+            if not working
+                have I hit condition to flip (maybe express this as creep.readyToWork)
+                if yes, flip, find a target, move to it
+                if no, continue with whatever notWorking is (deposit or picking up)
+            if working
+                have I hit conditino to flip (creep.doneWorking)
+                if yes, flip, find a target, move to it
+                if no, continue with whatever Working is
+        so some new creep methods
+            creep.memory.working is generic for all the working roles
+            creep.hasTarget is just checking if memory.target != null
+            creep.inRange(target, action) - based on action are we in appropriate range?
+                action = harvest, upgrade, heal, build, deposit
+            creep.moveToTarget which is just moveTo but stops when within whatever appropriate range is
+            where do I check if the target is no longer appropriate?
+                need a new creep.validTarget method which does that check based on role and working
+            maybe creep.isWorking which is just checking if memory.working == true
+            creep.readyToWork which checks for boundary conditions (e.g. carry full)
+            creep.findTarget which returns an appropriate target based on room condition and role
+            creep.work which runs the right working role - creep.work(action) ? or read role from memory?
+            creep.notWork which runs the right other role (this is a lame name - storing? warehousing? refilling?)
+            creep.readyToNotWOrk (doneWorking) (readyToRefill)
+        which is simplest role to start with? healer?
+            healer logic is only compolicated on finding sources
+                looks for containers with energy > 200
+                and links with energy > 0
+                if none of those, adds sources
+                then goes to target and either harvests or withdraws
+                so findTargets for healers will return an array 
+                    either containers with energy > 200 + links with energy > 0
+                    OR sources in room
+        so findTargets is a big switch statement?
+            based on the role, run the logic and return the right array?
+
+Room selection logic
+    creeps have different kind of room targets
+        spawnRoom = where they spawned
+        targetRoom = where they should go to
+        workRoom = where they should do their 'work' task
+        baseRoom = where they should go when done with their 'work' task (haulers haul here)
+        to add:
+        recycleRoom?
+        renewRoom? (for boosted creeps)
+
+spawns for harvesting a room - mostly DONE
+    need caltrans, harvesters, and interhaulers
+    for each room
+        arguments - roles: caltrans, harvesters, interhaulers ; room
+        do we have eyes? if not spawn a scout and send there
+        how many caltrans, harvesters, interhaulers do we have with target of that room?
+            caltrans is really just a healer with a target of roomToMaintain
+        if we are below target, start a counter if there isn't one already
+        decrement counter every tick
+        when counter == 0 spawn the creep, on success remove the counter
+            targetRoom = the harvest room
+            for interhaulers, baseRoom is from args? or calculated from rooms needing assitance?
+    stil TODO
+        fix interhauler logic to use baseROom and workRoom - DONE
+        make it iterate over an array of room pairs (help/harvest)
+        have it spawn intelligently - select nearby rooms with a surplus and use them
+        add a defender that just sits in the room to handle invaders (10xTOUGH,10xATTACK,10xMOVE) - DONE
+
+    
 kinds of Creeps 
     harvesters - small MOVE, small CARRY, lots of WORK
         methods
@@ -209,3 +296,55 @@ spawning maintainer creeps
     then set a timer in Memory.ticksToSpawnCaltrans for 500 
     every tick, --
     when it == 0, set it to null, then spawn a creep (check to see if not spawning before null?)
+
+building roomMaps automatically
+    object is { room.name: {containers: [ {id: , role: , isSource/isSink}]
+                            links: []}}
+    want to generate object, then store it in memory
+    so code is like
+    on first get
+        create object (room, containers, links)
+        find all containers and links (and storages) and sources 
+        containers within 2 spaces of sources mark as SOURCE
+        others mark as SINKs
+    subsequent gets, just return the data from Memory
+    will be referred to like:
+        roomMap[room.name].sources = array of sources (objectIDs) in the room
+    so when I have that in the code, I need a function that returns that array, like
+    function (room) {
+        return room.find(FIND_SOURCES);
+    }
+    but that still runs it every time it's called, so need to cache it the first time like
+    function (room) {
+        if (!room._sources) {
+            room._sources = room.find(FIND_SOURCES);
+        }
+        return room._sources;
+    }
+    the screeps API examples have this as a method on the room object - should I do that too?
+        I was thiniking tht would make it hard to store SOURCE flags etc, but no...
+        those can just be additional properties that get set on setting
+        so yeah I should do that
+    things to cache
+        containers
+            storage already exists as Room.storage 
+        links
+        sources
+        structures? (used by healers for example)
+            often only one healer in a room, and it runs that find once, and it's important what the current hits is
+        minerals
+        controller  NO - not ever found via find(), it's part of the room object already
+        towers
+        spawns?
+    how to handle when containers etc go away?   
+
+
+
+telling creeps to move
+    add creep method to move in a random direction - done
+    find the creep to tell to move
+        when you get back ERR_NO_PATH
+        do the same find again, with the option to ignore creeps
+        walk that path until you find a loc that has a creep on it
+
+        tell that creep to move!

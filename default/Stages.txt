@@ -1,6 +1,8 @@
 Bootstrapping
 
 First stage is just to get to RCL 1
+    UPDATE: now controller is blocked for 800 ticks right after you claim it
+        so spend that time building containers by the sources
     Basic creeps (WORK CARRY MOVE)
     No roads needed (creeps don't carry much so won't be that slow)
     No containers
@@ -12,6 +14,7 @@ First stage is just to get to RCL 1
     if it does exist and is owned by me, send 3 worker creeps
 After RCL1, focus on building a spawn
     Workers switch to building until we have the spawn
+    Put spawn near source so you can use it to heal harvesters after they get boosted
     Once we have a spawn, focus is on getting to RCL2
     For now keep this with basic creeps, no roads
     Workers focus on upgrading, harvesters to keep spawn full
