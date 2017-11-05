@@ -15,7 +15,8 @@ var roleRecycle = {
         if(creep.memory.targetRoom) {
             creep.memory.targetRoom = undefined;
         }
-        const spawn = creep.room.find(FIND_MY_SPAWNS)[0];
+        const spawns = creep.room.find(FIND_MY_SPAWNS);
+        const spawn = creep.pos.findClosestByPath(spawns);
         // if no spawn in this room, just start going back towards the capital
         if(spawn == null) {
             const exitDir=creep.room.findExitTo('W27N27');
