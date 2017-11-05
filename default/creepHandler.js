@@ -24,6 +24,7 @@ var roleScavenger = require('role.scavenger');
 var rolePatrol = require('role.patrol');
 var roleDismantle = require('role.dismantle');
 var roleContractHauler = require('role.contracthauler');
+var roleHeisenberg = require('role.heisenberg');
 
 Creep.prototype.creepLog = function (text) {
     console.log(this.name + "-" + this.room.name + "-" + this.memory.role + ": " + text)
@@ -32,7 +33,7 @@ Creep.prototype.moveToTarget = function (target) {
     //this.creepLog('moving to target ' + target.id);
     switch (this.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}})) {
         case ERR_NO_PATH:
-            this.creepLog('entering NO_PATH code');
+            //this.creepLog('entering NO_PATH code');
             const path = this.pos.findPathTo(target, {ignoreCreeps:true});
             for (var i = 0  ; i < path.length; i++ ) {
                 const pathSpot = new RoomPosition(path[i].x, path[i].y, this.room.name);
@@ -56,6 +57,24 @@ Creep.prototype.hasTarget = function () {
     }
     else {
         //this.say('Notarget!');
+        return false;
+    }
+}
+Creep.prototype.hasEnergy = function () {
+    if (this.carry[RESOURCE_ENERGY] > 0) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+Creep.prototype.hasMinerals = function () {
+    // pull out energy, what's left is minerals
+    const creepMins = _.omit(this.carry, RESOURCE_ENERGY);
+    if (!_.isEmpty(creepMins)) {
+        return true;
+    }
+    else {
         return false;
     }
 }
@@ -184,11 +203,11 @@ Creep.prototype.findAnyDepositTarget = function () {
     var targets = [];
     //this.creepLog(roomMap.containers.length + ' containers found')
     // need to add links, spawns, extensions to this
-    roomMap.containers.forEach(function(c, i) {
+    room.containers.forEach(function(container) {
         // get the real container object
-        container = Game.getObjectById(c.id);
+        //container = Game.getObjectById(c.id);
         //this.creepLog('processing container ' + container.id);
-        container.role = c.role ;
+        //container.role = c.role ;
         if((_.sum(container.store) < (container.storeCapacity - _.sum(this.carry)))) {
             targets.push(container);
         }
@@ -235,6 +254,7 @@ module.exports = {
             { role: 'patrol', run: rolePatrol.run },
             { role: 'dismantle', run:roleDismantle.run},
             { role: 'contracthauler', run:roleContractHauler.run},
+            { role: 'heisenberg', run: roleHeisenberg.run},
             { role: 'remoteworker', run: roleRemoteworker.run }
         ];
         //    console.log('role: ' + creepMap[0].role + " function: " + creepMap[0].run);
