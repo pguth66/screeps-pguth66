@@ -39,13 +39,13 @@ var roleVanguard = {
                     break;
             }
 
-            const targetRoomName = 'W29N28';
+            const targetRoomName = 'W28N29';
             const targetRoom = Game.rooms[targetRoomName];
             const safeRoomName = 'W29N29';
             const safeRoom = Game.rooms[safeRoomName];
 
             if(creep.room == targetRoom) {
-                if(creep.hits < 600) {
+                if(creep.hits < 1400) {
                     creep.moveTo(safeRoom.controller);
                 }
                 else {
