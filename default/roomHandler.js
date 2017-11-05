@@ -49,6 +49,15 @@ Object.defineProperty(Room.prototype, 'containers', {
     }
 })
 
+Object.defineProperty(Room.prototype, 'labs', {
+    get: function () {
+        if (!this._labs) {
+            this._labs = this.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_LAB}});
+        }
+        return this._labs;
+    }
+})
+
 /*module.exports = {
 
 };

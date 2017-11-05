@@ -1,6 +1,7 @@
 var creepHandler = require('creepHandler');
 var harvestRole = require('func.harvestRoles');
 require('roomHandler');
+var labHandler = require('labHandler');
 
 module.exports.loop = function () {
 
@@ -536,6 +537,7 @@ module.exports.loop = function () {
                 }
             }
         } // end renew creeps
+        labHandler.run(room);
     } // end room loop
     if ((Game.time % 24) == 12) {
         console.log('GCL ' + Game.gcl.level + "-" + ((Game.gcl.progress / Game.gcl.progressTotal) * 100).toFixed(0) + "%");
