@@ -141,6 +141,7 @@ module.exports = {
                         // no extensions, spawns, or towers
                         // this looks for SINKs and deposits there no matter how full
                         // looks for containers (includes storage), links, and terminals
+                        // also labs
                         if(roomMap.links.length > 0) {
                             containersAndLinks = creep.room.containers.concat(roomMap.links);
                         }
@@ -148,6 +149,13 @@ module.exports = {
                             containersAndLinks = creep.room.containers;
                         }
                         //console.log('room ' + creep.room.name + ' has ' + containersAndLinks.length + ' cont/links');
+
+                        if (creep.hasMinerals() && (creep.carry[RESOURCE_ENERGY] == 0) && creep.room.terminal) {
+                            target = creep.room.terminal;
+                            creep.memory.target = target.id;
+                            creep.say(target.structureType);
+                            return;
+                        }
 
                         creep.room.containers.forEach(function(container) {
                             if((!container.isSource) && (_.sum(container.store) < (container.storeCapacity - _.sum(creep.carry)))) {
@@ -171,6 +179,11 @@ module.exports = {
                         if(terminal[0]) {
                             targets.push(terminal[0]);
                         }
+                        creep.room.labs.forEach(function(lab) {
+                            if (creep.hasEnergy() && (lab.energy < lab.energyCapacity)) {
+                                targets.push(lab);
+                            }
+                        })
                         try {
                             if (targets.length > 0) {
                                 target = creep.pos.findClosestByPath(targets);
