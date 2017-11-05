@@ -14,16 +14,34 @@ module.exports = {
         // expects pullTarget and dropTarget
         // if not hauling, go to pullTarget, load up on energy, switch to hauling
         // if hauling, go to dropTarget, drop it off, switch off hauling
+        // will stop when target reaches upTo
 
-        // starting with just energy for now
         const pt = Game.getObjectById(creep.memory.pullTarget);
         const dt = Game.getObjectById(creep.memory.dropTarget);
+        const resourceType = creep.memory.resource;
 
         try{
             if(!creep.memory.hauling) {
                 if (creep.pos.inRangeTo(pt,1)) {
-                    creep.withdraw(pt, RESOURCE_ENERGY);
-                    creep.memory.hauling = true;
+                    creep.say('Withdraw');
+                    switch (creep.withdraw(pt, resourceType)) {
+                        case OK:
+                        case ERR_FULL:
+                            creep.memory.hauling = true;                        
+                            break;
+                        case ERR_NOT_ENOUGH_RESOURCES:
+                            creep.creepLog('not enough ' + resourceType + ' to withdraw');
+                            break;
+                        case ERR_INVALID_TARGET:
+                            creep.creepLog('invalid target withdrawing ' + resourceType);
+                            break;
+                        case ERR_INVALID_ARGS:
+                            creep.creepLog('invalid args withdrawing ' + resourceType + ': ' + pt + ' ' + resourceType);
+                            break;
+                        default:
+                            creep.creepLog('error withdrawing ' + resourceType);
+                            break;
+                    }
                 }
                 else {
                     creep.moveTo(pt);
@@ -32,15 +50,30 @@ module.exports = {
 
             if (creep.memory.hauling) {
                 if (creep.pos.inRangeTo(dt,1)) {
-                    creep.transfer(dt, RESOURCE_ENERGY);
+                    creep.say('Deposit');
+                    switch (creep.transfer(dt, resourceType)) {
+                        case OK:
+                            break;
+                        default:
+                            creep.creepLog('error transferring ' + resourceType + ' to dropTarget');
+                            break;
+                    }
                     switch (dt.structureType) {
                         case STRUCTURE_NUKER:
-                            if (dt.energy >= creep.memory.upTo) {
-                                creep.memory.role='recycle';
+                        case STRUCTURE_LAB:
+                            if (resourceType == RESOURCE_ENERGY) {
+                                if (dt.energy >= creep.memory.upTo) {
+                                    creep.memory.role='recycle';
+                                }
+                            }
+                            else {
+                                if (dt.mineralAmount >= creep.memory.upTo) {
+                                    creep.memory.role='recycle;'
+                                }
                             }
                             break;
                         default:
-                            if (dt.store[RESOURCE_ENERGY] >= creep.memory.upTo) {
+                            if (dt.store[resourceType] >= creep.memory.upTo) {
                             creep.memory.role='recycle';
                             }
                             break;
@@ -48,6 +81,7 @@ module.exports = {
                     creep.memory.hauling = false;                        
                 }
                 else {
+                    creep.say('Moving');
                     creep.moveTo(dt);
                 }
             }
