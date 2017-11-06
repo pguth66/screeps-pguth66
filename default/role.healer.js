@@ -35,9 +35,9 @@ var roleHealer = {
             // anywhere on the map
             var sources = _.filter(creep.room.containers, (c) => { return c.store[RESOURCE_ENERGY] > 200});
 
-            for(l in roomMap.links) {
-				link = Game.getObjectById(roomMap.links[l].id);
-				link.role = roomMap.links[l].role ;
+            for(link in creep.room.links) {
+				//link = Game.getObjectById(roomMap.links[l].id);
+				//link.role = roomMap.links[l].role ;
 				if(link.energy > 0) {
 					sources.push(link);
 				}

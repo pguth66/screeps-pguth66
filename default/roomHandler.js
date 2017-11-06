@@ -25,6 +25,23 @@ Object.defineProperty(Room.prototype, 'minerals', {
     }
 })
 
+Object.defineProperty(Room.prototype, 'links', {
+    get: function () {
+        if (!this._links) {
+            this._links = this.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_LINK}});
+            this._links.forEach(function (link) {
+                if(link.pos.inRangeTo(this.controller,4)) {
+                    link.isSource=true;
+                }
+                else {
+                    link.isSource=false;
+                }
+            },this)
+        }
+        return this._links;
+    }
+})
+
 Object.defineProperty(Room.prototype, 'containers', {
     get: function () {
         if(!this._containers) {

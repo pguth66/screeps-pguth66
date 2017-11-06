@@ -54,7 +54,7 @@ module.exports = {
             try {
                 if(((creep.room.energyAvailable / creep.room.energyCapacityAvailable) > 0.7) && !(roomMap.priorityRefill)) {
                     //creep.creepLog('hauling to link because priorityRefill is ' + roomMap.priorityRefill);
-                    const sourceLinkObj = _.filter(roomMap.links,  (l) => l.role == 'SINK')[0] ;
+                    const sourceLinkObj = _.filter(creep.room.links,  (l) => l.isSource == false)[0] ;
                     if(sourceLinkObj) {
                         sourceLink = Game.getObjectById(sourceLinkObj.id);      
                         if(creep.pos.inRangeTo(sourceLink,3)) {
@@ -134,7 +134,8 @@ module.exports = {
                             creep.say(target.structureType);                      
                         }
                         catch(err) {
-                            console.log(creep.name + err);
+                            //console.log(creep.name + err);
+                            creep.creepLog(err);
                         }   
                     }
                     else {
@@ -142,8 +143,8 @@ module.exports = {
                         // this looks for SINKs and deposits there no matter how full
                         // looks for containers (includes storage), links, and terminals
                         // also labs
-                        if(roomMap.links.length > 0) {
-                            containersAndLinks = creep.room.containers.concat(roomMap.links);
+                        if(creep.room.links.length > 0) {
+                            containersAndLinks = creep.room.containers.concat(creep.room.links);
                         }
                         else {
                             containersAndLinks = creep.room.containers;
@@ -162,10 +163,10 @@ module.exports = {
                                 targets.push(container);
                             }
                         })
-                        for(l in roomMap.links) {
-                            link = Game.getObjectById(roomMap.links[l].id);
-                            link.role = roomMap.links[l].role;
-                            if((link.role == 'SINK') && link.energy < (link.energyCapacity - creep.carry[RESOURCE_ENERGY])
+                        for(link in creep.room.links) {
+                            //link = Game.getObjectById(roomMap.links[l].id);
+                            //link.role = roomMap.links[l].role;
+                            if(!link.isSource && link.energy < (link.energyCapacity - creep.carry[RESOURCE_ENERGY])
                                 && creep.carry[RESOURCE_ENERGY] > 0) {
                                 targets.push(link);
                             }
@@ -278,9 +279,9 @@ module.exports = {
 
                 })
                 try {
-                    roomMap.links.forEach(function (l) {
-                        link = Game.getObjectById(l.id);
-                        link.isSource = l.isSource;
+                    creep.room.links.forEach(function (link) {
+                        //link = Game.getObjectById(l.id);
+                        //link.isSource = l.isSource;
                         //creep.creepLog('found link ' + link.id);
                         if (link.isSource && (link.energy > creep.carryCapacity)) {
                             sources.push(link);
