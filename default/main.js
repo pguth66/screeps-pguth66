@@ -19,7 +19,7 @@ module.exports.loop = function () {
 
     // hand create room map for now, note this overwrites the object every tick, so
     // any flags set in code disappear (e.g. priorityRefill)
-    Memory.roomMaps = {
+/*    Memory.roomMaps = {
         W28N27: {
             containers: [
                 { id: '59b009899eb1db6ba877dfc9', role: 'SOURCE', isSource: true },
@@ -62,7 +62,7 @@ module.exports.loop = function () {
             ],
             links: [
                 { id: '59ae3ac6e95a3b294291fb39', role: 'SINK', isSource: false },
-                { id: '59ae504c6ca5c63ba48b09ca', role: 'SOURCE', isSource: true }
+                { id: '59ffcdd510ff982b8f7ac44f', role: 'SOURCE', isSource: true }
             ]
         },
         W29N28: {
@@ -111,16 +111,14 @@ module.exports.loop = function () {
         },
         W29N27: {
             containers: [
-                { id: '59f39545a0e88a4a9b893efe', role: 'SOURCE', isSource: true },
-                { id: '59f39ee327c3bb6658f88081', role: 'SOURCE', isSource: true },
-                { id: '59f62a2f8ef04852260efd63', role: 'SINK', isSource:false, isStorage:true}
+
                 ],
             links: []
         },
         sim: { containers: [],
                 links: [] }
-    }
-
+    } */
+      
     for (var name in Memory.creeps) {
         if (!Game.creeps[name]) {
             delete Memory.creeps[name];
@@ -145,11 +143,15 @@ module.exports.loop = function () {
     // minhaulers aren't per room but global so they spawn outside the room loops
     //console.log(numMinHaulers.length + " mineral haulers");
     if (numMinHaulers < 1) {
-        Game.spawns['Spawn1'].createCreep([CARRY, CARRY, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'minhauler' });
+        Game.spawns['Spawn8'].createCreep([CARRY, CARRY, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'minhauler' });
     }
 
     for (i in Game.rooms) {
         const room = Game.rooms[i];
+        
+        if (!Memory.rooms[room.name]) {
+            Memory.rooms[room.name] = {};
+        }
         // console.log("running for room " + room.name);
 
         // for now assuming there is only one spawn per room
@@ -190,14 +192,14 @@ module.exports.loop = function () {
                     // prioritySpawn = true;
                 }
 
-                room.numContainers = Memory.roomMaps[room.name].containers.length;
-                room.numLinks = Memory.roomMaps[room.name].links.length;
+                room.numContainers = room.containers.length;
+                room.numLinks = room.links.length;
                 //console.log(room.name + ' has storage ' + room.storage.id);
-                Memory.roomMaps[room.name].priorityRefill = false;
+                Memory.rooms[room.name].priorityRefill = false;
                 for (i in towers) {
                     tower = towers[i];
                     if (tower.energy < (tower.energyCapacity * 0.7)) {
-                        Memory.roomMaps[room.name].priorityRefill = true;
+                        Memory.rooms[room.name].priorityRefill = true;
                     }
                 }
                 if (spawn && spawn.spawning) {
@@ -214,14 +216,15 @@ module.exports.loop = function () {
                     observer.observeRoom(Memory.roomToObserve);
                 }
                 try {
-                    const sourceLinkObj = _.filter(Memory.roomMaps[room.name].links, (l) => l.role == 'SINK')[0];
-                    if (sourceLinkObj) {
-                        sourceLink = Game.getObjectById(sourceLinkObj.id);
+                    const sourceLink = _.filter(room.links, (l) => !l.isSource )[0];
+                    //console.log(room.name + " source link is " + sourceLink + ' with energy ' + sourceLink.energy);
+                    if (sourceLink) {
+                        //sourceLink = Game.getObjectById(sourceLinkObj.id);
                         if (sourceLink.energy > (sourceLink.energyCapacity / 2)) {
-                            const targetLink = Game.getObjectById(_.filter(Memory.roomMaps[room.name].links, (l) => l.role == 'SOURCE')[0].id);
+                            const targetLink = _.filter(room.links, (l) => l.isSource)[0];
                             if (targetLink.energy < targetLink.energyCapacity && sourceLink.cooldown < 1) {
                                 sourceLink.transferEnergy(targetLink);
-                                // console.log(room.name + ': transfer from link ' + sourceLink.id + ' to ' + targetLink.id);
+                                //console.log(room.name + ': transfer from link ' + sourceLink.id + ' to ' + targetLink.id);
                             }
                         }
                     }
@@ -281,6 +284,7 @@ module.exports.loop = function () {
                 //room.storageObj = _.filter(Memory.roomMaps[room.name].containers, ('isStorage'))[0];
                 //if (room.storageObj) {
                 //    room.storage = Game.getObjectById(room.storageObj.id);
+                if (room.storage) {
                     if (room.storage.store[RESOURCE_ENERGY] < 5000) {
                         numBuilders -= 1;
                         // console.log(room + " has no energy in storage, reducing numBuilders to " + numBuilders);
@@ -291,18 +295,20 @@ module.exports.loop = function () {
                     if (room.storage.store[RESOURCE_ENERGY] > 350000) {
                         numBuilders += 1;
                     }
+                }
                 //}
                 if (room.controller.level == 8) {
                     numBuilders -= 2;
                 }
-                var sourceContainers = _.filter(Memory.roomMaps[room.name].containers, (c) => c.isSource);
+                var sourceContainers = _.filter(room.containers, (c) => c.isSource);
+                //var sourceContainers = _.filter(Memory.roomMaps[room.name].containers, (c) => c.isSource);                
                 //console.log(room + ' has ' + sourceContainers.length + ' source containers');
                 var sourceEnergy = 0;
                 sourceContainers.forEach(function (c) {
                     //console.log('processing ' + c.id);
                     containerObj = Game.getObjectById(c.id);
                     if (containerObj.store[RESOURCE_ENERGY] > 1950) {
-                        // console.log('need another hauler in room ' + room.name + ' because container full: ' + containerObj.id);
+                        //console.log('need another hauler in room ' + room.name + ' because container full: ' + containerObj.id);
                         numHaulers += 1;
                     }
                     sourceEnergy += containerObj.store[RESOURCE_ENERGY];

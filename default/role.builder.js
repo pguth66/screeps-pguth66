@@ -86,13 +86,13 @@ var roleBuilder = {
 				sources.push(container);
 				}					
 			})
-			for(link in creep.room.links) {
+			creep.room.links.forEach(function(link) {
 				//link = Game.getObjectById(roomMap.links[l].id);
 				//link.role = roomMap.links[l].role ;
 				if(link.energy > 0) {
 					sources.push(link);
 				}
-			}
+			})
 			}
 			catch(err) {
 				console.log(creep.name + ': ' + err + ' while enumerating containers in ' + creep.room.name);

@@ -52,7 +52,7 @@ module.exports = {
             // find nearby LINK to deposit in 
             // problem is if the room is empty this will refill links while we're starving
             try {
-                if(((creep.room.energyAvailable / creep.room.energyCapacityAvailable) > 0.7) && !(roomMap.priorityRefill)) {
+                if(((creep.room.energyAvailable / creep.room.energyCapacityAvailable) > 0.7) && !(Memory.rooms[creep.room.name].priorityRefill)) {
                     //creep.creepLog('hauling to link because priorityRefill is ' + roomMap.priorityRefill);
                     const sourceLinkObj = _.filter(creep.room.links,  (l) => l.isSource == false)[0] ;
                     if(sourceLinkObj) {
@@ -163,14 +163,14 @@ module.exports = {
                                 targets.push(container);
                             }
                         })
-                        for(link in creep.room.links) {
+                        creep.room.links.forEach(function(link) {
                             //link = Game.getObjectById(roomMap.links[l].id);
                             //link.role = roomMap.links[l].role;
                             if(!link.isSource && link.energy < (link.energyCapacity - creep.carry[RESOURCE_ENERGY])
                                 && creep.carry[RESOURCE_ENERGY] > 0) {
                                 targets.push(link);
                             }
-                        }
+                        })
                         var terminal = creep.room.find(FIND_STRUCTURES, {
                             filter: (s) => { return (s.structureType == STRUCTURE_TERMINAL &&
                                                 s.store[RESOURCE_ENERGY] < 20000 &&
@@ -272,7 +272,7 @@ module.exports = {
                     else {
                         // add all containers when room is below half on energy
                         // TODO: add condition for when towers are low on energy as well
-                        if(((creep.room.energyAvailable < (creep.room.energyCapacityAvailable / 2)) || roomMap.priorityRefill) && (container.store[RESOURCE_ENERGY] > creep.carryCapacity)) {
+                        if(((creep.room.energyAvailable < (creep.room.energyCapacityAvailable / 2)) || Memory.rooms[creep.room.name].priorityRefill) && (container.store[RESOURCE_ENERGY] > creep.carryCapacity)) {
                             sources.push(container);
                         }
                     }

@@ -35,13 +35,13 @@ var roleHealer = {
             // anywhere on the map
             var sources = _.filter(creep.room.containers, (c) => { return c.store[RESOURCE_ENERGY] > 200});
 
-            for(link in creep.room.links) {
+            creep.room.links.forEach(function(link) {
 				//link = Game.getObjectById(roomMap.links[l].id);
 				//link.role = roomMap.links[l].role ;
 				if(link.energy > 0) {
 					sources.push(link);
 				}
-			}
+			})
 			//console.log(creep.name + ': sources ' + sources.length);
 			if (sources.length == 0) {
 			    // creep.say('source harvest');
@@ -66,8 +66,8 @@ var roleHealer = {
             var targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
                         return (structure.structureType == STRUCTURE_ROAD || 
-                                 (structure.structureType == STRUCTURE_WALL && structure.hits < ((creep.room.controller.level * creep.room.controller.level) * 10000)) ||
-                                 (structure.structureType == STRUCTURE_RAMPART  && structure.hits < ((creep.room.controller.level * creep.room.controller.level) * 10000)) || 
+                                 (structure.structureType == STRUCTURE_WALL && structure.hits < ((creep.room.controller.level * creep.room.controller.level) * 12000)) ||
+                                 (structure.structureType == STRUCTURE_RAMPART  && structure.hits < ((creep.room.controller.level * creep.room.controller.level) * 12000)) || 
                                  structure.structureType == STRUCTURE_CONTAINER ||
                                   structure.structureType == STRUCTURE_TOWER) && 
                                   structure.hits < structure.hitsMax ;

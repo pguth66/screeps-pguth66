@@ -51,9 +51,9 @@ var roleMinHauler = {
 
         if(!creep.memory.hauling) {
             try {
-            for(c in roomMap.containers) {
+            for(container in creep.room.containers) {
                 // get the real container object
-                container = Game.getObjectById(roomMap.containers[c].id);
+                //container = Game.getObjectById(roomMap.containers[c].id);
                 if(!(_.isEmpty(_.omit(container.store, RESOURCE_ENERGY)))) {
                     targets.push(container);
                     roomMap.hasMinsToHaul = true;
