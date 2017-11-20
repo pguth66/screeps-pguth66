@@ -295,6 +295,10 @@ module.exports.loop = function () {
                     if (room.storage.store[RESOURCE_ENERGY] > 350000) {
                         numBuilders += 1;
                     }
+                    if (room.storage.store[RESOURCE_ENERGY] > 500000) {
+                        numBuilders += 1;
+                    }
+                    //console.log('room ' + room.name + ' setting numBuilders to ' + numBuilders);
                 }
                 //}
                 if (room.controller.level == 8) {
