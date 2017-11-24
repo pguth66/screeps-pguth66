@@ -285,7 +285,7 @@ module.exports.loop = function () {
                 //if (room.storageObj) {
                 //    room.storage = Game.getObjectById(room.storageObj.id);
                 if (room.storage) {
-                    if (room.storage.store[RESOURCE_ENERGY] < 5000) {
+                    if (room.storage.store[RESOURCE_ENERGY] < 50000) {
                         numBuilders -= 1;
                         // console.log(room + " has no energy in storage, reducing numBuilders to " + numBuilders);
                     }
@@ -365,7 +365,7 @@ module.exports.loop = function () {
                         newName = spawn.createCreep([WORK, WORK, CARRY, MOVE], undefined, { role: 'harvester' });
                         break;
                     default:
-                        newName = spawn.createCreep([WORK, WORK, WORK, WORK, WORK, WORK, CARRY, MOVE], undefined, { role: 'harvester' });
+                        newName = spawn.createCreep([WORK, WORK, WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE], undefined, { role: 'harvester', respawn: true });
                         break;
                 }
                 prioritySpawn = true;
@@ -385,7 +385,7 @@ module.exports.loop = function () {
                         newName = spawn.createCreep([WORK, WORK, CARRY, MOVE], undefined, { role: 'upgrader' });
                         break;
                     default:
-                        newName = spawn.createCreep([WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'upgrader' });
+                        newName = spawn.createCreep([WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE], undefined, { role: 'upgrader' });
                         break;
                 }
                 console.log('Spawning new upgrader in ' + room.name + ': ' + newName);
@@ -418,7 +418,7 @@ module.exports.loop = function () {
             if ((miners.length < 1) && (room.controller.level >= 6) &&
                 (room.find(FIND_MINERALS)[0].mineralAmount > 0) &&
                 (room.energyAvailable > (room.energyCapacityAvailable * 0.9))) {
-                const newName = spawn.createCreep([WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE ], undefined, { role: 'miner' });
+                const newName = spawn.createCreep([WORK, WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE ], undefined, { role: 'miner' });
                 console.log('Spawning new miner in ' + room.name + ': ' + newName);
             }
         } // end Spawning
