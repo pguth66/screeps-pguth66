@@ -18,6 +18,7 @@ module.exports = {
               switch (structure.structureType) {
                   case STRUCTURE_CONTAINER:
                   case STRUCTURE_STORAGE:
+                  case STRUCTURE_TERMINAL:
                       if (_.sum(structure.store) == structure.storeCapacity) {
                           b = true;
                   };
@@ -151,7 +152,7 @@ module.exports = {
                         }
                         //console.log('room ' + creep.room.name + ' has ' + containersAndLinks.length + ' cont/links');
 
-                        if (creep.hasMinerals() && (creep.carry[RESOURCE_ENERGY] == 0) && creep.room.terminal) {
+                        if (creep.hasMinerals() && (creep.carry[RESOURCE_ENERGY] == 0) && creep.room.terminal && !isFull(creep.room.terminal)) {
                             target = creep.room.terminal;
                             creep.memory.target = target.id;
                             creep.say(target.structureType);
