@@ -45,7 +45,7 @@ var roleHealer = {
 			//console.log(creep.name + ': sources ' + sources.length);
 			if (sources.length == 0) {
 			    // creep.say('source harvest');
-                sources = creep.room.find(FIND_SOURCES_ACTIVE);
+                sources = creep.room.sources;
                 const source = creep.pos.findClosestByPath(sources);
                 if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(source, {visualizePathSytle: {}});
