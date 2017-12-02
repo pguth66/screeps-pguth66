@@ -78,6 +78,12 @@ Creep.prototype.hasMinerals = function () {
         return false;
     }
 }
+Creep.prototype.getBoosted = function (boost) {
+    // expects argument of mineral type to boost with
+    // finds lab with that mineral, moves there, tells lab to boost it, then goes back to normal
+    // need flag for boosted or not
+    // set target to proper lab
+}
 Creep.prototype.inRangeToTarget = function (target) {
     switch (target.structureType) {
         default:
@@ -203,7 +209,7 @@ Creep.prototype.findAnyDepositTarget = function () {
     var targets = [];
     //this.creepLog(roomMap.containers.length + ' containers found')
     // need to add links, spawns, extensions to this
-    room.containers.forEach(function(container) {
+    this.room.containers.forEach(function(container) {
         // get the real container object
         //container = Game.getObjectById(c.id);
         //this.creepLog('processing container ' + container.id);
@@ -264,7 +270,7 @@ module.exports = {
                 creep.creepLog('has only move parts, recycling')
                 creep.memory.role = 'recycle';
             }
-            if (creep.memory.targetRoom && (creep.memory.targetRoom != creep.room.name)) {
+            if (creep.memory.targetRoom && (!creep.memory.target) && (creep.memory.targetRoom != creep.room.name)) {
                 creep.moveToRoom(creep.memory.targetRoom);
             }
             else {
@@ -285,6 +291,9 @@ module.exports = {
         else { // initialization stuff
             if (!creep.memory.spawnRoom) {
                 creep.memory.spawnRoom = creep.room.name;
+            }
+            if (!creep.memory.targetRoom && !((creep.memory.role == 'interhauler') || (creep.memory.role == 'minhauler'))) {
+                creep.memory.targetRoom = creep.room.name;
             }
         }
         
