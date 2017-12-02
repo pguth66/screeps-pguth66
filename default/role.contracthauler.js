@@ -12,9 +12,12 @@ module.exports = {
     run: function(creep) {
 
         // expects pullTarget and dropTarget
+        // resource to haul is kept creep.memory.resource
         // if not hauling, go to pullTarget, load up on energy, switch to hauling
         // if hauling, go to dropTarget, drop it off, switch off hauling
         // will stop when target reaches upTo
+        // shoudl we add a counter so that it will move X resources and then be done?
+        // call it stopAfter - when you deposit, increment counter by your carry
 
         const pt = Game.getObjectById(creep.memory.pullTarget);
         const dt = Game.getObjectById(creep.memory.dropTarget);
@@ -24,7 +27,7 @@ module.exports = {
             if(!creep.memory.hauling) {
                 if (creep.pos.inRangeTo(pt,1)) {
                     creep.say('Withdraw');
-                    switch (creep.withdraw(pt, resourceType)) {
+                    switch (creep.withdraw(pt, resourceType, creep.carryCapacity)) {
                         case OK:
                         case ERR_FULL:
                             creep.memory.hauling = true;                        
@@ -63,25 +66,25 @@ module.exports = {
                         case STRUCTURE_LAB:
                             if (resourceType == RESOURCE_ENERGY) {
                                 if (dt.energy >= creep.memory.upTo) {
-                                    creep.memory.role='recycle';
+                                    creep.memory.role='pause';
                                 }
                             }
                             else {
                                 if (dt.mineralAmount >= creep.memory.upTo) {
-                                    creep.memory.role='recycle;'
+                                    creep.memory.role='pause;'
                                 }
                             }
                             break;
                         default:
                             if (dt.store[resourceType] >= creep.memory.upTo) {
-                            creep.memory.role='recycle';
+                            creep.memory.role='pause';
                             }
                             break;
                     }
                     creep.memory.hauling = false;                        
                 }
                 else {
-                    creep.say('Moving');
+                    //creep.say('Moving');
                     creep.moveTo(dt);
                 }
             }
