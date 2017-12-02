@@ -25,7 +25,7 @@ var harvestRoles = {
             if(Memory.spawn[role] == 0) {
                 switch(role) {
                     case 'caltrans':
-                        Game.spawns['Spawn7'].createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE],undefined,{role:'caltrans',workRoom:roomToHarvest});
+                        Game.spawns['Spawn7'].createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE],undefined,{role:'caltrans',workRoom:roomToHarvest,targetRoom:roomToHarvest});
                         break;
                     case 'harvester':
                         Game.spawns['Spawn7'].createCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE],undefined,{role:'harvester',targetRoom:roomToHarvest});
