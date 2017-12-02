@@ -51,17 +51,17 @@ var roleMinHauler = {
 
         if(!creep.memory.hauling) {
             try {
-            for(container in creep.room.containers) {
+            creep.room.containers.forEach(function(container) {
                 // get the real container object
                 //container = Game.getObjectById(roomMap.containers[c].id);
                 if(!(_.isEmpty(_.omit(container.store, RESOURCE_ENERGY)))) {
                     targets.push(container);
-                    roomMap.hasMinsToHaul = true;
+                    //roomMap.hasMinsToHaul = true;
                 }
-            }
+            });
             if(targets.length == 0) {
                 creep.say('notarget!');
-                roomMap.hasMinsToHaul = false;
+                //roomMap.hasMinsToHaul = false;
                 if(creep.room.name == finalRoom) {
                     if(_.sum(creep.carry) == 0) {
                         creep.memory.role='recycle';
