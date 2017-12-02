@@ -43,23 +43,26 @@ module.exports = {
                             break;
                         default:
                             creep.creepLog('error withdrawing ' + resourceType);
-                            break;
                     }
                 }
                 else {
                     creep.moveTo(pt);
                 }
-            }
-
-            if (creep.memory.hauling) {
-                if (creep.pos.inRangeTo(dt,1)) {
-                    creep.say('Deposit');
+            } else {
+//                if (creep.pos.inRangeTo(dt,1)) {
                     switch (creep.transfer(dt, resourceType)) {
                         case OK:
+                            creep.say('Deposit');   
+                            creep.memory.hauling = false;                        
+                            break;
+                        case ERR_NOT_IN_RANGE:
+                            creep.moveTo(dt);
+                            break;
+                        case ERR_NOT_ENOUGH_RESOURCES:
+                            creep.creepLog('not enough ' + resourceType + ' to transfer to dropTarget');
                             break;
                         default:
-                            creep.creepLog('error transferring ' + resourceType + ' to dropTarget');
-                            break;
+                            creep.creepLog('error transferring ' + resourceType + ' to dropTarget ' + dt.id);
                     }
                     switch (dt.structureType) {
                         case STRUCTURE_NUKER:
@@ -81,12 +84,11 @@ module.exports = {
                             }
                             break;
                     }
-                    creep.memory.hauling = false;                        
-                }
-                else {
-                    //creep.say('Moving');
-                    creep.moveTo(dt);
-                }
+//                }
+ //               else {
+ //                   //creep.say('Moving');
+//                    creep.moveTo(dt);
+//                }
             }
         }
         catch(err) {
