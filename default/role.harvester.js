@@ -18,6 +18,7 @@ var roleHarvester = {
                 case STRUCTURE_EXTENSION:
                 case STRUCTURE_SPAWN:
                 case STRUCTURE_TOWER:
+                case STRUCTURE_LINK:
                     if (structure.energy == structure.energyCapacity) {
                         b = true;
                     }
@@ -25,6 +26,39 @@ var roleHarvester = {
             return b;
         }
 
+        try {
+        if (creep.memory.boosting) {
+            if (!creep.hasTarget()) {
+                const targets = _.filter(creep.room.labs, {mineralType: RESOURCE_UTRIUM_OXIDE});
+                if (targets.length > 0) {
+                    creep.say("Boost!");
+                    var tgt = creep.pos.findClosestByPath(targets);
+                    creep.memory.target = tgt.id ;
+                }
+                else {
+                    creep.say('Noboost');
+                    creep.memory.boosting = false;
+                }
+            }
+            var target = Game.getObjectById(creep.memory.target);
+            if (creep.inRangeToTarget(target)) {
+                creep.say('Boosting');
+                target.boostCreep(creep);
+                creep.memory.boosting=false;
+                if (creep.memory.prevTarget) {
+                    creep.memory.target = creep.memory.prevTarget;
+                    creep.memory.prevTarget = null;
+                }
+                else {
+                    creep.memory.target=null;
+                }
+            }
+            else {
+                //creep.say("move");
+                creep.moveToTarget(target);
+            }
+            return;
+        }
         if(creep.memory.depositing && creep.carry.energy == 0) {
             creep.memory.depositing = false;
             creep.say('🔄 harvest');
@@ -36,7 +70,10 @@ var roleHarvester = {
                 creep.say('🚧 deposit');
             }
         }
-
+        }
+        catch(err) {
+            creep.creepLog('error during boosting: ' + err);
+        }
         if(!creep.memory.depositing) {
             // we're harvesting, so find sources 
             if(creep.hasTarget()) {                
@@ -114,6 +151,7 @@ var roleHarvester = {
                         return (structure.structureType == STRUCTURE_EXTENSION || 
                                 structure.structureType == STRUCTURE_SPAWN ||
                                 structure.structureType == STRUCTURE_CONTAINER ||
+                                structure.structureType == STRUCTURE_LINK ||
                                 structure.structureType == STRUCTURE_TOWER) && !isFull(structure);
                     }
             });
