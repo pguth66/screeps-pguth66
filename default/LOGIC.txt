@@ -338,8 +338,6 @@ building roomMaps automatically
         spawns?
     how to handle when containers etc go away?   
 
-
-
 telling creeps to move
     add creep method to move in a random direction - done
     find the creep to tell to move
@@ -348,3 +346,75 @@ telling creeps to move
         walk that path until you find a loc that has a creep on it
 
         tell that creep to move!
+
+minerals and labs
+    have new creep (heisenberg?) that handles all lab stuff
+    select 3 labs - 2 as reactant one as product
+    start with utrium oxide
+    fill reactant 1 with energy and utrium
+    fill reactant 2 with energy and oxide
+    run reactions
+
+getting minerals to labs with contracthaulers
+    group labs into 3s (labGroup)
+    [ reactant1, reactant2, product]
+    build a queue of tasks - for now queue = array
+    this queue is per room - a list of contract hauler jobs per room
+        resource, destination, amount
+        call these HaulTasks?
+        this is done by the labHandler
+        may need to remove old minerals first
+        new Task (energy to reactant1)
+        new Task (energy to reactant2)
+        new Task (utrium to reactant1)
+        new Task (oxide to reactant2)
+    should labHandler assign tasks to a creep? probably to handle creep loss
+    basically those are conditions that need to be satisfied:
+        r1 has energy? if not, bring some
+        r2 has energy? if not, bring some
+        r1 has minerals? inbs
+        r2 has minerals? inbs
+        now just run the reactions and minerals will show up in product, and then you can boost creeps
+    state machine for labs
+        initial - spawn a heisenberg creep
+        clean out minerals from r1 r2 p
+        for r1 r2, bring energy
+        for r1 r2, bring minerals
+        start reactions
+
+    then the heisenberg creep does the following
+    if creep does not have a task    
+        pull task off the queue
+            store destination, amount, resource in creep memory
+    otherwise
+        1
+        find a location with the resource
+        go get it
+        bring it to destination
+        transfer it there
+        go back to 1
+    when reached AMOUNT go back to start and grab new task 
+    what I would do manually
+    make contracthauler
+        if anything in labs, have him empty them
+            dropT = terminal, pullT = lab
+            stop when lab is empty
+        if energy in labs not full, fill them
+            dropT = lab, pullT = storage 
+            stop when lab is full 
+            might have extra energy so need to drop that off before next phase
+        fill labs with minerals
+            dropT = r1, pullT = terminal, resource = U
+            when lab is full
+            dropT = r2, pullT = terminal, resource = O
+            done when lab is full
+        run reactions
+
+creep boosting
+    during init, check if appropriate boost is available, if so set needsBoost
+    while needsBoost = true, 
+        move to appropriate lab (set as target), 
+        when there tell target to boost you, 
+        then set needsBoost = false and boosted = true
+        then back to regular harvesting
+
