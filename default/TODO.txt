@@ -37,7 +37,11 @@ OMG you lose boosts when you renew a creep!!!!
 make haulers treat Links as sources so they wil take stuff from link to storage etc - DONE
 make warriors only attack spawns and towers, so they don't destroy structures with energy in them - DONE
 build roomMaps automatically
-remove SOURCE/SINK code
+    containers DONE
+    sources DONE
+    links
+    extensions?
+remove SOURCE/SINK code - DONE
 switch to forEach for iterating over spawns in room
 automatically sell minerals when I have too many
 have creeps send message when blocked for > 5 ticks, and have other creep flee from them
