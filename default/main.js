@@ -6,11 +6,11 @@ var labHandler = require('labHandler');
 module.exports.loop = function () {
 
     Memory.roomToClaim = 'W28N26'; // room to send claimers to
-    Memory.roomToHelp = 'W28N27'; // room to drop off interroom energy in
-    Memory.roomToMaintain = 'W29N28'; // room to keep roads healed in (caltrans)
+    Memory.roomToHelp = 'W28N25'; // room to drop off interroom energy in
+    Memory.roomToMaintain = 'W29N26'; // room to keep roads healed in (caltrans)
     Memory.roomToAttack = null; // room to send warriors to
     Memory.roomToBuild = 'W28N26'; // room to send remoteworkers to
-    Memory.roomToHarvest = 'W29N28'; // room to harvest energy in (and send interhaulers to)
+    Memory.roomToHarvest = 'W29N26'; // room to harvest energy in (and send interhaulers to)
     Memory.roomToObserve = 'W30N27';
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
@@ -131,7 +131,7 @@ module.exports.loop = function () {
     // Harvest room logic
     try {
         const harvestRoles = ['caltrans', 'harvester', 'interhauler', 'patrol'];
-        harvestRoles.forEach(function (role) { harvestRole.run(role, 'W29N28', 'W28N27') });
+        harvestRoles.forEach(function (role) { harvestRole.run(role, Memory.roomToHarvest, Memory.roomToHelp) });
     }
     catch (err) {
         //console.log('Error running harvest rooms');
