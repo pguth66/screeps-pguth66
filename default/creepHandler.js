@@ -187,6 +187,10 @@ Creep.prototype.respawn = function () {
                 newCreepMemory.targetRoom = this.memory.targetRoom;
                 newCreepMemory.target = this.memory.target;
                 break;
+            case 'claimer':
+                body = [CLAIM,MOVE];
+                newCreepMemory.targetRoom = this.memory.targetRoom;
+                break;
             default:
                 body = [TOUGH];
                 break;
