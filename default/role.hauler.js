@@ -130,7 +130,7 @@ module.exports = {
                 try {
                     if(targets.length > 0) {
                         try {
-                            target = creep.pos.findClosestByPath(targets);
+                            target = creep.pos.findClosestByPath(targets, {ignoreCreeps: true});
                             creep.memory.target = target.id;  
                             creep.say(target.structureType);                      
                         }
