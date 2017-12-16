@@ -73,7 +73,7 @@ module.exports.loop = function () {
         //    console.log("room " + room.name + "has " + room.numSources + "spawns.");
 
         // run market stuff
-        if (room.controller && room.controller.my && room.controller.level >= 6 && Game.time % 17) {
+        if (room.controller && room.controller.my && room.controller.level >= 6 && Game.time % 353) {
             marketHandler.runMarket(room);
         }
         try {
