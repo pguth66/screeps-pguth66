@@ -30,7 +30,7 @@ Object.defineProperty(Room.prototype, 'links', {
         if (!this._links) {
             this._links = this.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_LINK}});
             this._links.forEach(function (link) {
-                if(link.pos.inRangeTo(this.controller,5)) {
+                if(link.pos.inRangeTo(this.controller,8)) {
                     link.isSource=true;
                 }
                 else {
