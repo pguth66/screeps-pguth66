@@ -2,6 +2,7 @@ var creepHandler = require('creepHandler');
 var harvestRole = require('func.harvestRoles');
 require('roomHandler');
 var labHandler = require('labHandler');
+var marketHandler = require('marketHandler');
 
 module.exports.loop = function () {
 
@@ -71,6 +72,10 @@ module.exports.loop = function () {
         room.numSources = room.sources.length;
         //    console.log("room " + room.name + "has " + room.numSources + "spawns.");
 
+        // run market stuff
+        if (room.controller && room.controller.my && room.controller.level >= 6 && Game.time % 17) {
+            marketHandler.runMarket(room);
+        }
         try {
             if (roomOwner == 'MixtySix') {
                 switch (room.controller.level) {
