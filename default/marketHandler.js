@@ -19,7 +19,8 @@
             //console.log('computing average price of ' + mineralType);
             const orders = Game.market.getAllOrders({resourceType: mineralType});
             // pull out just the price
-            const prices = orders.map(function (order) { return order.price});
+            const prices = orders.map(function (order) { return order.price}).sort();
+            //console.log(JSON.stringify(prices,null,4));
             // for now just pick the median, need to make this more sophisticated
             return prices[Math.round(prices.length / 2)];
         }
@@ -36,7 +37,7 @@
             var price = averagePrice < floor ? floor : averagePrice ;
             if (price != order.price) {
                 console.log('price of ' + mineralType + 'setting to ' + price);
-                if (!Game.market.changeOrderPrice(order.id, price)) {
+                if (Game.market.changeOrderPrice(order.id, price) != OK) {
                     console.log("error setting price in " + room.name);
                 }
             }
