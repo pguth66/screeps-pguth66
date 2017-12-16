@@ -22,7 +22,7 @@
             const prices = orders.map(function (order) { return order.price}).sort();
             //console.log(JSON.stringify(prices,null,4));
             // for now just pick the median, need to make this more sophisticated
-            return prices[Math.round(prices.length / 2)];
+            return prices[Math.round(prices.length / 3)];
         }
 
         function processOrder (order, room) {
@@ -34,7 +34,7 @@
             const averagePrice = getAveragePrice(mineralType);
             //console.log('average price of ' + mineralType + ' is ' + averagePrice )
 
-            var price = averagePrice < floor ? floor : averagePrice ;
+            var price = averagePrice < floor ? floor : averagePrice - 0.005 ;
             if (price != order.price) {
                 console.log('price of ' + mineralType + 'setting to ' + price);
                 if (Game.market.changeOrderPrice(order.id, price) != OK) {
