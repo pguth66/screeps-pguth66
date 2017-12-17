@@ -299,7 +299,15 @@ module.exports = {
             //    console.log("Found "+ sources.length + " locations of dropped resources, first is " + sources[0].pos);
             }
             if (fullsources.length > 0) {
-                sources = fullsources ; 
+                function haulersOnTarget (target) {
+                    return _.filter(Game.creeps, function(c) { return (c.memory.role == 'hauler' && c.memory.target == target.id)}).length
+                }
+                
+                // pull out any fullsources that already have two creeps targetting them
+                _.remove(fullsources, (t) => { return haulersOnTarget(t) > 2 });
+                if (fullsources.length > 0 ) {
+                    sources = fullsources ;                     
+                }
             }
             if (sources.length == 0 ) {
                 // update this to pull from storage if it's got a lot in it (>10k?)
