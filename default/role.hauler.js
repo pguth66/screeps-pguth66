@@ -270,7 +270,6 @@ module.exports = {
                         sources.push(container);
                         if (_.sum(container.store) == container.storeCapacity) {
                             fullsources.push(container);
-                            creep.say('Fullsource');
                         }
                     }
                     else {
@@ -309,7 +308,8 @@ module.exports = {
                 // pull out any fullsources that already have two creeps targetting them
                 _.remove(fullsources, (t) => { return haulersOnTarget(t) > 2 });
                 if (fullsources.length > 0 ) {
-                    sources = fullsources ;                     
+                    sources = fullsources ;   
+                    creep.say('Fullsource');                    
                 }
             }
             if (sources.length == 0 ) {
