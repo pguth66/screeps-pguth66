@@ -258,7 +258,10 @@ module.exports = {
             // now find stuff to pick up
             else {
             // start with dropped resources
-            var sources = creep.room.find(FIND_DROPPED_RESOURCES);
+            var sources = [];
+            if (!creep.room.memory.foundHostiles) {
+                 sources = creep.room.find(FIND_DROPPED_RESOURCES)
+            };
             var fullsources = [];
             // if no dropped resources of > 50 units, then cycle through containers and find SOURCEs
             if((sources.length == 0) || sources[0].amount < 50) {
