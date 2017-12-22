@@ -118,7 +118,7 @@ module.exports = {
                 // we don't have a target, so figure out where to go
                 if(_.sum(creep.carry) > 0 && creep.carry[RESOURCE_ENERGY] > 0 ) {
                     // first look for extensions, spawns, or towers that aren't full
-                    targets = creep.room.find(FIND_STRUCTURES, {
+                    targets = creep.room.find(FIND_MY_STRUCTURES, {
                         filter: (structure) => {
                             return (structure.structureType == STRUCTURE_EXTENSION || 
                                     structure.structureType == STRUCTURE_SPAWN ||
@@ -191,6 +191,11 @@ module.exports = {
                                 target = creep.pos.findClosestByPath(targets);
                                 creep.memory.target = target.id;
                                 creep.say(target.structureType);
+                            }
+                            else {
+                                // deposit in any target now
+                                target = creep.findAnyDepositTarget();
+                                creep.memory.target=target.id;
                             }
                         }
                         catch(err) {
