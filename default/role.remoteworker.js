@@ -30,7 +30,7 @@ var roleRemoteworker = {
                 break;
         }
 
-        if(creep.room.controller.my && (creep.room.controller.upgradeBlocked < 1) && (creep.room.controller.ticksToDowngrade < 300 || creep.room.controller.level < 2)) {
+        if(creep.room.controller.my && !creep.room.controller.upgradeBlocked && (creep.room.controller.ticksToDowngrade < 300 || creep.room.controller.level < 2)) {
             //creep.say('upradering');
             roleUpgrader.run(creep);
             return;
