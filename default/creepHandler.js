@@ -296,7 +296,7 @@ module.exports = {
             if (!creep.memory.spawnRoom) {
                 creep.memory.spawnRoom = creep.room.name;
             }
-            if (!creep.memory.targetRoom && !((creep.memory.role == 'interhauler') || (creep.memory.role == 'minhauler'))) {
+            if (!creep.memory.targetRoom && !((creep.memory.role == 'interhauler') || (creep.memory.role == 'contracthauler') || (creep.memory.role == 'minhauler'))) {
                 creep.memory.targetRoom = creep.room.name;
             }
         }
