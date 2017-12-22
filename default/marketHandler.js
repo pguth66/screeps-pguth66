@@ -10,7 +10,6 @@
  // TODOs
  // better average calculation to avoid gaming with amount = 1 transactions
  // handle compounds elements (not just X, U, etc)
- // if terminal is full, set price at lowest possible
 
  module.exports = {
 
@@ -25,7 +24,7 @@
             //console.log(JSON.stringify(prices,null,4));
             // for now just pick the median, need to make this more sophisticated
             if (amountinTerminal < 190000) {
-                return prices[Math.round(prices.length / 3)];
+                return prices[Math.round(prices.length / 2)];
             }
             else {
                 return prices[0];
@@ -36,7 +35,7 @@
 
             // set price, then extend order
 
-            const floor = 0.15 ;
+            const floor = 0.1 ;
 
             const averagePrice = getAveragePrice(mineralType);
             const amountinTerminal = room.terminal.store[mineralType];
