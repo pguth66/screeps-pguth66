@@ -142,7 +142,7 @@ Creep.prototype.flee = function (fleeTarget) {
 }
 Creep.prototype.tellCreepToMove = function (creep) {
     const randomDir = Math.floor(Math.random() * 8 + 1);
-    creep.creepLog('moving in dir ' + randomDir);
+    //creep.creepLog('moving in dir ' + randomDir);
     creep.move(randomDir);
 }
 Creep.prototype.getBody = function () {
