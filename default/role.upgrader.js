@@ -9,7 +9,11 @@ var roleUpgrader = {
 	    }
 	    if(!creep.memory.upgrading && creep.carry.energy == creep.carryCapacity) {
 	        creep.memory.upgrading = true;
-	        creep.say('⚡ upgrade');
+			creep.say('⚡ upgrade');
+			const adjacentSource = creep.pos.findInRange(FIND_SOURCES, 1)[0];
+			if (adjacentSource) {
+				creep.flee(adjacentSource);
+			}
 	    }
 
 	    if(creep.memory.upgrading) {
