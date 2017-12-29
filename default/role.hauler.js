@@ -311,9 +311,15 @@ module.exports = {
                 }
                 
                 // pull out any fullsources that already have two creeps targetting them
-                _.remove(fullsources, (t) => { return haulersOnTarget(t) > 2 });
+                removedContainers = _.remove(fullsources, (t) => { return haulersOnTarget(t) > 1 });
+                if (removedContainers.length > 0) {
+                    creep.creepLog('removed ' + removedContainers.length + ' of ' + fullsources.length + ' container(s) because it had 2 creeps on it already');
+                }
                 if (fullsources.length > 0 ) {
                     sources = fullsources ;   
+                    if (fullsources.length == 1) {
+                        creep.creepLog('fullsourcing because source has ' + haulersOnTarget(sources[0]) + ' haulers on it');
+                    }
                     creep.say('Fullsource');                    
                 }
             }
