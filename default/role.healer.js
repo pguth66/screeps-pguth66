@@ -75,7 +75,7 @@ var roleHealer = {
             });
             // prioritize containers < 50%
             const priorityTargets = _.remove(targets, function(t) { 
-                t.structureType == STRUCTURE_CONTAINER || (t.hits < (t.hitsMax / 2));
+                t.structureType == STRUCTURE_CONTAINER && (t.hits < (t.hitsMax / 2));
            
             })
 
