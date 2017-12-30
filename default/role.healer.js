@@ -75,8 +75,7 @@ var roleHealer = {
             });
             // prioritize containers < 50%
             const priorityTargets = _.remove(targets, function(t) { 
-                t.structureType == STRUCTURE_CONTAINER && (t.hits < (t.hitsMax / 2));
-           
+                return t.structureType == STRUCTURE_CONTAINER && (t.hits < (t.hitsMax / 1.25));
             })
 
             const dismantleFlags = creep.room.find(FIND_FLAGS, { filter: { color: COLOR_RED } });
@@ -97,7 +96,10 @@ var roleHealer = {
             if (priorityTargets.length > 0) {
                 const target = creep.pos.findClosestByPath(priorityTargets);
                 creep.say('Priority');
-                creep.creepLog(' going to priority target ' + target.id);
+                if(creep.repair(target) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                }
+                //creep.creepLog(' going to priority target ' + target.id);
             } else {
                 if(targets.length > 0) {
                     const target = creep.pos.findClosestByPath(targets);
