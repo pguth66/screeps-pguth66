@@ -39,8 +39,22 @@ Creep.prototype.moveToTarget = function (target) {
                 const pathSpot = new RoomPosition(path[i].x, path[i].y, this.room.name);
                 const blockingCreeps = pathSpot.lookFor(LOOK_CREEPS);
                 if (blockingCreeps.length > 0) {
-                    this.creepLog('blocked by creep ' + blockingCreeps[0].name);
-                    this.tellCreepToMove(blockingCreeps[0]);
+                    this.memory.blocked ? this.memory.blocked++ : this.memory.blocked=1;                    
+                    if (this.memory.blocked > 0 && this.memory.blocked < 5) {
+                        this.creepLog('blocked by creep ' + blockingCreeps[0].name);
+                        this.tellCreepToMove(blockingCreeps[0]);
+                    }
+                    else {
+                        this.memory.target=null;
+                        this.creepLog('giving up because blocked for ' + this.memory.blocked);
+                        this.memory.blocked=0;                        
+                        return;
+                    }
+                }
+                else {
+                    if (this.memory.blocked) {
+                        this.memory.blocked = 0;
+                    }
                 }
                 break;
             };
