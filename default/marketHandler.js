@@ -18,21 +18,22 @@
         function getAveragePrice(mineralType) {
             //console.log('computing average price of ' + mineralType);
             const orders = Game.market.getAllOrders({resourceType: mineralType, type: ORDER_SELL});
+            _.remove(orders, (o) => { return o.amount < 100});
             const amountinTerminal = room.terminal.store[mineralType]; 
             //console.log(room.name + ' has ' + amountinTerminal + ' units of ' + mineralType);           
             // pull out just the price
             const prices = orders.map(function (order) { return order.price}).sort((a,b) => (a - b));
             //console.log(room.name = " found " + prices.length + " prices for " + mineralType);
-            console.log(room.name + ' lowest price ' + prices[0] + ' highest price ' + prices[prices.length -1]);
+            //console.log(room.name + ' lowest price ' + prices[0] + ' highest price ' + prices[prices.length -1]);
             //console.log(JSON.stringify(prices,null,4));
             // for now just pick the median, need to make this more sophisticated
             if (amountinTerminal > 190000) {
-                console.log(room.name + ' picking lowest price');                
+                //console.log(room.name + ' picking lowest price');                
                 return prices[0];
             }
             else {
                 const arrayMedian = Math.round(prices.length / 2);
-                console.log(room.name + ' picking median price of ' + prices[arrayMedian] + ' from index ' + arrayMedian);         
+                //console.log(room.name + ' picking median price of ' + prices[arrayMedian] + ' from index ' + arrayMedian);         
                 return prices[Math.round(arrayMedian)];   
             }
         }
