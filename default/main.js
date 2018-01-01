@@ -3,6 +3,7 @@ var harvestRole = require('func.harvestRoles');
 require('roomHandler');
 var labHandler = require('labHandler');
 var marketHandler = require('marketHandler');
+var roomHandler = require('roomHandler');
 
 module.exports.loop = function () {
 
@@ -47,6 +48,8 @@ module.exports.loop = function () {
 
     for (i in Game.rooms) {
         const room = Game.rooms[i];
+
+        roomHandler.handleRoom(room);
         
         if (!Memory.rooms[room.name]) {
             Memory.rooms[room.name] = {};

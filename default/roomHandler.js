@@ -25,6 +25,15 @@ Object.defineProperty(Room.prototype, 'minerals', {
     }
 })
 
+Object.defineProperty(Room.prototype, 'spawns', {
+    get: function () {
+        if (!this._spawns) {
+            this._spawns = this.find(FIND_MY_SPAWNS);
+        }
+        return this._spawns;
+    }
+})
+
 Object.defineProperty(Room.prototype, 'links', {
     get: function () {
         if (!this._links) {
@@ -75,7 +84,70 @@ Object.defineProperty(Room.prototype, 'labs', {
     }
 })
 
-/*module.exports = {
+Room.prototype.addToCreepBuildQueue = function (creepType, memoryObject) {
+    //console.log('adding creep to build queue: '+ creepType);
+    var bq = this.memory.buildQueue;
 
+    if (!memoryObject) {
+        memoryObject={};
+    }
+
+    bq.push({role:creepType, memory:memoryObject});
+
+    console.log(JSON.stringify(bq[bq.length - 1]));
+}
+
+Room.prototype.getCreepBody = function (role) {
+    
+    var body = [];
+
+    switch (role) {
+        case 'contracthauler':
+            body = [CARRY,CARRY,CARRY,CARRY,MOVE,MOVE];
+            break;
+        default:
+            body = [WORK,CARRY,WORK,CARRY,MOVE,MOVE];
+    }
+    return body ;
+}
+
+Room.prototype.runBuildQueue = function () {
+    var bq = this.memory.buildQueue;
+
+    console.log(this.name + ' build queue length ' + bq.length);
+    availableSpawns = _.filter(this.spawns, { 'spawning':null });
+    //console.log('available spawns: ' + availableSpawns);
+
+    availableSpawns.forEach(function (spawn) {
+        if (bq.length == 0) { return };
+        const embryo = bq.pop();
+        embryo.memory.role=embryo.role; // all creeps need this
+        const creepname = this.name + '-' + Game.time
+        //const body = [WORK,CARRY,WORK,CARRY,MOVE,MOVE];
+        const body = this.getCreepBody(embryo.role);
+        if (spawn.spawnCreep(body, creepname, {dryRun: true, memory:embryo.memory}) == OK) {
+            console.log(spawn.id + ' spawning ' + embryo.role );
+            if (spawn.spawnCreep(body, creepname, {memory:embryo.memory}) == OK) { 
+                return; 
+            }
+            else {
+                console.log('error spawning creep');
+            }
+        }
+    }, this)
+}
+
+module.exports = {
+
+    handleRoom: function(room) {
+
+        // init
+
+        if (!room.memory.buildQueue) {
+            room.memory.buildQueue = [];
+        }
+        if (room.memory.buildQueue.length > 0) {
+            room.runBuildQueue();
+        }
+    }
 };
-*/
