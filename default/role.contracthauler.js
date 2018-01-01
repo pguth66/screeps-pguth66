@@ -66,6 +66,15 @@ module.exports = {
                     }
                     switch (dt.structureType) {
                         case STRUCTURE_NUKER:
+                            if (resourceType == RESOURCE_ENERGY && dt.energy >= creep.memory.upTo) {
+                                creep.memory.role='pause';
+                            }
+                            else {
+                                if (resourceType == RESOURCE_GHODIUM && dt.ghodium >= creep.memory.upTo) {
+                                    creep.memory.role='pause'
+                                }
+                            }
+                            break;
                         case STRUCTURE_LAB:
                             if (resourceType == RESOURCE_ENERGY) {
                                 if (dt.energy >= creep.memory.upTo) {
