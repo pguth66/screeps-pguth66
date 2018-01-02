@@ -17,8 +17,9 @@ var roleRemoteworker = {
     run: function(creep) {
 
         if(creep.ticksToLive == 100 && creep.room.controller.level < 3) {
-            const spawn = Game.rooms[creep.memory.spawnRoom].find(FIND_MY_SPAWNS)[0];
-            spawn.createCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE],undefined,{role:'remoteworker',targetRoom:creep.room.name});
+            Game.rooms[creep.memory.spawnRoom].addToCreepBuildQueue('remoteworker');
+//            const spawn = Game.rooms[creep.memory.spawnRoom].find(FIND_MY_SPAWNS)[0];
+//            spawn.createCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE],undefined,{role:'remoteworker',targetRoom:creep.room.name});
         }
 
         switch(creep.pos.y) {

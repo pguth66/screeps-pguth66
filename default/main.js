@@ -43,7 +43,8 @@ module.exports.loop = function () {
     // minhaulers aren't per room but global so they spawn outside the room loops
     //console.log(numMinHaulers.length + " mineral haulers");
     if (numMinHaulers < 2) {
-        Game.spawns['Spawn8'].createCreep([CARRY, CARRY, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'minhauler' });
+        Game.rooms['W27N27'].addToCreepBuildQueue('minhauler');
+//        Game.spawns['Spawn8'].createCreep([CARRY, CARRY, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'minhauler' });
     }
 
     for (i in Game.rooms) {
@@ -249,6 +250,22 @@ module.exports.loop = function () {
 
                 break;
         }
+
+        function getTotalCreeps (role) {
+            const liveCreeps = _.filter(roomCreeps, (creep) => creep.memory.role == role);
+            const potentialCreeps = _.filter(room.memory.buildQueue, {role:role});
+            return liveCreeps + potentialCreeps;
+        }
+        //const harvestersInQueue = _.filter(room.memory.buildQueue, {role: 'harvester'});
+        //const totalHarvesters = harvesters.length + harvestersInQueue.length;
+        const totalHarvesters = getTotalCreeps('harvester');
+        const totalHaulers = getTotalCreeps('hauler');
+        const totalUpgraders = getTotalCreeps('upgrader');
+        const totalBuilders = getTotalCreeps('builder');
+        const totalHealers = getTotalCreeps('healer');
+        const totalMiners = getTotalCreeps('miner');
+
+        // move these below into the report loop after switching them all to using getTotalCreeps
         const harvesters = _.filter(roomCreeps, (creep) => creep.memory.role == 'harvester');
         const haulers = _.filter(roomCreeps, (creep) => creep.memory.role == 'hauler');
         const upgraders = _.filter(roomCreeps, (creep) => creep.memory.role == 'upgrader');
@@ -264,27 +281,23 @@ module.exports.loop = function () {
                 console.log('Spawning new WARRIOR in ' + room.name);
             }
             //        console.log('running spawns for ' + room.name);
-            if (harvesters.length < numHarvesters) {
-                var newName;
-                switch (Memory.stage) {
-                    case 'start':
-                        newName = spawn.createCreep([WORK, WORK, CARRY, MOVE], undefined, { role: 'harvester' });
-                        break;
-                    default:
-                        newName = spawn.createCreep([WORK, WORK, WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE], undefined, { role: 'harvester', respawn: true });
-                        break;
-                }
+
+            if (totalHarvesters < numHarvesters) {
+                room.addToCreepBuildQueue('harvester',{respawn:true});
                 prioritySpawn = true;
                 console.log('Spawning new harvester in ' + room.name + ': ' + newName);
             }
 
-            if (((haulers.length < numHaulers) && !prioritySpawn) || (haulers.length == 0 && Memory.stage != 'start')) {
-                const newName = spawn.createCreep([CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], undefined, { role: 'hauler' });
+            if (((totalHaulers < numHaulers) && !prioritySpawn) || (haulers.length == 0 && Memory.stage != 'start')) {
+                room.addToCreepBuildQueue('hauler');
+//                const newName = spawn.createCreep([CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], undefined, { role: 'hauler' });
                 prioritySpawn = true;
                 console.log('Spawning new hauler in ' + room.name + ': ' + newName);
             }
 
-            if ((upgraders.length < numUpgraders) && !prioritySpawn) {
+            if ((totalUpgraders < numUpgraders) && !prioritySpawn) {
+                room.addToCreepBuildQueue('upgrader');
+                /*
                 var newName;
                 switch (Memory.stage) {
                     case 'start':
@@ -294,10 +307,13 @@ module.exports.loop = function () {
                         newName = spawn.createCreep([WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE], undefined, { role: 'upgrader' });
                         break;
                 }
+                */
                 console.log('Spawning new upgrader in ' + room.name + ': ' + newName);
             }
 
-            if ((builders.length < numBuilders) && !prioritySpawn) {
+            if ((totalBuilders < numBuilders) && !prioritySpawn) {
+                room.addToCreepBuildQueue('builder');
+                /*
                 var newName;
                 switch (Memory.stage) {
                     case 'start':
@@ -307,11 +323,13 @@ module.exports.loop = function () {
                         newName = spawn.createCreep([WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE], undefined, { role: 'builder' });
                         break;
                 }
+                */
                 console.log('Spawning new builder in ' + room.name + ': ' + newName);
             }
 
-            if ((healers.length < numHealers) && !prioritySpawn) {
-                const newName = spawn.createCreep([WORK, WORK, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'healer', targetRoom: room.name });
+            if ((totalHealers < numHealers) && !prioritySpawn) {
+                room.addToCreepBuildQueue('healer');
+//                const newName = spawn.createCreep([WORK, WORK, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'healer', targetRoom: room.name });
                 console.log('Spawning new healer in ' + room.name + ': ' + newName);
             }
 
@@ -321,11 +339,13 @@ module.exports.loop = function () {
                 console.log('Spawning new claimer in ' + room.name + ': ' + newName);
             }
 
-            if ((miners.length < 1) && (room.controller.level >= 6) &&
+            if ((totalMiners < 1) && (room.controller.level >= 6) &&
                 (room.find(FIND_MINERALS)[0].mineralAmount > 0) &&
                 (room.energyAvailable > (room.energyCapacityAvailable * 0.9))) {
-                const newName = spawn.createCreep([WORK, WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE ], undefined, { role: 'miner' });
-                console.log('Spawning new miner in ' + room.name + ': ' + newName);
+                    room.addToCreepBuildQueue('miner');
+
+                   // const newName = spawn.createCreep([WORK, WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE ], undefined, { role: 'miner' });
+                    console.log('Spawning new miner in ' + room.name + ': ' + newName);
             }
         } // end Spawning
 

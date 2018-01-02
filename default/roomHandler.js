@@ -94,19 +94,79 @@ Room.prototype.addToCreepBuildQueue = function (creepType, memoryObject) {
 
     bq.push({role:creepType, memory:memoryObject});
 
+    // verify it worked
+    if (bq[bq.length - 1].role == creepType && bq[bq.length-1].memory == memoryObject) {
+        return true;
+    }
+    else {
+        return false;
+    }
     console.log(JSON.stringify(bq[bq.length - 1]));
 }
 
-Room.prototype.getCreepBody = function (role) {
+Room.prototype.getCreepBody = function (role,targetRoom) {
     
+    // have to pass in targetRoom to handle the special case of harvesters being sent to other
+    // rooms to work in. We have to check that room's controller to see how big the body is.
+    // Not used for any other cases atm.
+
     var body = [];
 
-    switch (role) {
-        case 'contracthauler':
-            body = [CARRY,CARRY,CARRY,CARRY,MOVE,MOVE];
-            break;
-        default:
-            body = [WORK,CARRY,WORK,CARRY,MOVE,MOVE];
+    if (Memory.stage == 'start') {
+        switch (role) {
+            case 'harvester':
+                body = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
+                break;
+            case 'hauler':
+                body = [CARRY,CARRY,MOVE,MOVE];
+                break;
+            default:
+                body = [WORK,CARRY,MOVE];
+                break;
+        }
+    }
+    else {
+        switch (role) {
+            case 'dismantle':
+                body = [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE];
+                break;
+            case 'interhauler':
+                body = [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
+                break;
+            case 'harvester':
+            case 'miner':
+                //console.log('harvester getBody with targetRoom ' + Game.rooms[targetRoom]);
+                if (targetRoom && Game.rooms[targetRoom].controller.level < 4 ){
+                    body = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
+                }
+                else {
+                    body = [WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE];
+                }
+                break;
+            case 'claimer':
+                body = [CLAIM,MOVE];
+                break;
+            case 'contracthauler':
+            case 'minhauler':
+                body = [CARRY,CARRY,CARRY,CARRY,MOVE,MOVE];
+                break;
+            case 'patrol':
+                body = [TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE];
+                break;   
+            case 'hauler':
+                body = [CARRY,CARRY,CARRY,MOVE,MOVE,MOVE];
+                break;
+            case 'healer':
+            case 'builder':
+            case 'upgrader':
+                body = [WORK,WORK,WORK,CARRY,WORK,CARRY,MOVE,MOVE,MOVE];
+                break;
+            case 'remoteworker':
+                body = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
+                break;
+            default:
+                body = [WORK,CARRY,WORK,CARRY,WORK,CARRY,MOVE,MOVE,MOVE];
+        }
     }
     return body ;
 }
@@ -122,9 +182,9 @@ Room.prototype.runBuildQueue = function () {
         if (bq.length == 0) { return };
         const embryo = bq.pop();
         embryo.memory.role=embryo.role; // all creeps need this
-        const creepname = this.name + '-' + Game.time
+        const creepname = this.name + '-' + spawn.name + '-' + Game.time
         //const body = [WORK,CARRY,WORK,CARRY,MOVE,MOVE];
-        const body = this.getCreepBody(embryo.role);
+        const body = this.getCreepBody(embryo.role,embryo.memory.targetRoom);
         if (spawn.spawnCreep(body, creepname, {dryRun: true, memory:embryo.memory}) == OK) {
             console.log(spawn.id + ' spawning ' + embryo.role );
             if (spawn.spawnCreep(body, creepname, {memory:embryo.memory}) == OK) { 
@@ -146,6 +206,7 @@ module.exports = {
         if (!room.memory.buildQueue) {
             room.memory.buildQueue = [];
         }
+
         if (room.memory.buildQueue.length > 0) {
             room.runBuildQueue();
         }

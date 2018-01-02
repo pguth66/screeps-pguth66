@@ -41,7 +41,7 @@ Creep.prototype.moveToTarget = function (target) {
                 if (blockingCreeps.length > 0) {
                     this.memory.blocked ? this.memory.blocked++ : this.memory.blocked=1;                    
                     if (this.memory.blocked > 0 && this.memory.blocked < 5) {
-                        this.creepLog('blocked by creep ' + blockingCreeps[0].name);
+                        //this.creepLog('blocked by creep ' + blockingCreeps[0].name);
                         this.tellCreepToMove(blockingCreeps[0]);
                     }
                     else {
@@ -211,10 +211,12 @@ Creep.prototype.respawn = function () {
         }
         const spawnRoom = Game.rooms[this.memory.spawnRoom];
         const spawn = spawnRoom.find(FIND_MY_SPAWNS)[0];
-        if (spawn.spawnCreep(body, spawnRoom.name + '-' + Game.time, { memory: newCreepMemory, dryRun: true}) == OK ) {
-            this.memory.respawn = false ;
-            return spawn.spawnCreep(body, spawnRoom.name + '-' + Game.time, { memory: newCreepMemory });
-        } else {
+        if (spawnRoom.addToCreepBuildQueue(this.memory.role, newCreepMemory)) {
+            this.memory.respawn=false ;
+            return true;
+        }
+        else {
+            creep.creepLog('error adding self to build queue');
             return false;
         }
     }
