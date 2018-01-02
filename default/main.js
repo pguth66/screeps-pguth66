@@ -290,46 +290,22 @@ module.exports.loop = function () {
 
             if (((totalHaulers < numHaulers) && !prioritySpawn) || (haulers.length == 0 && Memory.stage != 'start')) {
                 room.addToCreepBuildQueue('hauler');
-//                const newName = spawn.createCreep([CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], undefined, { role: 'hauler' });
                 prioritySpawn = true;
                 console.log('Spawning new hauler in ' + room.name + ': ' + newName);
             }
 
             if ((totalUpgraders < numUpgraders) && !prioritySpawn) {
                 room.addToCreepBuildQueue('upgrader');
-                /*
-                var newName;
-                switch (Memory.stage) {
-                    case 'start':
-                        newName = spawn.createCreep([WORK, WORK, CARRY, MOVE], undefined, { role: 'upgrader' });
-                        break;
-                    default:
-                        newName = spawn.createCreep([WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE], undefined, { role: 'upgrader' });
-                        break;
-                }
-                */
                 console.log('Spawning new upgrader in ' + room.name + ': ' + newName);
             }
 
             if ((totalBuilders < numBuilders) && !prioritySpawn) {
                 room.addToCreepBuildQueue('builder');
-                /*
-                var newName;
-                switch (Memory.stage) {
-                    case 'start':
-                        newName = spawn.createCreep([WORK, WORK, CARRY, MOVE], undefined, { role: 'builder' });
-                        break;
-                    default:
-                        newName = spawn.createCreep([WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE], undefined, { role: 'builder' });
-                        break;
-                }
-                */
                 console.log('Spawning new builder in ' + room.name + ': ' + newName);
             }
 
             if ((totalHealers < numHealers) && !prioritySpawn) {
                 room.addToCreepBuildQueue('healer');
-//                const newName = spawn.createCreep([WORK, WORK, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'healer', targetRoom: room.name });
                 console.log('Spawning new healer in ' + room.name + ': ' + newName);
             }
 
@@ -343,8 +319,6 @@ module.exports.loop = function () {
                 (room.find(FIND_MINERALS)[0].mineralAmount > 0) &&
                 (room.energyAvailable > (room.energyCapacityAvailable * 0.9))) {
                     room.addToCreepBuildQueue('miner');
-
-                   // const newName = spawn.createCreep([WORK, WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE ], undefined, { role: 'miner' });
                     console.log('Spawning new miner in ' + room.name + ': ' + newName);
             }
         } // end Spawning
