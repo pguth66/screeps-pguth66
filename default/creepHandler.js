@@ -230,10 +230,7 @@ Creep.prototype.findAnyDepositTarget = function () {
     //this.creepLog(roomMap.containers.length + ' containers found')
     // need to add links, spawns, extensions to this
     this.room.containers.forEach(function(container) {
-        // get the real container object
-        //container = Game.getObjectById(c.id);
         //this.creepLog('processing container ' + container.id);
-        //container.role = c.role ;
         if((_.sum(container.store) < (container.storeCapacity - _.sum(this.carry)))) {
             targets.push(container);
         }
