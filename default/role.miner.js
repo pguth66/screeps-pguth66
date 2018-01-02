@@ -34,7 +34,7 @@ var roleMiner = {
 	    }
         if(!creep.memory.depositing) {
             // we're harvesting, so find sources 
-            var sources = creep.room.find(FIND_MINERALS);
+            var sources = creep.room.minerals;
             const source=creep.pos.findClosestByPath(sources);
 //            console.log("found source" + source.id);
             if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
