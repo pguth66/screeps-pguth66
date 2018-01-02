@@ -265,14 +265,6 @@ module.exports.loop = function () {
         const totalHealers = getTotalCreeps('healer');
         const totalMiners = getTotalCreeps('miner');
 
-        // move these below into the report loop after switching them all to using getTotalCreeps
-        const harvesters = _.filter(roomCreeps, (creep) => creep.memory.role == 'harvester');
-        const haulers = _.filter(roomCreeps, (creep) => creep.memory.role == 'hauler');
-        const upgraders = _.filter(roomCreeps, (creep) => creep.memory.role == 'upgrader');
-        const builders = _.filter(roomCreeps, (creep) => creep.memory.role == 'builder');
-        const healers = _.filter(roomCreeps, (creep) => creep.memory.role == 'healer');
-        const miners = _.filter(roomCreeps, (creep) => creep.memory.role == 'miner');
-
         // spawning
         if ((roomOwner == 'MixtySix') && spawn) {
             if (room.memory.foundHostiles && (_.filter(roomCreeps, (creep) => creep.memory.role == 'warrior') < 1)) {
@@ -288,7 +280,7 @@ module.exports.loop = function () {
                 console.log('Spawning new harvester in ' + room.name + ': ' + newName);
             }
 
-            if (((totalHaulers < numHaulers) && !prioritySpawn) || (haulers.length == 0 && Memory.stage != 'start')) {
+            if (((totalHaulers < numHaulers) && !prioritySpawn) || (totalHaulers.length == 0 && Memory.stage != 'start')) {
                 room.addToCreepBuildQueue('hauler');
                 prioritySpawn = true;
                 console.log('Spawning new hauler in ' + room.name + ': ' + newName);
@@ -374,6 +366,12 @@ module.exports.loop = function () {
                 msg = msg.concat(room.energyAvailable, "/", room.energyCapacityAvailable);
             }
             msg = msg.concat(' Creeps: ', _.size(roomCreeps));
+            const harvesters = _.filter(roomCreeps, (creep) => creep.memory.role == 'harvester');
+            const haulers = _.filter(roomCreeps, (creep) => creep.memory.role == 'hauler');
+            const upgraders = _.filter(roomCreeps, (creep) => creep.memory.role == 'upgrader');
+            const builders = _.filter(roomCreeps, (creep) => creep.memory.role == 'builder');
+            const healers = _.filter(roomCreeps, (creep) => creep.memory.role == 'healer');
+            const miners = _.filter(roomCreeps, (creep) => creep.memory.role == 'miner');    
             if (towers.length > 0) {
                 msg = msg.concat(" Towers:");
                 var tcolor = 'lawngreen';
