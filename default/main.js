@@ -252,8 +252,8 @@ module.exports.loop = function () {
         }
 
         function getTotalCreeps (role) {
-            const liveCreeps = _.filter(roomCreeps, (creep) => creep.memory.role == role);
-            const potentialCreeps = _.filter(room.memory.buildQueue, {role:role});
+            const liveCreeps = _.filter(roomCreeps, (creep) => creep.memory.role == role).length;
+            const potentialCreeps = _.filter(room.memory.buildQueue, {role:role}).length;
             return liveCreeps + potentialCreeps;
         }
         //const harvestersInQueue = _.filter(room.memory.buildQueue, {role: 'harvester'});
