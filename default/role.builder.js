@@ -103,7 +103,8 @@ var roleBuilder = {
                 var sources = creep.room.find(FIND_SOURCES_ACTIVE);
 				var source = creep.pos.findClosestByPath(sources);
 				if(source == null && creep.room.energyAvailable == creep.room.energyCapacityAvailable) {
-					source = creep.room.find(FIND_MY_SPAWNS)[0];
+					sources=_filter(creep.room.spawns, (s) => { return s.energy > creep.carryCapacity});
+					source = creep.pos.findClosestByPath(sources);
 					creep.say('Spawn harvest');
 					if(creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
 						creep.moveTo(source);
