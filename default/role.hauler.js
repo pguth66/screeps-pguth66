@@ -49,12 +49,14 @@ module.exports = {
 
         if (!creep.memory.hauling && _.sum(creep.carry) == creep.carryCapacity) {
             creep.memory.hauling = true;
+            creep.memory.target = null;
             // if we just flipped to hauling, don't walk across the entire room if a LINK is nearby
             // find nearby LINK to deposit in 
             // problem is if the room is empty this will refill links while we're starving
             try {
                 if(((creep.room.energyAvailable / creep.room.energyCapacityAvailable) > 0.7) && !(Memory.rooms[creep.room.name].priorityRefill)) {
                     //creep.creepLog('hauling to link because priorityRefill is ' + roomMap.priorityRefill);
+                    //creep.say('Linkdep');
                     const sourceLinkObj = _.filter(creep.room.links,  (l) => l.isSource == false)[0] ;
                     if(sourceLinkObj) {
                         sourceLink = Game.getObjectById(sourceLinkObj.id);      
@@ -74,7 +76,8 @@ module.exports = {
                 creep.creepLog(err);
                 creep.memory.target = null;
             }
-            creep.say("Haul");
+            //creep.say("Haul");
+            return ;
         }
 
         if(creep.memory.hauling) {
