@@ -27,7 +27,7 @@ var roleContractHauler = require('role.contracthauler');
 var roleHeisenberg = require('role.heisenberg');
 
 Creep.prototype.creepLog = function (text) {
-    console.log(this.name + "-" + this.room.name + "-" + this.memory.role + ": " + text)
+    console.log(this.name + "-" + this.memory.role + ": " + text)
 }
 Creep.prototype.moveToTarget = function (target) {
     //this.creepLog('moving to target ' + target.id);
