@@ -123,19 +123,19 @@ module.exports.loop = function () {
                     observer.observeRoom(Memory.roomToObserve);
                 }
                 try {
-                    const sourceLink = _.filter(room.links, (l) => !l.isSource )[0];
-                    //console.log(room.name + " source link is " + sourceLink + ' with energy ' + sourceLink.energy);
-                    if (sourceLink) {
-                        //sourceLink = Game.getObjectById(sourceLinkObj.id);
+                    const sourceLinks = _.filter(room.links, (l) => !l.isSource );
+                    sourceLinks.forEach(function (sourceLink) {
                         if (sourceLink.energy > (sourceLink.energyCapacity / 2)) {
-                            const targetLink = _.filter(room.links, (l) => l.isSource)[0];
+                            const targetLinks = _.filter(room.links, (l) => l.isSource);
+                            sortedTargetLinks = targetLinks.sort((a,b) => { return a.energy - b.energy});
+                            targetLink = sortedTargetLinks[0];
                             if (targetLink.energy < targetLink.energyCapacity && sourceLink.cooldown < 1) {
                                 sourceLink.transferEnergy(targetLink);
                                 //console.log(room.name + ': transfer from link ' + sourceLink.id + ' to ' + targetLink.id);
                             }
                         }
-                    }
-                    // console.log(room.name + sourceLink.id);
+                    })
+                    //console.log(room.name + " source link is " + sourceLink + ' with energy ' + sourceLink.energy);
                 }
                 catch (err) {
                     console.log(room.name + ": Error finding source link - " + err);
