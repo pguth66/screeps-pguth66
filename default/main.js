@@ -403,6 +403,17 @@ module.exports.loop = function () {
                 }
                 msg = msg.concat(" Storage: <font color='", stcolor, "'>", room.storage.store[RESOURCE_ENERGY], "</font>");
             }
+            if (room.terminal) {
+                var tmcolor = 'lawngreen';
+                const terminalContents = _.sum(room.terminal.store);
+                if (terminalContents > 200000) {
+                    tmcolor = 'yellow';
+                }
+                if (terminalContents > 250000) {
+                    tmcolor = 'salmon';
+                }
+                msg = msg.concat(" Terminal: <font color='", tmcolor, "'>", terminalContents, "</font>" )
+            }
             msg = msg.concat(" ", harvesters.length, "/", haulers.length, "/", upgraders.length, "/", healers.length, "/", builders.length);
             console.log(msg);
             if ((Game.time % 14400) == 0) {
