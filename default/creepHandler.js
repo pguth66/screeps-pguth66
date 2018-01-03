@@ -181,10 +181,6 @@ Creep.prototype.respawn = function () {
 
     try {
         switch (this.memory.role) {
-            case 'dismantle':
-                body = [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE];
-                newCreepMemory.targetRoom = this.memory.targetRoom ;                
-                break;
             case 'interhauler':
                 body = [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
                 newCreepMemory.targetRoom = this.memory.targetRoom; 
@@ -202,6 +198,8 @@ Creep.prototype.respawn = function () {
                 newCreepMemory.target = this.memory.target;
                 break;
             case 'claimer':
+            case 'patrol':
+            case 'dismantle':
                 body = [CLAIM,MOVE];
                 newCreepMemory.targetRoom = this.memory.targetRoom;
                 break;
