@@ -15,6 +15,9 @@
     should have these guys on recycle behavior so they don't drop vauable stuff
     if current room has no targets, check next room
 */
+
+var roleHauler = require('role.hauler');
+
 var roleMinHauler = {
 
     /** @param {Creep} creep **/
@@ -103,6 +106,11 @@ var roleMinHauler = {
             }
             else {
                 terminal = terminals[0];
+            }
+
+            if (_.sum(terminal.store) == terminal.storeCapacity) {
+                // if terminal is full just use regular hauler code to send it somewhere
+                roleHauler.run(creep);
             }
 
             if(creep.pos.inRangeTo(terminal, 1)) {
