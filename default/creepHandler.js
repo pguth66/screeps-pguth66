@@ -223,9 +223,7 @@ Creep.prototype.respawn = function () {
     }
 }
 Creep.prototype.findAnyDepositTarget = function () {
-    var roomMap = Memory.roomMaps[this.room.name];
     var targets = [];
-    //this.creepLog(roomMap.containers.length + ' containers found')
     // need to add links, spawns, extensions to this
     this.room.containers.forEach(function(container) {
         //this.creepLog('processing container ' + container.id);

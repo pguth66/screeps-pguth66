@@ -14,6 +14,7 @@ module.exports.loop = function () {
     Memory.roomToBuild = 'W28N26'; // room to send remoteworkers to
     Memory.roomToHarvest = 'W29N26'; // room to harvest energy in (and send interhaulers to)
     Memory.roomToObserve = 'W30N27';
+    Memory.capitol='W27N27';
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
 
@@ -43,7 +44,7 @@ module.exports.loop = function () {
     // minhaulers aren't per room but global so they spawn outside the room loops
     //console.log(numMinHaulers.length + " mineral haulers");
     if (numMinHaulers < 2) {
-        Game.rooms['W27N27'].addToCreepBuildQueue('minhauler');
+        Game.rooms[Memory.capitol].addToCreepBuildQueue('minhauler');
 //        Game.spawns['Spawn8'].createCreep([CARRY, CARRY, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'minhauler' });
     }
 
@@ -81,7 +82,7 @@ module.exports.loop = function () {
             marketHandler.runMarket(room);
         }
         try {
-            if (roomOwner == 'MixtySix') {
+            if (room.controller && room.controller.my) {
                 switch (room.controller.level) {
                     case 0:
                     case 1:

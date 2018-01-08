@@ -32,8 +32,6 @@ module.exports = {
               }
               return b;
           }
-
-        var roomMap = Memory.roomMaps[creep.room.name];
   
         if((creep.memory.hauling) && _.sum(creep.carry) == 0) {
             if(creep.ticksToLive < 100) {
@@ -168,8 +166,6 @@ module.exports = {
                             }
                         })
                         creep.room.links.forEach(function(link) {
-                            //link = Game.getObjectById(roomMap.links[l].id);
-                            //link.role = roomMap.links[l].role;
                             if(!link.isSource && link.energy < (link.energyCapacity - creep.carry[RESOURCE_ENERGY])
                                 && creep.carry[RESOURCE_ENERGY] > 0) {
                                 targets.push(link);

@@ -8,8 +8,6 @@ var roleBuilder = {
 		if(creep.spawning) {
 			return;
 		}
-
-		var roomMap = Memory.roomMaps[creep.room.name];
 		
 		function hasEnergy(structure) {
 			var b = false;
@@ -87,8 +85,6 @@ var roleBuilder = {
 				}					
 			})
 			creep.room.links.forEach(function(link) {
-				//link = Game.getObjectById(roomMap.links[l].id);
-				//link.role = roomMap.links[l].role ;
 				if(link.energy > 0) {
 					sources.push(link);
 				}

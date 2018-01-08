@@ -23,7 +23,6 @@ var roleMinHauler = {
     /** @param {Creep} creep **/
     run: function(creep) {
 
-        var roomMap = Memory.roomMaps[creep.room.name];
         var targets = [] ;
         const finalRoom = 'W28N28';
 
@@ -55,8 +54,6 @@ var roleMinHauler = {
         if(!creep.memory.hauling) {
             try {
             creep.room.containers.forEach(function(container) {
-                // get the real container object
-                //container = Game.getObjectById(roomMap.containers[c].id);
                 if(!(_.isEmpty(_.omit(container.store, RESOURCE_ENERGY)))) {
                     targets.push(container);
                     //roomMap.hasMinsToHaul = true;

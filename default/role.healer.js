@@ -12,9 +12,7 @@ var roleHealer = {
 
     /** @param {Creep} creep **/
     run: function(creep) {
-        
-        var roomMap = Memory.roomMaps[creep.room.name];
-        
+                
         if(creep.memory.healing && creep.carry.energy == 0) {
             if(creep.ticksToLive < 100) {
                 creep.say('Goodbye');
@@ -36,8 +34,6 @@ var roleHealer = {
             var sources = _.filter(creep.room.containers, (c) => { return c.store[RESOURCE_ENERGY] > 200});
 
             creep.room.links.forEach(function(link) {
-				//link = Game.getObjectById(roomMap.links[l].id);
-				//link.role = roomMap.links[l].role ;
 				if(link.energy > 0) {
 					sources.push(link);
 				}
