@@ -313,12 +313,6 @@ module.exports.loop = function () {
 
         for (i in towers) {
             tower = towers[i];
-            /* if(tower.energy < (tower.energyCapacity * 0.7)) {
-                Memory.roomMaps[room.name].priorityRefill=true;
-            }
-            else {
-                Memory.roomMaps[room.name].priorityRefill=false;
-            } */
             if (!room.memory.foundHostiles && (tower.energy > tower.energyCapacity / 2)) {
                 var DamagedStructures = tower.room.find(FIND_STRUCTURES, {
                     filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 5000))                    
