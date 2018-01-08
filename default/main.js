@@ -38,9 +38,6 @@ module.exports.loop = function () {
         //console.log('Error running harvest rooms');
     }
 
-    //const capitalCity = _.filter(Memory.roomMaps, (r) => {return r.isCapital});
-    //console.log('capital is in '+ JSON.stringify(capitalCity, null, 4));
-
     // minhaulers aren't per room but global so they spawn outside the room loops
     //console.log(numMinHaulers.length + " mineral haulers");
     if (numMinHaulers < 2) {
@@ -157,7 +154,7 @@ module.exports.loop = function () {
             creepHandler.handleCreep(roomCreeps[name]);
         }
 
-        if (roomOwner == 'MixtySix') {
+        if (room.controller && room.controller.my) {
             // start stage defaults
             switch (room.controller.level) {
                 case 0:
@@ -188,10 +185,7 @@ module.exports.loop = function () {
         }
 
         try {
-            if (roomOwner == 'MixtySix') {
-                //room.storageObj = _.filter(Memory.roomMaps[room.name].containers, ('isStorage'))[0];
-                //if (room.storageObj) {
-                //    room.storage = Game.getObjectById(room.storageObj.id);
+            if (room.controller && room.controller.my) {
                 if (room.storage) {
                     if (room.storage.store[RESOURCE_ENERGY] < 50000) {
                         numBuilders -= 1;
@@ -213,7 +207,6 @@ module.exports.loop = function () {
                     numBuilders -= 2;
                 }
                 var sourceContainers = _.filter(room.containers, (c) => c.isSource);
-                //var sourceContainers = _.filter(Memory.roomMaps[room.name].containers, (c) => c.isSource);                
                 //console.log(room + ' has ' + sourceContainers.length + ' source containers');
                 var sourceEnergy = 0;
                 sourceContainers.forEach(function (c) {
@@ -267,7 +260,7 @@ module.exports.loop = function () {
         const totalMiners = getTotalCreeps('miner');
 
         // spawning
-        if ((roomOwner == 'MixtySix') && spawn) {
+        if ((room.controller && room.controller.my) && spawn) {
             if (room.memory.foundHostiles && (_.filter(roomCreeps, (creep) => creep.memory.role == 'warrior') < 1)) {
                 var newName;
                 newName = spawn.createCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, ATTACK], undefined, { role: 'warrior' });
@@ -361,7 +354,7 @@ module.exports.loop = function () {
         if ((Game.time % 24) == 0) {
             var msg = '';
             msg = 'Room '.concat(room.name);
-            if (roomOwner == 'MixtySix') {
+            if (room.controller && room.controller.my) {
                 const RCLprogress = (room.controller.progress / room.controller.progressTotal * 100).toFixed(0);
                 msg = msg.concat("(", room.controller.level, "-", RCLprogress, "%): ");
                 msg = msg.concat(room.energyAvailable, "/", room.energyCapacityAvailable);
@@ -425,7 +418,7 @@ module.exports.loop = function () {
         // Safe Room
         if (room.memory.foundHostiles) {
             //console.log(room.name + " found hostile creeps!");
-            if (roomOwner == 'MixtySix' && spawn) {
+            if (room.controller && room.controller.my && spawn) {
                 if (spawn.hits < (spawn.hitsMax / 2)) {
                     room.needsSafeRoom = true;
                 }
