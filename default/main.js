@@ -27,7 +27,15 @@ module.exports.loop = function () {
         }
     }
 
-    const numMinHaulers = _.filter(Game.creeps, (c) => { return c.memory.role == 'minhauler' }).length;
+    var numMinHaulers = 0 ;
+
+    if (Object.keys(Game.rooms).length > 2) {
+        numMinHaulers = _.filter(Game.creeps, (c) => { return c.memory.role == 'minhauler' }).length;
+    }
+    else {
+        numMinHaulers = 3; // hack to make no minhaulers spawn in local/sim
+        console.log('skipping minHaulers');
+    }
 
     // Harvest room logic
     try {
