@@ -112,7 +112,16 @@ Room.prototype.getCreepBody = function (role,targetRoom) {
 
     var body = [];
 
-    if (Memory.stage == 'start') {
+    //console.log('targetRoom is ' + targetRoom);
+    if (targetRoom) {
+        const room = Game.rooms[targetRoom];
+    }
+    else {
+        room = this;
+    }
+
+    if (room.memory.stage == 'start') {
+        console.log('using small creep bodies');
         switch (role) {
             case 'harvester':
                 body = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
@@ -135,9 +144,9 @@ Room.prototype.getCreepBody = function (role,targetRoom) {
                 break;
             case 'harvester':
             case 'miner':
-                //console.log('harvester getBody with targetRoom ' + Game.rooms[targetRoom]);
+                console.log('harvester getBody with targetRoom ' + Game.rooms[targetRoom]);
                 if (targetRoom && Game.rooms[targetRoom].controller.level < 4 ){
-                    body = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
+                    body = [WORK,WORK,CARRY,MOVE,MOVE];
                 }
                 else {
                     body = [WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE];
@@ -159,7 +168,12 @@ Room.prototype.getCreepBody = function (role,targetRoom) {
             case 'healer':
             case 'builder':
             case 'upgrader':
-                body = [WORK,WORK,WORK,CARRY,WORK,CARRY,MOVE,MOVE,MOVE];
+                if (targetRoom && Game.rooms[targetRoom].controller.level < 4 ){
+                    body = [WORK,WORK,CARRY,MOVE,MOVE];
+                }
+                else {
+                    body = [WORK,WORK,WORK,CARRY,WORK,CARRY,MOVE,MOVE,MOVE];
+                }
                 break;
             case 'remoteworker':
                 body = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
@@ -193,6 +207,8 @@ Room.prototype.runBuildQueue = function () {
             else {
                 console.log('error spawning creep');
             }
+        } else {
+            console.log(spawn + ' cannot spawn '+ embryo.role);
         }
     }, this)
 }

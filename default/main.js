@@ -13,7 +13,7 @@ module.exports.loop = function () {
     Memory.roomToAttack = null; // room to send warriors to
     Memory.roomToBuild = 'W28N26'; // room to send remoteworkers to
     Memory.roomToHarvest = 'W29N26'; // room to harvest energy in (and send interhaulers to)
-    Memory.roomToObserve = 'W30N27';
+    Memory.roomToObserve = 'W31N27';
     Memory.capitol='W27N27';
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
@@ -92,16 +92,16 @@ module.exports.loop = function () {
                     case 0:
                     case 1:
                     case 2:
-                        Memory.stage = 'start';
+                        room.memory.stage = 'start';
                         break;
                     default:
-                        Memory.stage = 'later';
+                        room.memory.stage = 'later';
                         break;
                 }
 
                 // go back to small creeps if we're really low on energy
                 if (room.energyAvailable < 700) {
-                    Memory.stage = 'start';
+                    room.memory.stage = 'start';
                     // prioritySpawn = true;
                 }
 
@@ -179,7 +179,7 @@ module.exports.loop = function () {
             var numHealers = 0;
             var numClaimers = 0;
 
-            if (Memory.stage == 'later') {
+            if (room.memory.stage == 'later') {
                 numHaulers = room.numContainers - room.numLinks;
                 if (numHaulers < 1) {
                     numHaulers = 1;
@@ -282,7 +282,7 @@ module.exports.loop = function () {
                 console.log('Spawning new harvester in ' + room.name + ': ' + newName);
             }
 
-            if (((totalHaulers < numHaulers) && !prioritySpawn) || (totalHaulers.length == 0 && Memory.stage != 'start')) {
+            if (((totalHaulers < numHaulers) && !prioritySpawn) || (totalHaulers.length == 0 && room.memory.stage != 'start')) {
                 room.addToCreepBuildQueue('hauler');
                 prioritySpawn = true;
                 console.log('Spawning new hauler in ' + room.name + ': ' + newName);
