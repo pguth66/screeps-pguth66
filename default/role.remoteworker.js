@@ -16,9 +16,10 @@ var roleRemoteworker = {
     /** @param {Creep} creep **/
     run: function(creep) {
 
-        if(creep.ticksToLive == 100 && creep.room.controller.level < 3) {
-            Game.rooms[creep.memory.spawnRoom].addToCreepBuildQueue('remoteworker');
-        }
+        // use respawn instead
+        //if(creep.ticksToLive == 100 && creep.room.controller.level < 3) {
+        //    Game.rooms[creep.memory.spawnRoom].addToCreepBuildQueue('remoteworker');
+        //}
 
         switch(creep.pos.y) {
             case 0:
