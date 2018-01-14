@@ -60,6 +60,7 @@ module.exports = {
                             break;
                         case ERR_NOT_ENOUGH_RESOURCES:
                             creep.creepLog('not enough ' + resourceType + ' to transfer to dropTarget');
+                            creep.memory.hauling = false;
                             break;
                         default:
                             creep.creepLog('error transferring ' + resourceType + ' to dropTarget ' + dt.id);
