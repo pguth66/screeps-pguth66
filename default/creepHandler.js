@@ -200,6 +200,7 @@ Creep.prototype.respawn = function () {
             case 'claimer':
             case 'patrol':
             case 'dismantle':
+            case 'remoteworker':
                 body = [CLAIM,MOVE];
                 newCreepMemory.targetRoom = this.memory.targetRoom;
                 break;
