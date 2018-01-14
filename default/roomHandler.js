@@ -111,17 +111,21 @@ Room.prototype.getCreepBody = function (role,targetRoom) {
     // Not used for any other cases atm.
 
     var body = [];
+    var room = {};
 
     //console.log('targetRoom is ' + targetRoom);
+    //console.log('this in getCreepbody is ' + this);
     if (targetRoom) {
-        const room = Game.rooms[targetRoom];
+        room = Game.rooms[targetRoom];
     }
     else {
         room = this;
     }
 
+    //console.log('room is now ' + room);
+
     if (room.memory.stage == 'start') {
-        console.log('using small creep bodies');
+        //console.log('using small creep bodies');
         switch (role) {
             case 'harvester':
                 body = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
@@ -213,6 +217,37 @@ Room.prototype.runBuildQueue = function () {
     }, this)
 }
 
+Room.prototype.drawRoad = function (pos1, pos2) {
+
+    // finds a path between pos1 and pos2, then drops construction sites for roads along that path
+
+    const path = this.findPath(pos1,pos2,{ignoreCreeps:true,ignoreRoads:true,range:1});
+    path.forEach(function (pos) {
+        x = pos.x;
+        y = pos.y;
+        this.createConstructionSite(x,y,STRUCTURE_ROAD);
+//        console.log(x + ',' + y);
+    }, this)
+    console.log('path found has length ' + path.length);
+}
+Room.prototype.buildRoomRoads = function () {
+
+    this.sources.forEach( function (source) {
+        this.drawRoad(source.pos, this.controller.pos);
+        this.spawns.forEach(function (spawn) {
+            this.drawRoad(source.pos, spawn.pos);
+        },this)
+        if (this.storage) {
+            this.drawRoad(source.pos, this.storage.pos);
+        }
+        if (this.controller.level > 5 && this.minerals) {
+            this.drawRoad(source.pos, this.minerals[0].pos);
+        }
+        if (this.terminal) {
+            this.drawRoad(source.pos, this.terminal.pos);
+        }
+    },this)
+}
 module.exports = {
 
     handleRoom: function(room) {
