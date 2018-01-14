@@ -48,6 +48,35 @@ module.exports = {
                 else {
                     creep.moveTo(pt);
                 }
+                switch (dt.structureType) {
+                    case STRUCTURE_NUKER:
+                        if (resourceType == RESOURCE_ENERGY && dt.energy >= creep.memory.upTo) {
+                            creep.memory.role='pause';
+                        }
+                        else {
+                            if (resourceType == RESOURCE_GHODIUM && dt.ghodium >= creep.memory.upTo) {
+                                creep.memory.role='pause'
+                            }
+                        }
+                        break;
+                    case STRUCTURE_LAB:
+                        if (resourceType == RESOURCE_ENERGY) {
+                            if (dt.energy >= creep.memory.upTo) {
+                                creep.memory.role='pause';
+                            }
+                        }
+                        else {
+                            if (dt.mineralAmount >= creep.memory.upTo) {
+                                creep.memory.role='pause;'
+                            }
+                        }
+                        break;
+                    default:
+                        if (dt.store[resourceType] >= creep.memory.upTo) {
+                        creep.memory.role='pause';
+                        }
+                        break;
+                }
             } else {
 //                if (creep.pos.inRangeTo(dt,1)) {
                     switch (creep.transfer(dt, resourceType)) {
@@ -64,35 +93,6 @@ module.exports = {
                             break;
                         default:
                             creep.creepLog('error transferring ' + resourceType + ' to dropTarget ' + dt.id);
-                    }
-                    switch (dt.structureType) {
-                        case STRUCTURE_NUKER:
-                            if (resourceType == RESOURCE_ENERGY && dt.energy >= creep.memory.upTo) {
-                                creep.memory.role='pause';
-                            }
-                            else {
-                                if (resourceType == RESOURCE_GHODIUM && dt.ghodium >= creep.memory.upTo) {
-                                    creep.memory.role='pause'
-                                }
-                            }
-                            break;
-                        case STRUCTURE_LAB:
-                            if (resourceType == RESOURCE_ENERGY) {
-                                if (dt.energy >= creep.memory.upTo) {
-                                    creep.memory.role='pause';
-                                }
-                            }
-                            else {
-                                if (dt.mineralAmount >= creep.memory.upTo) {
-                                    creep.memory.role='pause;'
-                                }
-                            }
-                            break;
-                        default:
-                            if (dt.store[resourceType] >= creep.memory.upTo) {
-                            creep.memory.role='pause';
-                            }
-                            break;
                     }
 //                }
  //               else {
