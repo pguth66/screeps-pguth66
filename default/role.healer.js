@@ -24,7 +24,11 @@ var roleHealer = {
             }
 	    }
 	    if(!creep.memory.healing && creep.carry.energy == creep.carryCapacity) {
-	        creep.memory.healing = true;
+            creep.memory.healing = true;
+            const adjacentSource = creep.pos.findInRange(FIND_SOURCES, 1)[0];
+			if (adjacentSource) {
+				creep.flee(adjacentSource);
+			}
 	        creep.say('🚧 heal');
 	    }
 	    if (!creep.memory.healing) {
