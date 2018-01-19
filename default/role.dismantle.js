@@ -24,6 +24,9 @@ var roleDismantle = {
             if (dismantleTargets.length > 0) {
                 const dismantleTarget = dismantleTargets[0];
 
+                if (dismantleTarget.notifyWhenAttacked) {
+                    dismantleTarget.notifyWhenAttacked(false);
+                }
                 if (creep.carry[RESOURCE_ENERGY] == creep.carryCapacity) {
                     const depositTarget = creep.findAnyDepositTarget();
                     if (creep.transfer(depositTarget, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
