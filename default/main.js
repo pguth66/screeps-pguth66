@@ -1,6 +1,5 @@
 var creepHandler = require('creepHandler');
 var harvestRole = require('func.harvestRoles');
-require('roomHandler');
 var labHandler = require('labHandler');
 var marketHandler = require('marketHandler');
 var roomHandler = require('roomHandler');
