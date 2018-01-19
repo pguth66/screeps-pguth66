@@ -25,16 +25,16 @@ var harvestRoles = {
             if(Memory.spawn[role] == 0) {
                 switch(role) {
                     case 'caltrans':
-                        Game.rooms['W28N26'].addToCreepBuildQueue('caltrans',{targetRoom:roomToHarvest});
+                        Game.rooms[Memory.roomToBuild].addToCreepBuildQueue('caltrans',{targetRoom:roomToHarvest});
                         break;
                     case 'harvester':
-                        Game.rooms['W28N26'].addToCreepBuildQueue('harvester',{targetRoom:roomToHarvest,respawn:true});
+                        Game.rooms[Memory.roomToBuild].addToCreepBuildQueue('harvester',{targetRoom:roomToHarvest,respawn:true});
                         break;
                     case 'interhauler':
-                        Game.rooms['W28N26'].addToCreepBuildQueue('interhauler',{workRoom:roomToHarvest,baseRoom:roomToHelp,respawn:true});
+                        Game.rooms[Memory.roomToBuild].addToCreepBuildQueue('interhauler',{workRoom:roomToHarvest,baseRoom:roomToHelp,respawn:true});
                         break;
                     case 'patrol':
-                        Game.rooms['W28N26'].addToCreepBuildQueue('patrol',{targetRoom:roomToHarvest,respawn:true});
+                        Game.rooms[Memory.roomToBuild].addToCreepBuildQueue('patrol',{targetRoom:roomToHarvest,respawn:true});
                         break;
                 }
                 console.log('spawning ' + role + ' and setting memory to null');
