@@ -150,7 +150,7 @@ Room.prototype.getCreepBody = function (role,targetRoom) {
             case 'miner':
                 console.log('harvester getBody with targetRoom ' + Game.rooms[targetRoom]);
                 if (targetRoom && Game.rooms[targetRoom].controller.level < 4 ){
-                    body = [WORK,WORK,CARRY,MOVE,MOVE];
+                    body = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
                 }
                 else {
                     body = [WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE];
