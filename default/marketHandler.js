@@ -88,6 +88,9 @@
                 })
             }
         }
+
+        // main loop
+
         const mineralType = room.minerals[0].mineralType;
         
         var orders = _.filter(Game.market.orders, {roomName: room.name, type: ORDER_SELL});
@@ -104,6 +107,20 @@
                 //console.log(room.name + " needs to clean up orders");
                 pruneOrders(orders, mineralType);
         }
+
+        const basicMinerals = [ 'U', 'X', 'Z', 'L', 'K', 'O', 'H'];
+
+        basicMinerals.forEach(function (mineral) {
+            if (mineral == mineralType) {
+                return;
+            }
+            else {
+                if (room.terminal.store[mineral] > 1000 ) {
+                    Game.notify('I be sending ' + room.terminal.store[mineral] + ' ' + mineral + ' from room ' + room.name);
+                    room.terminal.send(mineral,room.terminal.store[mineral],room.findNearestRoomSelling(mineral).name);
+                }
+            }
+        });
         //console.log(room.name + "has " + orders.length +  " orders ");
         //console.log(room.name + ' running market handler');
     }

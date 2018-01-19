@@ -84,6 +84,19 @@ Object.defineProperty(Room.prototype, 'labs', {
     }
 })
 
+Room.prototype.findNearestRoomSelling = function (mineral) {
+    const roomsWithMin = _.filter(Game.rooms, (r) => { return r.minerals[0].mineralType == mineral});
+    var destRoomMatrix = [];
+    roomsWithMin.forEach( function (room,i) {
+        if (room.terminal) {
+            destRoomMatrix[i] = {'room': room, 'dist': Game.map.getRoomLinearDistance(this.name, room.name, true)};
+        }
+    },this);
+    destRoomMatrix.sort(function(a,b) { return a.dist-b.dist});
+    //console.log(JSON.stringify(destRoomMatrix,null,4));
+    return destRoomMatrix[0].room;
+
+}
 Room.prototype.addToCreepBuildQueue = function (creepType, memoryObject) {
     //console.log('adding creep to build queue: '+ creepType);
     var bq = this.memory.buildQueue;
