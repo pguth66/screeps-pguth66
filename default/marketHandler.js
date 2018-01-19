@@ -31,6 +31,10 @@
                 //console.log(room.name + ' picking lowest price');                
                 return prices[0];
             }
+            if (amountinTerminal > 175000) {
+                const arrayThird = Math.round(prices.length /3);
+                return prices[arrayThird];
+            }
             else {
                 const arrayMedian = Math.round(prices.length / 2);
                 //console.log(room.name + ' picking median price of ' + prices[arrayMedian] + ' from index ' + arrayMedian);         
