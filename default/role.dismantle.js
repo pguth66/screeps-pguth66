@@ -11,6 +11,11 @@ var roleDismantle = {
 
     run: function(creep) {
 
+        if (creep.room.memory.foundHostiles) {
+            creep.moveTo(creep.room.controller);
+            return;
+        }
+
         const dismantleFlags = creep.room.find(FIND_FLAGS, { filter: { color: COLOR_RED } });
         if (dismantleFlags.length > 0) {
             const dismantleFlag = creep.pos.findClosestByPath(dismantleFlags);
