@@ -92,8 +92,11 @@ module.exports = {
                     if(!isFull(target)) {
                         if(creep.pos.inRangeTo(target,1)) {
                             for(const resourceType in creep.carry) {
-                                if (creep.carry[resourceType] > 0) {                            
-                                    creep.transfer(target, resourceType);
+                                if (creep.carry[resourceType] > 0) {
+                                    const r = creep.carry[resourceType];                            
+                                    if (creep.transfer(target, resourceType) == OK) {
+                                        creep.memory.processed += r;
+                                    }
                                 }
                             };
                             creep.memory.target = null;
@@ -206,18 +209,25 @@ module.exports = {
                     console.log(creep.name + ": " + err + 'whyile finding a target to haul to');
                 }
             //now try to transfer to target, or else move to it
+            var r = creep.carry[RESOURCE_ENERGY]; // for counting how much we've processed
             switch(creep.transfer(target, RESOURCE_ENERGY)) {
                 case ERR_NOT_IN_RANGE:
                     creep.moveTo(target, {visualizePathStyle: {}});
                     break;
                 case OK:
+                    //creep.creepLog('adding ' + r + ' to creeps processed value');
+                    creep.memory.processed += r ;
                     break;
                 default:
+                    //creep.creepLog('fallthrough in transfer');
                     creep.memory.target=null;
                     for(const resourceType in creep.carry) {
-                        if (creep.carry[resourceType] > 0) {                            
-                            creep.transfer(target, resourceType);
-                        }
+                        if (creep.carry[resourceType] > 0) {
+                            r = creep.carry[RESOURCE_ENERGY];                            
+                            if (creep.transfer(target, resourceType) == OK) {
+                                creep.memory.processed += r;
+                            }
+                        }   
                     };
                     break;   
             }

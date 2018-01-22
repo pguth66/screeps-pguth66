@@ -182,20 +182,11 @@ Creep.prototype.respawn = function () {
     try {
         switch (this.memory.role) {
             case 'interhauler':
-                //body = [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
                 newCreepMemory.targetRoom = this.memory.targetRoom; 
                 newCreepMemory.workRoom = this.memory.workRoom;
                 newCreepMemory.baseRoom = this.memory.baseRoom;
                 break;
             case 'harvester':
-                /*
-                if (Game.rooms[this.memory.targetRoom].controller.level > 3 ){
-                    body = [WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE];
-                }
-                else {
-                    body = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
-                }
-                */
                 newCreepMemory.targetRoom = this.memory.targetRoom;
                 newCreepMemory.target = this.memory.target;
                 break;
@@ -203,11 +194,9 @@ Creep.prototype.respawn = function () {
             case 'patrol':
             case 'dismantle':
             case 'remoteworker':
-                //body = [CLAIM,MOVE];
                 newCreepMemory.targetRoom = this.memory.targetRoom;
                 break;
             default:
-                //body = [TOUGH];
                 break;
         }
         const spawnRoom = Game.rooms[this.memory.spawnRoom];
@@ -307,6 +296,9 @@ module.exports = {
         else { // initialization stuff
             if (!creep.memory.spawnRoom) {
                 creep.memory.spawnRoom = creep.room.name;
+            }
+            if (!creep.memory.processed) {
+                creep.memory.processed = 0 ;
             }
             if (!creep.memory.targetRoom && !((creep.memory.role == 'interhauler') || (creep.memory.role == 'contracthauler') || (creep.memory.role == 'minhauler'))) {
                 creep.memory.targetRoom = creep.room.name;

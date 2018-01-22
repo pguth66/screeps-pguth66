@@ -72,16 +72,20 @@ module.exports = {
                         }
                         break;
                     default:
-                        if (dt.store[resourceType] >= creep.memory.upTo) {
-                        creep.memory.role='pause';
+                        if ((dt.store[resourceType] >= creep.memory.upTo) || 
+                            (creep.memory.processed >= creep.memory.total)) {
+                            creep.memory.role='pause';
+                            creep.memory.respawn=false;
                         }
                         break;
                 }
             } else {
 //                if (creep.pos.inRangeTo(dt,1)) {
+                    const r = creep.carry[resourceType];
                     switch (creep.transfer(dt, resourceType)) {
                         case OK:
                             creep.say('Deposit');   
+                            creep.memory.processed += r;
                             creep.memory.hauling = false;                        
                             break;
                         case ERR_NOT_IN_RANGE:
