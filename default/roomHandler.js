@@ -97,6 +97,14 @@ Room.prototype.findNearestRoomSelling = function (mineral) {
     return destRoomMatrix[0].room;
 
 }
+Room.prototype.findNearestRoomNeedingEnergy = function () {
+    // find all rooms with less than 250k energy
+    const roomsNeedingEnergy = _.filter(Game.rooms, (r) => { if (r.storage && r.terminal) {return r.storage.store[RESOURCE_ENERGY] < 250000}});
+    var destRoomMatrix = [] ;
+    roomsNeedingEnergy.sort(function(a,b) { return a.storage.store[RESOURCE_ENERGY]-b.storage.store[RESOURCE_ENERGY]});
+    //console.log(roomsNeedingEnergy);
+    return roomsNeedingEnergy[0];
+}
 Room.prototype.addToCreepBuildQueue = function (creepType, memoryObject) {
     //console.log('adding creep to build queue: '+ creepType);
     var bq = this.memory.buildQueue;
@@ -269,6 +277,63 @@ module.exports = {
 
         if (!room.memory.buildQueue) {
             room.memory.buildQueue = [];
+        }
+        if (!room.memory.energyState) {
+            room.memory.energyState = 'normal';
+        }
+
+        if (room.storage) {
+            switch (room.memory.energyState) {
+                case 'normal':
+                    if (room.storage.store[RESOURCE_ENERGY] > 700000) {
+                        console.log(room.name + ' needs to send energy, has ' + room.storage.store[RESOURCE_ENERGY]);
+                        room.memory.energyState = 'loading';
+                    }
+                    break;
+                case 'loading':
+                    if (_.filter(Game.creeps, (c) => { return ((c.room.name == room.name) && c.memory.loadingTerminal)}).length == 0) {
+                        //console.log(room.name + ' would be spawning CH here');
+                        room.memory.taskID = Memory.taskID;
+                        Memory.taskID++;
+                        room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:70000,dropTarget:room.terminal.id,pullTarget:room.storage.id,taskID:room.memory.taskID,loadingTerminal:true});
+                    }
+                    const taskCreep = _.filter(Game.creeps, (c) => { return c.memory.taskID == room.memory.taskID})[0];
+                    if (taskCreep && taskCreep.memory.processed >= 70000) {
+                        room.memory.energyState = 'sending';
+                        taskCreep.memory.role='recycle';
+                        console.log(room.name + ' finished loading');
+                    }
+                    break;
+                case 'sending':
+                    const targetRoom=room.findNearestRoomNeedingEnergy();
+                    console.log(room.name + ' sending energy to ' + targetRoom.name);
+                    try {
+                        if (room.terminal.send(RESOURCE_ENERGY,70000,targetRoom.name) == OK) {
+                            room.memory.energyState = 'normal';
+                            targetRoom.memory.energyState = 'unloading';
+                            console.log(room.name + ' finished sending');
+                        }
+                    }
+                    catch (err) {
+                        console.log(err);
+                    }
+                    break;
+                case 'unloading':
+                    if (_.filter(Game.creeps, (c) => { return ((c.room.name == room.name) && c.memory.unloadingTerminal)}).length == 0) {
+                        room.memory.taskID = Memory.taskID;
+                        Memory.taskID++;
+                        room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:70000,dropTarget:room.storage.id,pullTarget:room.terminal.id,taskID:room.memory.taskID,unloadingTerminal:true});
+                    }
+                    const unloadTaskCreep = _.filter(Game.creeps, (c) => { return c.memory.taskID == room.memory.taskID})[0];
+                    if (unloadTaskCreep && unloadTaskCreep.memory.processed >= 70000) {
+                        room.memory.energyState = 'normal';
+                        unloadTaskCreep.memory.role = 'recycle';
+                        console.log(room.name + ' finished unloading');
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
         if (room.memory.buildQueue.length > 0) {

@@ -418,3 +418,60 @@ creep boosting
         then set needsBoost = false and boosted = true
         then back to regular harvesting
 
+Market stuff
+    each room has a mineral that it harvests and sells
+        create an order for that mineral if it doesn't exist
+        check remaining amount, if it's less than 10k, extend it by 50k or amount in terminal - 10k
+        set price
+            get average price of open orders for mineral (by volume, not by order - IOW don't let a bunch of single volume orders skew the average)
+            set to that average - 0.1
+            have a floor for each mineral you won't go below (in memory)
+            so need some memory object for each mineral, like
+             {mineral:'X', floor: 0.1, }
+
+fix for blocking
+    problem is that when 3-4 creeps are all stuck in teh same narrow hallway, random movement
+        doesn't get them out of the pickle. manually what I do is to tell the last creep into 
+        the mess to pick a different target. Generally this happens when creeps are going 
+        to a fullsource.
+        options are
+            change fullsource code to only send the creep there if there isn't already a creep
+                (or two creeps) going there
+            change blocking code to keep a counter and do a target memwipe after some amount of
+                being blocked
+            Implemented both of these
+
+transferring energy from one room to another
+    states - is the state of a TASK or per ROOM? (so two individual tasks, one in target room one in source)
+        nornmal - no extra energy
+            end - when storage has > 700k energy
+            room.memory.energyState = loading
+        load terminal - move energy from storage to terminal
+            end - when 100k energy has been transferred to terminal
+            room.memory.energyState = sending
+            RISK: terminal can't accept that much
+            steps
+                spawn contracthauler
+                wait for CH to move the energy
+                recycle CH
+            need to link this CH to this task
+            maybe a task queue in the room?
+            arry of { taskType, taskState, taskCreep}
+            or could have it be part of creep memory, like loadingTerminal = true
+        send energy - find a room to send it to
+            end - target room has received the energy
+            room.memory.energyState = targetspawning
+            or at this point, targetRoom.memory.energyState=unloading
+            sourceRoom.memory.energyState = normal
+        unload terminal - target room moves energy from terminal to storage
+            end - target room hsa transferred the energy to storage
+            targetRoom.memory.energyState = normal
+    as part of this, need contracthaulers to store how much they have moved
+    think we do this as two different things one in each room
+    first room sees the extra, spawns contracthauler, when CH is done, finds a target, sends 
+        the energy, then flags the target room to start its part
+    target room then spawns contracthauler to transfer the energy
+        actually if this is a single call to CH (e.g. it respawns till done) then the sending room
+        can do it all 
+        downside to this is that we can't really verify the last step 
+            

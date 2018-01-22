@@ -26,6 +26,10 @@ module.exports.loop = function () {
         }
     }
 
+    if (!Memory.taskID) {
+        Memory.taskID = 1;
+    }
+    
     var numMinHaulers = 0 ;
 
     if (Object.keys(Game.rooms).length > 2) {
