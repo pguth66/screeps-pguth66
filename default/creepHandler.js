@@ -196,6 +196,14 @@ Creep.prototype.respawn = function () {
             case 'remoteworker':
                 newCreepMemory.targetRoom = this.memory.targetRoom;
                 break;
+            case 'contracthauler':
+                memProps = [ 'pullTarget', 'dropTarget', 'upTo', 'resource', 'total', 'taskID', 'loadingTerminal', 'processed'];
+                memProps.forEach(function (memProp) {
+                    if (this.memory[memProp]) {
+                        newCreepMemory[memProp] = this.memory[memProp];
+                    }
+                },this);
+                break;
             default:
                 break;
         }
