@@ -308,10 +308,14 @@ module.exports = {
                     const targetRoom=room.findNearestRoomNeedingEnergy();
                     console.log(room.name + ' sending energy to ' + targetRoom.name);
                     try {
-                        if (room.terminal.send(RESOURCE_ENERGY,70000,targetRoom.name) == OK) {
+                        if (room.terminal.send(RESOURCE_ENERGY,70000,targetRoom.name) == 0 ) {
                             room.memory.energyState = 'normal';
                             targetRoom.memory.energyState = 'unloading';
                             console.log(room.name + ' finished sending');
+                            Game.notify('Successfuly sent from ' + room.name + ' to ' + targetRoom.name);
+                        }
+                        else {
+                            Game.notify('Error sending from ' + room.name + ' to ' + targetRoom.name);
                         }
                     }
                     catch (err) {
