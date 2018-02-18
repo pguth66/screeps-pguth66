@@ -7,11 +7,11 @@ var roomHandler = require('roomHandler');
 module.exports.loop = function () {
 
     Memory.roomToClaim = 'W28N26'; // room to send claimers to
-    Memory.roomToHelp = 'W28N25'; // room to drop off interroom energy in
-    Memory.roomToMaintain = 'W29N26'; // room to keep roads healed in (caltrans)
+    Memory.roomToHelp = 'W29N26'; // room to drop off interroom energy in
+    Memory.roomToMaintain = 'W27N25'; // room to keep roads healed in (caltrans)
     Memory.roomToAttack = null; // room to send warriors to
-    Memory.roomToBuild = 'W28N26'; // room to send remoteworkers to
-    Memory.roomToHarvest = 'W29N26'; // room to harvest energy in (and send interhaulers to)
+    Memory.roomToBuild = 'W27N26'; // room to send remoteworkers to
+    Memory.roomToHarvest = 'W27N25'; // room to harvest energy in (and send interhaulers to)
     Memory.roomToObserve = 'W31N27';
     Memory.capitol='W27N27';
 
@@ -42,8 +42,10 @@ module.exports.loop = function () {
 
     // Harvest room logic
     try {
-        const harvestRoles = ['caltrans', 'harvester', 'interhauler', 'patrol'];
-        harvestRoles.forEach(function (role) { harvestRole.run(role, Memory.roomToHarvest, Memory.roomToHelp) });
+        if (Memory.roomToHarvest && Memory.roomToHelp) {
+            const harvestRoles = ['caltrans', 'harvester', 'interhauler', 'patrol'];
+            harvestRoles.forEach(function (role) { harvestRole.run(role, Memory.roomToHarvest, Memory.roomToHelp) });
+        }
     }
     catch (err) {
         //console.log('Error running harvest rooms');
