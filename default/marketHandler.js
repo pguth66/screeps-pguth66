@@ -46,7 +46,7 @@
 
             // set price, then extend order
 
-            const floor = 0.1 ;
+            const floor = 0.08 ;
 
             const averagePrice = getAveragePrice(mineralType);
             const amountinTerminal = room.terminal.store[mineralType];
@@ -116,7 +116,7 @@
             }
             else {
                 if (room.terminal.store[mineral] > 1000 ) {
-                    Game.notify('I be sending ' + room.terminal.store[mineral] + ' ' + mineral + ' from room ' + room.name);
+                    console.log('I be sending ' + room.terminal.store[mineral] + ' ' + mineral + ' from room ' + room.name);
                     room.terminal.send(mineral,room.terminal.store[mineral],room.findNearestRoomSelling(mineral).name);
                 }
             }
