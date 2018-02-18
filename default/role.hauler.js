@@ -42,6 +42,14 @@ module.exports = {
                 creep.memory.hauling = false;
                 creep.memory.target = null;
                 creep.say("Harvest");
+                // if we just flipped and we're near a full source link, pull from it
+                const sourceLinkObjs = _.filter(creep.room.links, (l) => l.isSource);
+                sourceLinkObjs.forEach(function (link) {
+                    if (creep.pos.inRangeTo(link,5) && link.energy > creep.carryCapacity) {
+                        creep.memory.target=link.id;
+                        creep.say('linkharv');
+                    }
+                })
             }
         }
 
