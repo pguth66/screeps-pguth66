@@ -85,7 +85,7 @@ Object.defineProperty(Room.prototype, 'labs', {
 })
 
 Room.prototype.findNearestRoomSelling = function (mineral) {
-    const roomsWithMin = _.filter(Game.rooms, (r) => { return r.minerals[0].mineralType == mineral});
+    const roomsWithMin = _.filter(Game.rooms, (r) => { if (r.minerals[0]) { return r.minerals[0].mineralType == mineral}});
     var destRoomMatrix = [];
     roomsWithMin.forEach( function (room,i) {
         if (room.terminal) {
@@ -98,8 +98,8 @@ Room.prototype.findNearestRoomSelling = function (mineral) {
 
 }
 Room.prototype.findNearestRoomNeedingEnergy = function () {
-    // find all rooms with less than 250k energy
-    const roomsNeedingEnergy = _.filter(Game.rooms, (r) => { if (r.storage && r.terminal) {return r.storage.store[RESOURCE_ENERGY] < 250000}});
+    // find all rooms with less than threshold energy
+    const roomsNeedingEnergy = _.filter(Game.rooms, (r) => { if (r.storage && r.terminal) {return r.storage.store[RESOURCE_ENERGY] < 450000}});
     var destRoomMatrix = [] ;
     roomsNeedingEnergy.sort(function(a,b) { return a.storage.store[RESOURCE_ENERGY]-b.storage.store[RESOURCE_ENERGY]});
     //console.log(roomsNeedingEnergy);
@@ -136,7 +136,7 @@ Room.prototype.getCreepBody = function (role,targetRoom) {
 
     //console.log('targetRoom is ' + targetRoom);
     //console.log('this in getCreepbody is ' + this);
-    if (targetRoom) {
+    if (targetRoom && (role == 'harvester' || role == 'upgrader')) {
         room = Game.rooms[targetRoom];
     }
     else {
@@ -145,7 +145,7 @@ Room.prototype.getCreepBody = function (role,targetRoom) {
 
     //console.log('room is now ' + room);
 
-    if (room.memory.stage == 'start') {
+    if ( room.memory.stage == 'start' && role != 'patrol') {
         //console.log('using small creep bodies');
         switch (role) {
             case 'harvester':
@@ -268,6 +268,9 @@ Room.prototype.buildRoomRoads = function () {
             this.drawRoad(source.pos, this.terminal.pos);
         }
     },this)
+    this.labs.forEach(function (lab) {
+        this.drawRoad(lab.pos, this.storage.pos);
+    },this);
 }
 module.exports = {
 
@@ -283,6 +286,7 @@ module.exports = {
         }
 
         if (room.storage) {
+            const amountToSend = 50000;
             switch (room.memory.energyState) {
                 case 'normal':
                     if (room.storage.store[RESOURCE_ENERGY] > 700000) {
@@ -298,7 +302,7 @@ module.exports = {
                         room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:70000,dropTarget:room.terminal.id,pullTarget:room.storage.id,taskID:room.memory.taskID,loadingTerminal:true});
                     }
                     const taskCreep = _.filter(Game.creeps, (c) => { return c.memory.taskID == room.memory.taskID})[0];
-                    if (taskCreep && taskCreep.memory.processed >= 70000) {
+                    if (taskCreep && taskCreep.memory.processed >= amountToSend) {
                         room.memory.energyState = 'sending';
                         taskCreep.memory.role='recycle';
                         console.log(room.name + ' finished loading');
@@ -306,9 +310,9 @@ module.exports = {
                     break;
                 case 'sending':
                     const targetRoom=room.findNearestRoomNeedingEnergy();
-                    console.log(room.name + ' sending energy to ' + targetRoom.name);
                     try {
-                        if (room.terminal.send(RESOURCE_ENERGY,70000,targetRoom.name) == 0 ) {
+                        //console.log(room.name + ' sending energy to ' + targetRoom.name);
+                        if (room.terminal.send(RESOURCE_ENERGY,amountToSend,targetRoom.name) == 0 ) {
                             room.memory.energyState = 'normal';
                             targetRoom.memory.energyState = 'unloading';
                             console.log(room.name + ' finished sending');
@@ -326,10 +330,10 @@ module.exports = {
                     if (_.filter(Game.creeps, (c) => { return ((c.room.name == room.name) && c.memory.unloadingTerminal)}).length == 0) {
                         room.memory.taskID = Memory.taskID;
                         Memory.taskID++;
-                        room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:70000,dropTarget:room.storage.id,pullTarget:room.terminal.id,taskID:room.memory.taskID,unloadingTerminal:true});
+                        room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:amountToSend,dropTarget:room.storage.id,pullTarget:room.terminal.id,taskID:room.memory.taskID,unloadingTerminal:true});
                     }
                     const unloadTaskCreep = _.filter(Game.creeps, (c) => { return c.memory.taskID == room.memory.taskID})[0];
-                    if (unloadTaskCreep && unloadTaskCreep.memory.processed >= 70000) {
+                    if (unloadTaskCreep && unloadTaskCreep.memory.processed >= amountToSend) {
                         room.memory.energyState = 'normal';
                         unloadTaskCreep.memory.role = 'recycle';
                         console.log(room.name + ' finished unloading');
