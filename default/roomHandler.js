@@ -149,7 +149,12 @@ Room.prototype.getCreepBody = function (role,targetRoom) {
         //console.log('using small creep bodies');
         switch (role) {
             case 'harvester':
-                body = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
+                if (room.energyCapacityAvailable <= 450) {
+                    body = [WORK,WORK,CARRY,MOVE];
+                }
+                else {
+                    body = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
+                }
                 break;
             case 'hauler':
                 body = [CARRY,CARRY,MOVE,MOVE];
@@ -219,7 +224,8 @@ Room.prototype.runBuildQueue = function () {
 
     availableSpawns.forEach(function (spawn) {
         if (bq.length == 0) { return };
-        const embryo = bq.pop();
+        const embryo = bq.shift();
+        console.log('executing build queue');
         embryo.memory.role=embryo.role; // all creeps need this
         const creepname = this.name + '-' + spawn.name + '-' + Game.time
         //const body = [WORK,CARRY,WORK,CARRY,MOVE,MOVE];
@@ -230,9 +236,12 @@ Room.prototype.runBuildQueue = function () {
                 return; 
             }
             else {
+                // not adding the creep back, because this shouldn't happen since dry run succeeded!
                 console.log('error spawning creep');
             }
         } else {
+            // put the creep back in the queue
+            bq.unshift(embryo);
             console.log(spawn + ' cannot spawn '+ embryo.role);
         }
     }, this)
