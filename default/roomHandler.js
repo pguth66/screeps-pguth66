@@ -294,6 +294,49 @@ module.exports = {
             room.memory.energyState = 'normal';
         }
 
+        const towers = room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } });
+        var dismantleTarget; //have to define up here so tower code can find it
+
+        for (i in towers) {
+            tower = towers[i];
+            if (!room.memory.foundHostiles && (tower.energy > tower.energyCapacity / 2)) {
+                var damagedCreeps = tower.room.find(FIND_MY_CREEPS, {
+                    filter: (c) => ((c.hits < c.hitsMax)) 
+                });
+                const closestDamagedCreep = tower.pos.findClosestByRange(damagedCreeps);
+                if (closestDamagedCreep) {
+                    tower.heal(closestDamagedCreep);
+                    console.log(room + ' healing creep ' + closestDamagedCreep.name);
+                }
+                var DamagedStructures = tower.room.find(FIND_STRUCTURES, {
+                    filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 5000))                    
+                });
+                DamagedStructures.forEach(function(s) {
+                    if (s.pos.lookFor(LOOK_FLAGS, {filter: {color: COLOR_RED}}).length > 0) {
+                        _.remove(DamagedStructures, s);
+                    }
+                })
+                const closestDamagedStructure = tower.pos.findClosestByRange(DamagedStructures);
+
+                if (closestDamagedStructure) {
+                    if (!(closestDamagedStructure == dismantleTarget)) {
+                        tower.repair(closestDamagedStructure);
+                    }
+                }
+            }
+            else {
+                const closestHostile = tower.pos.findClosestByRange(enemies);
+                if (closestHostile) {
+                    if (tower.pos.getRangeTo(closestHostile) < 12) {
+                        tower.attack(closestHostile);
+                    }
+                }
+            }
+            if (room.memory.foundHostiles && tower.hits < (tower.hitsMax / 2)) {
+                room.needsSafeRoom = true;
+            }
+        } // end towers
+
         if (room.storage) {
             const amountToSend = 50000;
             switch (room.memory.energyState) {

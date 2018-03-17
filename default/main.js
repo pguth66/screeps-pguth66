@@ -17,8 +17,6 @@ module.exports.loop = function () {
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
 
-    var dismantleTarget; //have to define up here so tower code can find it
-
     for (var name in Memory.creeps) {
         if (!Game.creeps[name]) {
             delete Memory.creeps[name];
@@ -321,41 +319,6 @@ module.exports.loop = function () {
                     console.log('Spawning new miner in ' + room.name + ': ' + newName);
             }
         } // end Spawning
-
-
-
-        for (i in towers) {
-            tower = towers[i];
-            if (!room.memory.foundHostiles && (tower.energy > tower.energyCapacity / 2)) {
-                var DamagedStructures = tower.room.find(FIND_STRUCTURES, {
-                    filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 5000))                    
-                });
-                DamagedStructures.forEach(function(s) {
-                    if (s.pos.lookFor(LOOK_FLAGS, {filter: {color: COLOR_RED}}).length > 0) {
-                        _.remove(DamagedStructures, s);
-                    }
-                })
-                const closestDamagedStructure = tower.pos.findClosestByRange(DamagedStructures);
-
-                if (closestDamagedStructure) {
-                    if (!(closestDamagedStructure == dismantleTarget)) {
-                        tower.repair(closestDamagedStructure);
-                    }
-                }
-            }
-            else {
-                const closestHostile = tower.pos.findClosestByRange(enemies);
-                if (closestHostile) {
-                    if (tower.pos.getRangeTo(closestHostile) < 12) {
-                        tower.attack(closestHostile);
-                    }
-                }
-            }
-            if (room.memory.foundHostiles && tower.hits < (tower.hitsMax / 2)) {
-                room.needsSafeRoom = true;
-            }
-        } // end towers
-
 
         // Console report
         if ((Game.time % 24) == 0) {
