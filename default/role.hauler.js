@@ -196,6 +196,8 @@ module.exports = {
                                 targets.push(lab);
                             }
                         })
+                        var powerSpawn=creep.room.find(FIND_MY_STRUCTURES, {filter: { structureType: STRUCTURE_POWER_SPAWN}})[0];
+                        if (powerSpawn) { targets.push(powerSpawn)};
                         try {
                             if (targets.length > 0) {
                                 target = creep.pos.findClosestByPath(targets);
@@ -204,6 +206,7 @@ module.exports = {
                             }
                             else {
                                 // deposit in any target now
+                                
                                 target = creep.findAnyDepositTarget();
                                 creep.memory.target=target.id;
                             }
