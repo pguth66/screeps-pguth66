@@ -325,6 +325,12 @@ module.exports = {
                 }
             }
             else {
+                // this is duplicated with main.js right now - should really pass it in //TODO
+                var enemies = room.find(FIND_HOSTILE_CREEPS);
+                // whitelist for nice dude next to me
+                if (room.name == 'W27N26') {
+                    _.remove(enemies, { owner: 'Totalschaden' });
+                }
                 const closestHostile = tower.pos.findClosestByRange(enemies);
                 if (closestHostile) {
                     if (tower.pos.getRangeTo(closestHostile) < 12) {
