@@ -26,6 +26,7 @@ module.exports = {
                   case STRUCTURE_EXTENSION:
                   case STRUCTURE_SPAWN:
                   case STRUCTURE_TOWER:
+                    case STRUCTURE_POWER_SPAWN:
                       if (structure.energy == structure.energyCapacity) {
                           b = true;
                       }
@@ -197,7 +198,7 @@ module.exports = {
                             }
                         })
                         var powerSpawn=creep.room.find(FIND_MY_STRUCTURES, {filter: { structureType: STRUCTURE_POWER_SPAWN}})[0];
-                        if (powerSpawn) { targets.push(powerSpawn)};
+                        if (powerSpawn && !isFull(powerSpawn)) { targets.push(powerSpawn)};
                         try {
                             if (targets.length > 0) {
                                 target = creep.pos.findClosestByPath(targets);
