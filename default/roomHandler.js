@@ -91,10 +91,17 @@ Object.defineProperty(Room.prototype, 'droppedResources', {
             this._droppedAll = this.find(FIND_DROPPED_RESOURCES);
             // only return piles with more than 50 so we don't waste time
             this._dropped = _.filter(this._droppedAll, (r) => { return r.amount > 50});
-            // find tombstones to collect
-            //this._tombstones = this.find(FIND_TOMBSTONES)
         }
         return this._dropped;
+    }
+})
+
+Object.defineProperty(Room.prototype, 'tombstones', {
+    get: function() {
+        if(!this._tombstones) {
+            this._tombstones = this.find(FIND_TOMBSTONES);
+        }
+        return this._tombstones;
     }
 })
 

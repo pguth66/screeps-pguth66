@@ -283,13 +283,22 @@ module.exports = {
 
             // now find stuff to pick up
             else {
-            // start with dropped resources
+            // start with dropped resources of > 50 units
             var sources = [];
             if (!creep.room.memory.foundHostiles) {
                  sources = creep.room.droppedResources;
             };
-            var fullsources = [];
-            // if no dropped resources of > 50 units, then cycle through containers and find SOURCEs
+                       var fullsources = [];
+            // if no dropped resources, then cycle through containers and find SOURCEs
+            if (creep.room.tombstones) {
+                // cycle through tombstones, add them to sources if they aren't empty
+                creep.room.tombstones.forEach(function (tombstone) {
+                    if (_.sum(tombstone.store) > 0) {
+                        sources.push(tombstone);
+                        //creep.creepLog('found non-empty tombstone');
+                    }
+                })
+            }
             if(sources.length == 0) {
                 creep.room.containers.forEach(function (container) {
                     if((container.isSource) && (_.sum(container.store) > creep.carryCapacity)){
