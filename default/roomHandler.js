@@ -84,6 +84,20 @@ Object.defineProperty(Room.prototype, 'labs', {
     }
 })
 
+Object.defineProperty(Room.prototype, 'droppedResources', {
+    // returns an array of objectIDs of resources that can be picked up
+    get: function () {
+        if(!this._dropped) {
+            this._droppedAll = this.find(FIND_DROPPED_RESOURCES);
+            // only return piles with more than 50 so we don't waste time
+            this._dropped = _.filter(this._droppedAll, (r) => { return r.amount > 50});
+            // find tombstones to collect
+            //this._tombstones = this.find(FIND_TOMBSTONES)
+        }
+        return this._dropped;
+    }
+})
+
 Room.prototype.findNearestRoomSelling = function (mineral) {
     const roomsWithMin = _.filter(Game.rooms, (r) => { if (r.minerals[0]) { return r.minerals[0].mineralType == mineral}});
     var destRoomMatrix = [];

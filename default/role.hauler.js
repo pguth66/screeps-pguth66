@@ -286,7 +286,7 @@ module.exports = {
             // start with dropped resources
             var sources = [];
             if (!creep.room.memory.foundHostiles) {
-                 sources = creep.room.find(FIND_DROPPED_RESOURCES, {filter: (r) => { return r.amount > 50}})
+                 sources = creep.room.droppedResources;
             };
             var fullsources = [];
             // if no dropped resources of > 50 units, then cycle through containers and find SOURCEs
