@@ -390,7 +390,7 @@ module.exports = {
                         Memory.taskID++;
                         room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:70000,dropTarget:room.terminal.id,pullTarget:room.storage.id,taskID:room.memory.taskID,loadingTerminal:true});
                     }
-                    const taskCreep = _.filter(Game.creeps, (c) => { return c.memory.taskID == room.memory.taskID})[0];
+                    const taskCreep = _.filter(contracthaulers, (c) => { return c.memory.taskID == room.memory.taskID})[0];
                     if (taskCreep && taskCreep.memory.processed >= amountToSend) {
                         room.memory.energyState = 'sending';
                         taskCreep.memory.role='recycle';
@@ -421,7 +421,7 @@ module.exports = {
                         Memory.taskID++;
                         room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:amountToSend,dropTarget:room.storage.id,pullTarget:room.terminal.id,taskID:room.memory.taskID,unloadingTerminal:true});
                     }
-                    const unloadTaskCreep = _.filter(Game.creeps, (c) => { return c.memory.taskID == room.memory.taskID})[0];
+                    const unloadTaskCreep = _.filter(contracthaulers, (c) => { return c.memory.taskID == room.memory.taskID})[0];
                     if (unloadTaskCreep && unloadTaskCreep.memory.processed >= amountToSend) {
                         room.memory.energyState = 'normal';
                         unloadTaskCreep.memory.role = 'recycle';
