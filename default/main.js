@@ -12,7 +12,7 @@ module.exports.loop = function () {
     Memory.roomToAttack = null; // room to send warriors to
     Memory.roomToBuild = 'W27N26'; // room to send remoteworkers to
     Memory.roomToHarvest = 'W27N25'; // room to harvest energy in (and send interhaulers to)
-    Memory.roomToObserve = 'W31N27';
+    Memory.roomToObserve = 'W32N31';
     Memory.capitol='W27N27';
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
@@ -256,19 +256,14 @@ module.exports.loop = function () {
                 break;
         }
 
-        function getTotalCreeps (role) {
-            const liveCreeps = _.filter(roomCreeps, (creep) => creep.memory.role == role).length;
-            const potentialCreeps = _.filter(room.memory.buildQueue, {role:role}).length;
-            return liveCreeps + potentialCreeps;
-        }
         //const harvestersInQueue = _.filter(room.memory.buildQueue, {role: 'harvester'});
         //const totalHarvesters = harvesters.length + harvestersInQueue.length;
-        const totalHarvesters = getTotalCreeps('harvester');
-        const totalHaulers = getTotalCreeps('hauler');
-        const totalUpgraders = getTotalCreeps('upgrader');
-        const totalBuilders = getTotalCreeps('builder');
-        const totalHealers = getTotalCreeps('healer');
-        const totalMiners = getTotalCreeps('miner');
+        const totalHarvesters = room.getTotalCreeps('harvester').length;
+        const totalHaulers = room.getTotalCreeps('hauler').length;
+        const totalUpgraders = room.getTotalCreeps('upgrader').length;
+        const totalBuilders = room.getTotalCreeps('builder').length;
+        const totalHealers = room.getTotalCreeps('healer').length;
+        const totalMiners = room.getTotalCreeps('miner').length;
 
         // spawning
         if ((room.controller && room.controller.my) && spawn) {

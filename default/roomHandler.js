@@ -301,6 +301,15 @@ Room.prototype.buildRoomRoads = function () {
     this.labs.forEach(function (lab) {
         this.drawRoad(lab.pos, this.storage.pos);
     },this);
+    this.drawRoad(this.terminal.pos, this.minerals[0].pos);
+}
+Room.prototype.getTotalCreeps = function (role) {
+    // returns an array of the existing creeps with this role in this room plus those in the build queue
+    const roomCreeps2 = _.filter(Game.creeps, (creep) => { return creep.room.name == this.name });
+    //console.log(this.name + ' has ' + roomCreeps2.length + ' creeps with role ' + role);
+    const liveCreeps = _.filter(roomCreeps2, (creep) => creep.memory.role == role);
+    const potentialCreeps = _.filter(this.memory.buildQueue, {role:role});
+    return liveCreeps.concat(potentialCreeps);
 }
 module.exports = {
 
@@ -366,6 +375,7 @@ module.exports = {
 
         if (room.storage) {
             const amountToSend = 50000;
+            const contracthaulers = room.getTotalCreeps('contracthauler');
             switch (room.memory.energyState) {
                 case 'normal':
                     if (room.storage.store[RESOURCE_ENERGY] > 700000) {
@@ -374,7 +384,7 @@ module.exports = {
                     }
                     break;
                 case 'loading':
-                    if (_.filter(Game.creeps, (c) => { return ((c.room.name == room.name) && c.memory.loadingTerminal)}).length == 0) {
+                    if (_.filter(contracthaulers, (c) => { return (c.memory.loadingTerminal)}).length == 0) {
                         //console.log(room.name + ' would be spawning CH here');
                         room.memory.taskID = Memory.taskID;
                         Memory.taskID++;
@@ -406,7 +416,7 @@ module.exports = {
                     }
                     break;
                 case 'unloading':
-                    if (_.filter(Game.creeps, (c) => { return ((c.room.name == room.name) && c.memory.unloadingTerminal)}).length == 0) {
+                    if (_.filter(contracthaulers, (c) => { return c.memory.unloadingTerminal}).length == 0) {
                         room.memory.taskID = Memory.taskID;
                         Memory.taskID++;
                         room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:amountToSend,dropTarget:room.storage.id,pullTarget:room.terminal.id,taskID:room.memory.taskID,unloadingTerminal:true});
