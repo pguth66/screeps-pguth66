@@ -104,7 +104,22 @@ Object.defineProperty(Room.prototype, 'tombstones', {
         return this._tombstones;
     }
 })
-
+Object.defineProperty(Room.prototype, 'walls', {
+    get: function() {
+        if(!this._walls) {
+            this._walls = this.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_WALL}});
+        }
+        return this._walls;
+    }
+})
+Object.defineProperty(Room.prototype, 'ramparts', {
+    get: function() {
+        if(!this._ramparts) {
+            this._ramparts = this.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_RAMPART}});
+        }
+        return this._ramparts;
+    }
+})
 Room.prototype.findNearestRoomSelling = function (mineral) {
     const roomsWithMin = _.filter(Game.rooms, (r) => { if (r.minerals[0]) { return r.minerals[0].mineralType == mineral}});
     var destRoomMatrix = [];
@@ -313,6 +328,12 @@ Room.prototype.getTotalCreeps = function (role) {
     const potentialCreeps = _.filter(this.memory.buildQueue, {role:role});
     return liveCreeps.concat(potentialCreeps);
 }
+Room.prototype.avgWallStrength = function () {
+    // find all walls, sum their strength, divide by number of them
+    const wallHits = this.walls.map( (w) => { return w.hits});
+    return _.sum(wallHits) / wallHits.length ;
+}
+
 module.exports = {
 
     handleRoom: function(room) {
@@ -324,6 +345,9 @@ module.exports = {
         }
         if (!room.memory.energyState) {
             room.memory.energyState = 'normal';
+        }
+        if (!room.memory.wallLevel) {
+            room.memory.wallLevel = (room.controller.level * room.controller.level) * 12000;
         }
 
         const towers = room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } });
