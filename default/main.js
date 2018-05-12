@@ -170,7 +170,6 @@ module.exports.loop = function () {
             switch (room.controller.level) {
                 case 0:
                 case 1:
-                case 2:
                     var numHaulers = 0;
                     break;
                 default:
