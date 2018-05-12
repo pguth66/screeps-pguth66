@@ -328,15 +328,17 @@ Room.prototype.getTotalCreeps = function (role) {
     const potentialCreeps = _.filter(this.memory.buildQueue, {role:role});
     return liveCreeps.concat(potentialCreeps);
 }
-Room.prototype.avgWallStrength = function () {
+Room.prototype.minWallStrength = function () {
     // find all walls, sum their strength, divide by number of them
     const wallHits = this.walls.map( (w) => { return w.hits});
-    return _.sum(wallHits) / wallHits.length ;
+    return _.min(wallHits) ;
 }
 
 module.exports = {
 
     handleRoom: function(room) {
+
+        if (!room.controller.my) { return };
 
         // init
 
@@ -461,6 +463,14 @@ module.exports = {
 
         if (room.memory.buildQueue.length > 0) {
             room.runBuildQueue();
+        }
+
+        // need to rethink this and maybe use min() cause rooms with a few walls that are way OVER
+        // screw it up
+        //console.log(room.avgWallStrength() + ' ' + room.memory.wallLevel);
+        if (room.minWallStrength() >= room.memory.wallLevel) {
+            console.log(room.name + ' increasing wall level to ' + (room.memory.wallLevel + 10000));
+            room.memory.wallLevel = room.memory.wallLevel + 10000 ;
         }
     }
 };
