@@ -465,12 +465,12 @@ module.exports = {
             room.runBuildQueue();
         }
 
-        // need to rethink this and maybe use min() cause rooms with a few walls that are way OVER
-        // screw it up
         //console.log(room.avgWallStrength() + ' ' + room.memory.wallLevel);
-        if (room.minWallStrength() >= room.memory.wallLevel) {
-            console.log(room.name + ' increasing wall level to ' + (room.memory.wallLevel + 10000));
-            room.memory.wallLevel = room.memory.wallLevel + 10000 ;
-        }
+        if ((Game.time % 79) == 0) {
+            if (room.minWallStrength() >= room.memory.wallLevel) {
+                console.log(room.name + ' increasing wall level to ' + (room.memory.wallLevel + 10000));
+                room.memory.wallLevel = room.memory.wallLevel + 10000 ;
+            }
+        }   
     }
 };
