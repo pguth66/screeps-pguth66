@@ -51,7 +51,7 @@ module.exports.loop = function () {
 
     // minhaulers aren't per room but global so they spawn outside the room loops
     //console.log(numMinHaulers.length + " mineral haulers");
-    if (numMinHaulers < 2) {
+    if (numMinHaulers < 1) {
         Game.rooms[Memory.capitol].addToCreepBuildQueue('minhauler');
 //        Game.spawns['Spawn8'].createCreep([CARRY, CARRY, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'minhauler' });
     }
