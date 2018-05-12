@@ -67,7 +67,7 @@ var roleHealer = {
                     filter: (structure) => {
                         return (structure.structureType == STRUCTURE_ROAD || 
                                  (structure.structureType == STRUCTURE_WALL && structure.hits < creep.room.memory.wallLevel) ||
-                                 (structure.structureType == STRUCTURE_RAMPART  && structure.hits < creep.room.memory.wallLevel) || 
+                                 (structure.structureType == STRUCTURE_RAMPART  && structure.hits < (creep.room.memory.wallLevel - 1000)) || 
                                  structure.structureType == STRUCTURE_CONTAINER ||
                                   structure.structureType == STRUCTURE_TOWER) && 
                                   structure.hits < structure.hitsMax ;
