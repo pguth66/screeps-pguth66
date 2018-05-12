@@ -467,7 +467,7 @@ module.exports = {
 
         //console.log(room.avgWallStrength() + ' ' + room.memory.wallLevel);
         if ((Game.time % 79) == 0) {
-            if (room.minWallStrength() >= room.memory.wallLevel) {
+            if ((room.controller.level == 8) && (room.minWallStrength() >= room.memory.wallLevel)) {
                 console.log(room.name + ' increasing wall level to ' + (room.memory.wallLevel + 10000));
                 room.memory.wallLevel = room.memory.wallLevel + 10000 ;
             }
