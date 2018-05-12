@@ -208,7 +208,7 @@ module.exports.loop = function () {
                         numBuilders += 1;
                     }
                     if (room.storage.store[RESOURCE_ENERGY] > 500000) {
-                        numBuilders += 1;
+                        numHealers += 1;
                     }
                     //console.log('room ' + room.name + ' setting numBuilders to ' + numBuilders);
                 }
