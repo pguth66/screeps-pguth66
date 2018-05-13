@@ -338,6 +338,9 @@ module.exports = {
 
     handleRoom: function(room) {
 
+        // don't process rooms without controllers
+        if (!room.controller ) { return };
+        // don't process rooms I don't own
         if (!room.controller.my) { return };
 
         // init
