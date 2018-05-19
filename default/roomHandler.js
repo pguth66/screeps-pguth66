@@ -261,7 +261,7 @@ Room.prototype.runBuildQueue = function () {
     availableSpawns.forEach(function (spawn) {
         if (bq.length == 0) { return };
         const embryo = bq.shift();
-        console.log('executing build queue');
+        //console.log('executing build queue');
         embryo.memory.role=embryo.role; // all creeps need this
         const creepname = this.name + '-' + spawn.name + '-' + Game.time
         //const body = [WORK,CARRY,WORK,CARRY,MOVE,MOVE];
