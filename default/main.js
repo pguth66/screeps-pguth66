@@ -392,7 +392,7 @@ module.exports.loop = function () {
                 Game.notify(room.name + 'needs safe room!!!');
             }
         }
-        if (room.memory.foundHostiles && room.needsSafeRoom && room.isCapital) {
+        if (room.memory.foundHostiles && room.needsSafeRoom) {
             if (room.controller.safemode == undefined && room.controller.safeModeAvailable > 0) {
                 console.log(room.name + ' activating safe room!');
                 Game.notify(room.name + ' activating safe room!');
