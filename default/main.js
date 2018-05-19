@@ -359,20 +359,34 @@ module.exports.loop = function () {
                         stcolor = 'yellow';
                     }
                 }
-                msg = msg.concat(" Storage: <font color='", stcolor, "'>", room.storage.store[RESOURCE_ENERGY], "</font>");
+                msg = msg.concat(" Storage: <font color='", stcolor, "'>", (room.storage.store[RESOURCE_ENERGY]/1000).toFixed(0), "k</font>");
             }
             if (room.terminal) {
                 var tmcolor = 'lawngreen';
                 const terminalContents = _.sum(room.terminal.store);
+                const terminalEnergy = room.terminal.store[RESOURCE_ENERGY];
                 if (terminalContents > 200000) {
                     tmcolor = 'yellow';
                 }
                 if (terminalContents > 250000) {
                     tmcolor = 'salmon';
                 }
-                msg = msg.concat(" Terminal: <font color='", tmcolor, "'>", terminalContents, "</font>" )
+                msg = msg.concat(" Terminal: <font color='", tmcolor, "'>", (terminalContents/1000).toFixed(0), "k</font>,", (terminalEnergy/1000).toFixed(0), "k" )
             }
             msg = msg.concat(" ", harvesters.length, "/", haulers.length, "/", upgraders.length, "/", healers.length, "/", builders.length);
+            msg = msg.concat(" Walls: ", (room.memory.wallLevel/1000).toFixed(0),'k');
+            switch (room.memory.energyState) {
+                case 'loading':
+                    msg = msg.concat(" L");
+                    break;
+                case 'unloading':
+                    msg = msg.concat(" U");
+                    break;
+                case 'sending':
+                    msg = msg.concat(" S");
+                    break;
+                default:
+            }
             console.log(msg);
             if ((Game.time % 14400) == 0) {
                 Game.notify(msg);
