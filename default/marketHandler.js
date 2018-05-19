@@ -105,7 +105,7 @@
                 break;
             default:
                 //console.log(room.name + " needs to clean up orders");
-                pruneOrders(orders, mineralType);
+                //pruneOrders(orders, mineralType);
         }
 
         const basicMinerals = [ 'U', 'X', 'Z', 'L', 'K', 'O', 'H'];
