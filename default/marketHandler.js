@@ -11,6 +11,31 @@
  // better average calculation to avoid gaming with amount = 1 transactions
  // handle compounds elements (not just X, U, etc)
 
+ Room.prototype.sellToHighestBidder = function (mineral, amount, floor) {
+     if (this.terminal.cooldown > 0) {
+         console.log(this.name + ' wants to sell minerals but terminal is in cooldown');
+         return;
+     }
+     const orders = Game.market.getAllOrders({resourceType: mineral, type: ORDER_BUY});
+     _.remove(orders, (o) => { return o.price < floor || o.amount < 50});
+     if (orders.length == 0) {
+        return 0;
+    }
+     orders.sort((a,b) => (b.price - a.price));
+     //console.log(this.name + ' found ' + orders.length + ' potential buyers for ' + mineral);
+     //console.log('highest price ' + orders[0].price);
+     const amountToSell = Math.min(amount,orders[0].amount);
+     if (orders[0].price > floor) {
+         const cost = Game.market.calcTransactionCost(amountToSell,this.name,orders[0].roomName);
+         if (this.terminal.store[RESOURCE_ENERGY] >= cost) {
+            console.log(this.name + ' selling ' + amountToSell + ' to room ' + orders[0].roomName);
+            Game.market.deal(orders[0].id,amountToSell,this.name);
+         }
+         else {
+             console.log(this.name + ' wants to sell minerals but doesn\'t have enough energy!');
+         }
+     }
+ }
  module.exports = {
 
     runMarket: function (room) {
@@ -101,6 +126,7 @@
             case 1:
                 //console.log('doing orders in ' + room.name);
                 const order = orders[0];
+                room.sellToHighestBidder(mineralType,10000,orders[0].price);
                 processOrder(order, room);
                 break;
             default:
@@ -123,5 +149,6 @@
         });
         //console.log(room.name + "has " + orders.length +  " orders ");
         //console.log(room.name + ' running market handler');
+
     }
 };
