@@ -11,6 +11,12 @@
  // better average calculation to avoid gaming with amount = 1 transactions
  // handle compounds elements (not just X, U, etc)
 
+ /**
+  * Finds someone buying minerals and sells to them.
+  * @param {string} mineral - type of mineral to sell
+  * @param {number} amount - (maximum) amount of mineral to sell 
+  * @param {number} floor - minimum price to sell mineral for
+  */
  Room.prototype.sellToHighestBidder = function (mineral, amount, floor) {
      if (this.terminal.cooldown > 0) {
          console.log(this.name + ' wants to sell minerals but terminal is in cooldown');
