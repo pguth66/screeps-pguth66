@@ -387,6 +387,9 @@ module.exports.loop = function () {
                     break;
                 default:
             }
+            if (room.foundHostiles) {
+                msg.concat(' <font color="salmon">HOSTILES</font>');
+            }
             console.log(msg);
             if ((Game.time % 14400) == 0) {
                 Game.notify(msg);
