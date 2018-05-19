@@ -135,7 +135,7 @@ Room.prototype.findNearestRoomSelling = function (mineral) {
 }
 Room.prototype.findNearestRoomNeedingEnergy = function () {
     // find all rooms with less than threshold energy
-    const roomsNeedingEnergy = _.filter(Game.rooms, (r) => { if (r.storage && r.terminal) {return r.storage.store[RESOURCE_ENERGY] < 450000}});
+    const roomsNeedingEnergy = _.filter(Game.rooms, (r) => { if (r.storage && r.terminal) {return r.storage.store[RESOURCE_ENERGY] < 500000}});
     var destRoomMatrix = [] ;
     roomsNeedingEnergy.sort(function(a,b) { return a.storage.store[RESOURCE_ENERGY]-b.storage.store[RESOURCE_ENERGY]});
     //console.log(roomsNeedingEnergy);
@@ -419,7 +419,7 @@ module.exports = {
                         //console.log(room.name + ' would be spawning CH here');
                         room.memory.taskID = Memory.taskID;
                         Memory.taskID++;
-                        room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:70000,dropTarget:room.terminal.id,pullTarget:room.storage.id,taskID:room.memory.taskID,loadingTerminal:true});
+                        room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:amountToSend,dropTarget:room.terminal.id,pullTarget:room.storage.id,taskID:room.memory.taskID,loadingTerminal:true});
                     }
                     const taskCreep = _.filter(contracthaulers, (c) => { return c.memory.taskID == room.memory.taskID})[0];
                     if (taskCreep && taskCreep.memory.processed >= amountToSend) {
@@ -432,18 +432,20 @@ module.exports = {
                     const targetRoom=room.findNearestRoomNeedingEnergy();
                     try {
                         //console.log(room.name + ' sending energy to ' + targetRoom.name);
+                        // need to add check here for targetRoom terminal having enough room to accept transfer
                         if (room.terminal.send(RESOURCE_ENERGY,amountToSend,targetRoom.name) == 0 ) {
                             room.memory.energyState = 'normal';
                             targetRoom.memory.energyState = 'unloading';
-                            console.log(room.name + ' finished sending');
+                            console.log(room.name + ' finished sending to ' + targetRoom.name);
                             Game.notify('Successfuly sent from ' + room.name + ' to ' + targetRoom.name);
                         }
                         else {
+                            console.log(room.name + 'Error sending from ' + room.name + ' to ' + targetRoom.name);
                             Game.notify('Error sending from ' + room.name + ' to ' + targetRoom.name);
                         }
                     }
                     catch (err) {
-                        console.log(err);
+                        console.log(err + ' while sending in ' + room.name);
                     }
                     break;
                 case 'unloading':
