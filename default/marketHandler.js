@@ -57,11 +57,15 @@
             //console.log(room.name = " found " + prices.length + " prices for " + mineralType);
             //console.log(room.name + ' lowest price ' + prices[0] + ' highest price ' + prices[prices.length -1]);
             //console.log(JSON.stringify(prices,null,4));
-            // for now just pick the median, need to make this more sophisticated
+            if (amountinTerminal > 198000) {
+                // desparate at this point, sell for whatever people are buying for
+                room.sellToHighestBidder(mineralType,10000,0.01);
+            }
             if (amountinTerminal > 190000) {
                 //console.log(room.name + ' picking lowest price');                
                 return prices[0];
             }
+            // for now just pick the median, need to make this more sophisticated
             if (amountinTerminal > 175000) {
                 const arrayThird = Math.round(prices.length /3);
                 return prices[arrayThird];
