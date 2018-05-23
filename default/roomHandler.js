@@ -476,6 +476,10 @@ module.exports = {
                 console.log(room.name + ' increasing wall level to ' + (room.memory.wallLevel + 10000));
                 room.memory.wallLevel = room.memory.wallLevel + 10000 ;
             }
+            // reset wall strength at halfway through earlier RCLs
+            if ((room.controller.level < 8) && ((room.controller.progress / room.controller.progressTotal) < 0.55 && (room.controller.progress / room.controller.progressTotal) > 0.45)) {
+                room.memory.wallLevel = (room.controller.level * room.controller.level) * 12000;
+            }
         }   
     }
 };
