@@ -51,22 +51,22 @@
             const orders = Game.market.getAllOrders({resourceType: mineralType, type: ORDER_SELL});
             _.remove(orders, (o) => { return o.amount < 100});
             const amountinTerminal = room.terminal.store[mineralType]; 
+            const totalInTerminal = _.sum(room.terminal.store);
             //console.log(room.name + ' has ' + amountinTerminal + ' units of ' + mineralType);           
             // pull out just the price
             const prices = orders.map(function (order) { return order.price}).sort((a,b) => (a - b));
             //console.log(room.name = " found " + prices.length + " prices for " + mineralType);
             //console.log(room.name + ' lowest price ' + prices[0] + ' highest price ' + prices[prices.length -1]);
             //console.log(JSON.stringify(prices,null,4));
-            if (amountinTerminal > 198000) {
+            if (amountinTerminal > 198000 || totalInTerminal > 295000) {
                 // desparate at this point, sell for whatever people are buying for
                 room.sellToHighestBidder(mineralType,10000,0.01);
             }
-            if (amountinTerminal > 190000) {
+            if (amountinTerminal > 190000 || totalInTerminal > 280000) {
                 //console.log(room.name + ' picking lowest price');                
                 return prices[0];
             }
-            // for now just pick the median, need to make this more sophisticated
-            if (amountinTerminal > 175000) {
+            if (amountinTerminal > 175000 || totalInTerminal > 250000) {
                 const arrayThird = Math.round(prices.length /3);
                 return prices[arrayThird];
             }
