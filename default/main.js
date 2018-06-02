@@ -242,7 +242,7 @@ module.exports.loop = function () {
         var enemies = room.find(FIND_HOSTILE_CREEPS);
         // whitelist for nice dude next to me
         if (room.name == 'W27N26') {
-            _.remove(enemies, { owner: 'Totalschaden' });
+            _.remove(enemies, function (e) { return e.owner.username == 'Totalschaden' });
         }
         switch (enemies.length) {
             case 0:

@@ -390,7 +390,7 @@ module.exports = {
                 var enemies = room.find(FIND_HOSTILE_CREEPS);
                 // whitelist for nice dude next to me
                 if (room.name == 'W27N26') {
-                    _.remove(enemies, { owner: 'Totalschaden' });
+                    _.remove(enemies, function (e) { return e.owner.username == 'Totalschaden' });
                 }
                 const closestHostile = tower.pos.findClosestByRange(enemies);
                 if (closestHostile) {
@@ -477,7 +477,7 @@ module.exports = {
                 room.memory.wallLevel = room.memory.wallLevel + 10000 ;
             }
             // reset wall strength at halfway through earlier RCLs
-            if ((room.controller.level < 8) && ((room.controller.progress / room.controller.progressTotal) < 0.55 && (room.controller.progress / room.controller.progressTotal) > 0.45)) {
+            if ((room.controller.level < 8) && (((room.controller.progress / room.controller.progressTotal) < 0.55) && ((room.controller.progress / room.controller.progressTotal) > 0.45))) {
                 room.memory.wallLevel = (room.controller.level * room.controller.level) * 12000;
             }
         }   
