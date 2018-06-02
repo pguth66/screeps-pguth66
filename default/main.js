@@ -12,7 +12,7 @@ module.exports.loop = function () {
     Memory.roomToAttack = null; // room to send warriors to
     Memory.roomToBuild = 'W27N26'; // room to send remoteworkers to
     Memory.roomToHarvest = 'W27N25'; // room to harvest energy in (and send interhaulers to)
-    Memory.roomToObserve = 'W32N31';
+    Memory.roomsToObserve = ['W28N29' , 'W30N29', 'W30N30', 'W26N27', 'W26N26', 'W26N25'];
     Memory.capitol='W27N27';
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
@@ -127,9 +127,12 @@ module.exports.loop = function () {
                         { align: 'left', opacity: 0.8 });
                 }
                 // observe rooms
-                const observer = room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_OBSERVER } })[0];
-                if (observer) {
-                    observer.observeRoom(Memory.roomToObserve);
+                var roomsToObserve = Memory.roomsToObserve;
+                if (roomsToObserve[0]) {
+                    const targetRoom = roomsToObserve[0];
+                    //console.log(room.name + ' observing room ' + targetRoom)
+                    room.observeRoom(targetRoom);
+                    roomsToObserve.shift();
                 }
                 try {
                     const sourceLinks = _.filter(room.links, (l) => !l.isSource );
@@ -316,6 +319,10 @@ module.exports.loop = function () {
 
         // Console report
         if ((Game.time % 24) == 0) {
+            // don't report on rooms I don't own
+            if (!(room.controller && room.controller.my)) {
+                continue;
+            }
             var msg = '';
             msg = 'Room '.concat(room.name);
             if (room.controller && room.controller.my) {

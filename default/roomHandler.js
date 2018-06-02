@@ -334,6 +334,16 @@ Room.prototype.minWallStrength = function () {
     return _.min(wallHits) ;
 }
 
+/**
+ * Observes a target room from the current room
+ * @param {string} roomToObserve - name of room to observe
+ */
+Room.prototype.observeRoom = function (roomToObserve) {
+    const observer = this.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_OBSERVER } })[0];
+    if (observer) {
+        observer.observeRoom(roomToObserve);
+    }
+}
 module.exports = {
 
     handleRoom: function(room) {
