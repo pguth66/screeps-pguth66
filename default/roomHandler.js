@@ -321,7 +321,7 @@ Room.prototype.buildRoomRoads = function () {
 Room.prototype.getTotalCreeps = function (role) {
     // returns an array of the existing creeps with this role in this room plus those in the build queue
     const roomCreeps2 = _.filter(Game.creeps, (creep) => { return creep.room.name == this.name });
-    const creepsTargetingRoom = _.filter(Game.creeps, (creep) => { return creep.room.targetRoom == this.name});
+    const creepsTargetingRoom = _.filter(Game.creeps, (creep) => { return creep.memory.targetRoom == this.name});
     const totalCreeps = _.uniq(roomCreeps2.concat(creepsTargetingRoom));
     //console.log(this.name + ' has ' + roomCreeps2.length + ' creeps with role ' + role);
     const liveCreeps = _.filter(totalCreeps, (creep) => creep.memory.role == role);
