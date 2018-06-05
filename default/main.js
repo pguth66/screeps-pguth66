@@ -3,6 +3,7 @@ var harvestRole = require('func.harvestRoles');
 var labHandler = require('labHandler');
 var marketHandler = require('marketHandler');
 var roomHandler = require('roomHandler');
+var diplomacy = require('diplomacy');
 
 module.exports.loop = function () {
 
