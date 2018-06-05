@@ -185,7 +185,7 @@ module.exports.loop = function () {
             var numClaimers = 0;
 
             if (room.memory.stage == 'later') {
-                numHaulers = room.numContainers - room.numLinks;
+                numHaulers = room.numContainers - room.numLinks + 1;
                 if (numHaulers < 1) {
                     numHaulers = 1;
                 }
