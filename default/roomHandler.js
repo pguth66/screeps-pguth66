@@ -33,7 +33,22 @@ Object.defineProperty(Room.prototype, 'spawns', {
         return this._spawns;
     }
 })
-
+Object.defineProperty(Room.prototype, 'extensions', {
+    get: function () {
+        if (!this._extensions) {
+            this._extensions = this.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_EXTENSION}});
+        }
+        return this._extensions;
+    }
+})
+Object.defineProperty(Room.prototype, 'towers', {
+    get: function () {
+        if (!this._towers) {
+            this._towers = this.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
+        }
+        return this._towers;
+    }
+})
 Object.defineProperty(Room.prototype, 'links', {
     get: function () {
         if (!this._links) {
@@ -84,6 +99,14 @@ Object.defineProperty(Room.prototype, 'labs', {
     }
 })
 
+Object.defineProperty(Room.prototype, 'powerSpawn', {
+    get: function () {
+        if(!this._ps) {
+            this._ps = this.find(FIND_MY_STRUCTURES, {filter: { structureType: STRUCTURE_POWER_SPAWN}})[0];
+        }
+        return this._ps;
+    }
+})
 Object.defineProperty(Room.prototype, 'droppedResources', {
     // returns an array of objectIDs of resources that can be picked up
     get: function () {

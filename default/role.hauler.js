@@ -131,7 +131,9 @@ module.exports = {
                 // we don't have a target, so figure out where to go
                 if(_.sum(creep.carry) > 0 && creep.carry[RESOURCE_ENERGY] > 0 ) {
                     // first look for extensions, spawns, or towers that aren't full
-                    targets = creep.room.find(FIND_MY_STRUCTURES, {
+                    var potentialTargets = creep.room.extensions.concat(creep.room.towers,creep.room.spawns);
+                    targets = _.filter(potentialTargets, (s) => { return s.energy < (s.energyCapacity * .9)});
+/*                    targets = creep.room.find(FIND_MY_STRUCTURES, {
                         filter: (structure) => {
                             return (structure.structureType == STRUCTURE_EXTENSION || 
                                     structure.structureType == STRUCTURE_SPAWN ||
@@ -139,6 +141,7 @@ module.exports = {
                                     structure.energy < (structure.energyCapacity * .9);
                         }
                     });
+                    */
                 }
                 try {
                     if(targets.length > 0) {
@@ -183,21 +186,16 @@ module.exports = {
                                 targets.push(link);
                             }
                         })
-                        var terminal = creep.room.find(FIND_STRUCTURES, {
-                            filter: (s) => { return (s.structureType == STRUCTURE_TERMINAL &&
-                                                s.store[RESOURCE_ENERGY] < 20000 &&
-                                                _.sum(s.store) < s.storeCapacity); }
-                        });
-                        // assume only one terminal
-                        if(terminal[0]) {
-                            targets.push(terminal[0]);
+                        var terminal = creep.room.terminal;
+                        if(terminal.store[RESOURCE_ENERGY] < 20000 && _.sum(terminal.store) < terminal.storeCapacity) {
+                            targets.push(terminal);
                         }
                         creep.room.labs.forEach(function(lab) {
                             if (creep.hasEnergy() && (lab.energy < lab.energyCapacity)) {
                                 targets.push(lab);
                             }
                         })
-                        var powerSpawn=creep.room.find(FIND_MY_STRUCTURES, {filter: { structureType: STRUCTURE_POWER_SPAWN}})[0];
+                        var powerSpawn=creep.room.powerSpawn;
                         if (powerSpawn && !isFull(powerSpawn)) { targets.push(powerSpawn)};
                         try {
                             if (targets.length > 0) {

@@ -59,6 +59,8 @@ module.exports.loop = function () {
 
     for (i in Game.rooms) {
         const room = Game.rooms[i];
+        const spawn = room.spawns[0];
+        const towers = room.towers;
 
         roomHandler.handleRoom(room);
         
@@ -68,8 +70,6 @@ module.exports.loop = function () {
         // console.log("running for room " + room.name);
 
         // for now assuming there is only one spawn per room
-        const spawn = room.find(FIND_MY_SPAWNS)[0];
-        const towers = room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } });
 
         var prioritySpawn = false; // used to prioritize spawning of harvesters when multiple creeps are needed
 

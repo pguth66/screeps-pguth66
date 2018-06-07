@@ -208,7 +208,7 @@ Creep.prototype.respawn = function () {
                 break;
         }
         const spawnRoom = Game.rooms[this.memory.spawnRoom];
-        const spawn = spawnRoom.find(FIND_MY_SPAWNS)[0];
+  //      const spawn = spawnRoom.find(FIND_MY_SPAWNS)[0];
         if (spawnRoom.addToCreepBuildQueue(this.memory.role, newCreepMemory)) {
             this.memory.respawn=false ;
             return true;
