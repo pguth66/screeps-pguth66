@@ -131,20 +131,21 @@
 
         const mineralType = room.minerals[0].mineralType;
         
-        var orders = _.filter(Game.market.orders, {roomName: room.name, type: ORDER_SELL});
-        switch (orders.length) {
+        var roomOrders = _.filter(Game.market.orders, {roomName: room.name, type: ORDER_SELL});
+        switch (roomOrders.length) {
             case 0:
                 Game.market.createOrder(ORDER_SELL, mineralType, getAveragePrice(mineralType),1,room.name);
                 break;
             case 1:
+            case 2:
                 //console.log('doing orders in ' + room.name);
-                const order = orders[0];
-                room.sellToHighestBidder(mineralType,10000,orders[0].price);
-                processOrder(order, room);
+                const roomOrder = _.filter(roomOrders, {resourceType: mineralType})[0];
+                room.sellToHighestBidder(mineralType,10000,roomOrder.price);
+                processOrder(roomOrder, room);
                 break;
             default:
                 //console.log(room.name + " needs to clean up orders");
-                //pruneOrders(orders, mineralType);
+                //pruneOrders(roomOrders, mineralType);
         }
 
         const basicMinerals = [ 'U', 'X', 'Z', 'L', 'K', 'O', 'H'];
