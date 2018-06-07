@@ -6,16 +6,15 @@
  * var mod = require('diplomacy');
  * mod.thing == 'a thing'; // true
  */
-
 Room.prototype.hasFullNuker = function () {
     const nuker = this.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_NUKER}});
     if (nuker[0]) {
         if (nuker.energy == nuker.energyCapacity && nuker.ghodium == nuker.ghodiumCapacity) {
             return true;
         }
-        else {
-            return false;
-        }
+    }
+    else {
+        return false;
     }
 }
 
