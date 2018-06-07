@@ -34,7 +34,7 @@
      if (orders[0].price > floor) {
          const cost = Game.market.calcTransactionCost(amountToSell,this.name,orders[0].roomName);
          if (this.terminal.store[RESOURCE_ENERGY] >= cost) {
-            console.log(this.name + ' selling ' + amountToSell + ' to room ' + orders[0].roomName);
+            console.log(this.name + ' selling ' + amountToSell + ' to room ' + orders[0].roomName + ' at price ' + orders[0].price);
             Game.market.deal(orders[0].id,amountToSell,this.name);
          }
          else {
