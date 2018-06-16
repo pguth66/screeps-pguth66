@@ -513,6 +513,12 @@ module.exports = {
             room.runBuildQueue();
         }
 
+        if (room.powerSpawn) {
+            if (room.powerSpawn.energy > 50 && room.powerSpawn.power > 1) {
+                room.powerSpawn.processPower();
+            }
+        }
+
         //console.log(room.avgWallStrength() + ' ' + room.memory.wallLevel);
         if ((Game.time % 79) == 0) {
             if ((room.controller.level == 8) && (room.minWallStrength() >= room.memory.wallLevel)) {

@@ -71,6 +71,16 @@ module.exports = {
                             }
                         }
                         break;
+                    case STRUCTURE_POWER_SPAWN:
+                        if (resourceType == RESOURCE_POWER && dt.power >= creep.memory.upTo) {
+                            creep.memory.role='pause';
+                        }
+                        else {
+                            if (resourceType == RESOURCE_ENERGY && dt.energy >= creep.memory.upTo) {
+                                creep.memory.role='pause';
+                            }
+                        }
+                        break;
                     default:
                         if ((dt.store[resourceType] >= creep.memory.upTo) || 
                             (creep.memory.processed >= creep.memory.total)) {
