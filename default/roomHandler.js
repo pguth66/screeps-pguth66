@@ -9,8 +9,15 @@
 
 Object.defineProperty(Room.prototype, 'sources', {
     get: function () {
-        if (!this._sources) {
-            this._sources = this.find(FIND_SOURCES);
+        //delete this.memory.sources;
+        if (this.memory.sources) {
+            this._sources = this.memory.sources.map(id => Game.getObjectById(id));
+        }
+        else {
+            if (!this._sources) {
+                this._sources = this.find(FIND_SOURCES);
+            }
+            this.memory.sources = this._sources.map(source => source.id);
         }
         return this._sources;
     }
@@ -19,7 +26,10 @@ Object.defineProperty(Room.prototype, 'sources', {
 Object.defineProperty(Room.prototype, 'minerals', {
     get: function () {
         if (!this._minerals) {
-            this._minerals = this.find(FIND_MINERALS);
+            if (!this.memory.minerals) {
+                this.memory.minerals = this.find(FIND_MINERALS).map(mineral => mineral.id);
+            }
+            this._minerals = this.memory.minerals.map(id => Game.getObjectById(id));
         }
         return this._minerals;
     }
