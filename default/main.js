@@ -13,7 +13,7 @@ module.exports.loop = function () {
     Memory.roomToAttack = null; // room to send warriors to
     Memory.roomToBuild = 'W27N26'; // room to send remoteworkers to
     Memory.roomToHarvest = 'W27N25'; // room to harvest energy in (and send interhaulers to)
-    Memory.roomsToObserve = ['W28N29' , 'W30N29', 'W30N30', 'W26N27', 'W26N26', 'W26N25'];
+    Memory.roomsToObserve = ['W31N35', 'W31N36', 'W31N37', 'W28N29' , 'W30N29', 'W30N30', 'W26N27', 'W26N26', 'W26N25'];
     Memory.capitol='W27N27';
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
@@ -128,12 +128,14 @@ module.exports.loop = function () {
                         { align: 'left', opacity: 0.8 });
                 }
                 // observe rooms
-                var roomsToObserve = Memory.roomsToObserve;
-                if (roomsToObserve[0]) {
-                    const targetRoom = roomsToObserve[0];
-                    //console.log(room.name + ' observing room ' + targetRoom)
-                    room.observeRoom(targetRoom);
-                    roomsToObserve.shift();
+                if (Game.time % 57 == 0) {
+                    var roomsToObserve = Memory.roomsToObserve;
+                    if (roomsToObserve[0]) {
+                        const targetRoom = roomsToObserve[0];
+                        //console.log(room.name + ' observing room ' + targetRoom)
+                        room.observeRoom(targetRoom);
+                        roomsToObserve.shift();
+                    }
                 }
                 try {
                     const sourceLinks = _.filter(room.links, (l) => !l.isSource );
