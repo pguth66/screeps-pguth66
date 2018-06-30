@@ -353,6 +353,15 @@ Room.prototype.buildRoomRoads = function () {
         this.drawRoad(this.terminal.pos, this.minerals[0].pos);
     }
 }
+Room.prototype.buildSourceContainers = function () {
+    this.sources.forEach(function (source) {
+        const path = this.findPath(source.pos, this.controller.pos, {ignoreCreps:true,ignoreRoads:true,range:1});
+        console.log('building container at ' + path[0].x + ',' + path[0].y);
+        if (this.createConstructionSite(path[0].x,path[0].y,STRUCTURE_CONTAINER) != 0) {
+            console.log(this.name + ': Error creating contruction site');
+        }
+    },this)
+}
 Room.prototype.getTotalCreeps = function (role) {
     // returns an array of the existing creeps with this role in this room plus those in the build queue
     const roomCreeps2 = _.filter(Game.creeps, (creep) => { return creep.room.name == this.name });
