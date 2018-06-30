@@ -288,7 +288,7 @@ Room.prototype.runBuildQueue = function () {
     var bq = this.memory.buildQueue;
 
     console.log(this.name + ' build queue length ' + bq.length);
-    availableSpawns = _.filter(this.spawns, { 'spawning':null });
+    const availableSpawns = _.filter(this.spawns, { 'spawning':null });
     //console.log('available spawns: ' + availableSpawns);
 
     availableSpawns.forEach(function (spawn) {
@@ -322,8 +322,8 @@ Room.prototype.drawRoad = function (pos1, pos2) {
 
     const path = this.findPath(pos1,pos2,{ignoreCreeps:true,ignoreRoads:true,range:1});
     path.forEach(function (pos) {
-        x = pos.x;
-        y = pos.y;
+        const x = pos.x;
+        const y = pos.y;
         this.createConstructionSite(x,y,STRUCTURE_ROAD);
 //        console.log(x + ',' + y);
     }, this)
@@ -349,7 +349,9 @@ Room.prototype.buildRoomRoads = function () {
     this.labs.forEach(function (lab) {
         this.drawRoad(lab.pos, this.storage.pos);
     },this);
-    this.drawRoad(this.terminal.pos, this.minerals[0].pos);
+    if (this.terminal && this.minerals[0]) {
+        this.drawRoad(this.terminal.pos, this.minerals[0].pos);
+    }
 }
 Room.prototype.getTotalCreeps = function (role) {
     // returns an array of the existing creeps with this role in this room plus those in the build queue
