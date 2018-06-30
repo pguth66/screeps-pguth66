@@ -36,7 +36,7 @@ module.exports.loop = function () {
     }
     else {
         numMinHaulers = 3; // hack to make no minhaulers spawn in local/sim
-        console.log('skipping minHaulers');
+        //console.log('skipping minHaulers');
     }
 
     // Harvest room logic
@@ -173,14 +173,7 @@ module.exports.loop = function () {
 
         if (room.controller && room.controller.my) {
             // start stage defaults
-            switch (room.controller.level) {
-                case 0:
-                case 1:
-                    var numHaulers = 0;
-                    break;
-                default:
-                    var numHaulers = 1;
-            }
+            var numHaulers=(room.containers.length > 0 ? 1 : 0);
             var numHarvesters = 2;
             var numUpgraders = 1;
             var numBuilders = 3;
