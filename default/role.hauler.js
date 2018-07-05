@@ -161,10 +161,10 @@ module.exports = {
                         // looks for containers (includes storage), links, and terminals
                         // also labs
                         if(creep.room.links.length > 0) {
-                            containersAndLinks = creep.room.containers.concat(creep.room.links);
+                            var containersAndLinks = creep.room.containers.concat(creep.room.links);
                         }
                         else {
-                            containersAndLinks = creep.room.containers;
+                            var containersAndLinks = creep.room.containers;
                         }
                         //console.log('room ' + creep.room.name + ' has ' + containersAndLinks.length + ' cont/links');
 
@@ -216,7 +216,7 @@ module.exports = {
                     }
                 }
                 catch(err) {
-                    console.log(creep.name + ": " + err + 'whyile finding a target to haul to');
+                    console.log(creep.name + ": " + err + 'while finding a target to haul to');
                 }
             //now try to transfer to target, or else move to it
             var r = creep.carry[RESOURCE_ENERGY]; // for counting how much we've processed

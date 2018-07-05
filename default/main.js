@@ -221,7 +221,7 @@ module.exports.loop = function () {
                 var sourceEnergy = 0;
                 sourceContainers.forEach(function (c) {
                     //console.log('processing ' + c.id);
-                    containerObj = Game.getObjectById(c.id);
+                    const containerObj = Game.getObjectById(c.id);
                     if (containerObj.store[RESOURCE_ENERGY] > 1950) {
                         //console.log('need another hauler in room ' + room.name + ' because container full: ' + containerObj.id);
                         numHaulers += 1;
