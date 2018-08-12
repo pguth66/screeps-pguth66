@@ -13,7 +13,7 @@ module.exports.loop = function () {
     Memory.roomToAttack = null; // room to send warriors to
     Memory.roomToBuild = 'W27N26'; // room to send remoteworkers to
     Memory.roomToHarvest = 'W27N25'; // room to harvest energy in (and send interhaulers to)
-    Memory.roomsToObserve = ['W31N35', 'W31N36', 'W31N37', 'W28N29' , 'W30N29', 'W30N30', 'W26N27', 'W26N26', 'W26N25'];
+    Memory.roomsToObserve = ['W31N35', 'W31N36', 'W31N37', 'W28N29' , 'W30N29', 'W30N30', 'W26N27', 'W26N26', 'W26N25', 'W31N33'];
     Memory.capitol='W27N27';
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
@@ -174,15 +174,17 @@ module.exports.loop = function () {
         if (room.controller && room.controller.my) {
             // start stage defaults
             var numHaulers=(room.containers.length > 0 ? 1 : 0);
-            var numHarvesters = 2;
+            var numHarvesters = room.numSources;
             var numUpgraders = 1;
             var numBuilders = 3;
             var numHealers = 0;
             var numClaimers = 0;
 
             if (room.memory.stage == 'later') {
-                const adjustmentFactor = (room.numLinks > 2 ? 2 : 0);
-                numHaulers = room.numContainers - adjustmentFactor + 1;
+                // this used to be used to try to balance need for haulers before and after building links
+                // don't think it was actually helpikng and led to too many haulers at end RCL
+                //const adjustmentFactor = (room.numLinks > 1 ? 2 : 0);
+                numHaulers = room.numContainers - 1;
                 if (numHaulers < 1) {
                     numHaulers = 1;
                 }

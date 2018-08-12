@@ -286,7 +286,7 @@ module.exports = {
             if (!creep.room.memory.foundHostiles) {
                  sources = creep.room.droppedResources;
             };
-                       var fullsources = [];
+            var fullsources = [];
             // if no dropped resources, then cycle through containers and find SOURCEs
             if (creep.room.tombstones) {
                 // cycle through tombstones, add them to sources if they aren't empty
@@ -301,7 +301,7 @@ module.exports = {
                 creep.room.containers.forEach(function (container) {
                     if((container.isSource) && (_.sum(container.store) > creep.carryCapacity)){
                         sources.push(container);
-                        if (_.sum(container.store) == container.storeCapacity) {
+                        if (_.sum(container.store) >= (container.storeCapacity - 250)) {
                             fullsources.push(container);
                         }
                     }
