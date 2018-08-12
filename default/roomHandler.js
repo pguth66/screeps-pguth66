@@ -362,6 +362,28 @@ Room.prototype.buildSourceContainers = function () {
         }
     },this)
 }
+/**
+ * Spawns a contracthauler to refill a terminal - defaults to energy
+ * @param {string} [energy] One of the RESOURCE_ constants 
+ */
+Room.prototype.refillTerminal = function (rsrc) {
+    if (!rsrc) {
+        const rsrc = 'energy';
+    }
+    if (rsrc != 'energy') {
+        console.log('refillTerminal only does energy at this time');
+        return false;
+    }
+    switch (this.memory.energyState) {
+        case 'sending': 
+            var amountToRefill = 70000 - this.terminal.store[RESOURCE_ENERGY];
+            break;
+        default:
+            var amountToRefill = 20000 - this.terminal.store[RESOURCE_ENERGY];
+            break;
+    }
+    this.addToCreepBuildQueue('contracthauler', {resource:rsrc,total:amountToRefill,dropTarget:this.terminal.id,pullTarget:this.storage.id});
+}
 Room.prototype.getTotalCreeps = function (role) {
     // returns an array of the existing creeps with this role in this room plus those in the build queue
     const roomCreeps2 = _.filter(Game.creeps, (creep) => { return creep.room.name == this.name });
