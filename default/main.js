@@ -317,6 +317,17 @@ module.exports.loop = function () {
         } // end Spawning
 
         // Console report
+
+        /**
+         * returns current GCL level as a string formatted for output
+         * @returns {string} Current GCL 
+         */
+        function printGCL () {
+            //console.log('GCL ' + Game.gcl.level + "-" + ((Game.gcl.progress / Game.gcl.progressTotal) * 100).toFixed(0) + "%");
+            var string = 'GCL' + Game.gcl.level + "-" + ((Game.gcl.progress / Game.gcl.progressTotal) * 100).toFixed(0) + "%";
+            return string;
+        }
+
         if ((Game.time % 24) == 0) {
             // don't report on rooms I don't own
             if (!(room.controller && room.controller.my)) {
@@ -324,11 +335,9 @@ module.exports.loop = function () {
             }
             var msg = '';
             msg = 'Room '.concat(room.name);
-            if (room.controller && room.controller.my) {
-                const RCLprogress = (room.controller.progress / room.controller.progressTotal * 100).toFixed(0);
-                msg = msg.concat("(", room.controller.level, "-", RCLprogress, "%): ");
-                msg = msg.concat(room.energyAvailable, "/", room.energyCapacityAvailable);
-            }
+            const RCLprogress = (room.controller.level < 8) ? (room.controller.progress / room.controller.progressTotal * 100).toFixed(0) : 'NA';
+            msg = msg.concat("(", room.controller.level, "-", RCLprogress, "%): ");
+            msg = msg.concat(room.energyAvailable, "/", room.energyCapacityAvailable);
             msg = msg.concat(' Creeps: ', _.size(roomCreeps));
             const harvesters = _.filter(roomCreeps, (creep) => creep.memory.role == 'harvester');
             const haulers = _.filter(roomCreeps, (creep) => creep.memory.role == 'hauler');
@@ -398,6 +407,7 @@ module.exports.loop = function () {
             }
             console.log(msg);
             if ((Game.time % 14400) == 0) {
+                msg.concat(printGCL());
                 Game.notify(msg);
             }
         } // end console report
@@ -440,6 +450,7 @@ module.exports.loop = function () {
         labHandler.run(room);
     } // end room loop
     if ((Game.time % 24) == 12) {
-        console.log('GCL ' + Game.gcl.level + "-" + ((Game.gcl.progress / Game.gcl.progressTotal) * 100).toFixed(0) + "%");
+        //console.log('GCL ' + Game.gcl.level + "-" + ((Game.gcl.progress / Game.gcl.progressTotal) * 100).toFixed(0) + "%");
+        console.log(printGCL());
     }
 }
