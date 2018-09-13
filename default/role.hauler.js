@@ -285,18 +285,19 @@ module.exports = {
             var sources = [];
             if (!creep.room.memory.foundHostiles) {
                  sources = creep.room.droppedResources;
+                 if (creep.room.tombstones) {
+                    // cycle through tombstones, add them to sources if they aren't empty
+                    creep.room.tombstones.forEach(function (tombstone) {
+                        if (_.sum(tombstone.store) > 0) {
+                            sources.push(tombstone);
+                            //creep.creepLog('found non-empty tombstone');
+                        }
+                    })
+                }
             };
             var fullsources = [];
             // if no dropped resources, then cycle through containers and find SOURCEs
-            if (creep.room.tombstones) {
-                // cycle through tombstones, add them to sources if they aren't empty
-                creep.room.tombstones.forEach(function (tombstone) {
-                    if (_.sum(tombstone.store) > 0) {
-                        sources.push(tombstone);
-                        //creep.creepLog('found non-empty tombstone');
-                    }
-                })
-            }
+
             if(sources.length == 0) {
                 creep.room.containers.forEach(function (container) {
                     if((container.isSource) && (_.sum(container.store) > creep.carryCapacity)){
