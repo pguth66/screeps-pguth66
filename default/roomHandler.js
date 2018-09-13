@@ -243,7 +243,7 @@ Room.prototype.getCreepBody = function (role,targetRoom) {
                 break;
             case 'harvester':
             case 'miner':
-                console.log('harvester getBody with targetRoom ' + Game.rooms[targetRoom]);
+                //console.log('harvester getBody with targetRoom ' + Game.rooms[targetRoom]);
                 if (targetRoom && Game.rooms[targetRoom].controller.level < 4 ){
                     body = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
                 }
@@ -300,7 +300,7 @@ Room.prototype.runBuildQueue = function () {
         //const body = [WORK,CARRY,WORK,CARRY,MOVE,MOVE];
         const body = this.getCreepBody(embryo.role,embryo.memory.targetRoom);
         if (spawn.spawnCreep(body, creepname, {dryRun: true, memory:embryo.memory}) == OK) {
-            console.log(spawn.id + ' spawning ' + embryo.role );
+            //console.log(spawn.id + ' spawning ' + embryo.role );
             if (spawn.spawnCreep(body, creepname, {memory:embryo.memory}) == OK) { 
                 return; 
             }
