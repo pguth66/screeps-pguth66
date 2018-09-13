@@ -367,6 +367,7 @@ Room.prototype.buildSourceContainers = function () {
  * @param {string} [energy] One of the RESOURCE_ constants 
  */
 Room.prototype.refillTerminal = function (rsrc) {
+    // this odesn't work right now, use typeof === 'undefined' instead?
     if (!rsrc) {
         const rsrc = 'energy';
     }
@@ -513,7 +514,6 @@ module.exports = {
                             room.memory.energyState = 'normal';
                             targetRoom.memory.energyState = 'unloading';
                             console.log(room.name + ' finished sending to ' + targetRoom.name);
-                            Game.notify('Successfuly sent from ' + room.name + ' to ' + targetRoom.name);
                         }
                         else {
                             console.log(room.name + 'Error sending from ' + room.name + ' to ' + targetRoom.name);
