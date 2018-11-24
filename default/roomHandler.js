@@ -117,6 +117,14 @@ Object.defineProperty(Room.prototype, 'powerSpawn', {
         return this._ps;
     }
 })
+Object.defineProperty(Room.prototype, 'nuker', {
+    get: function () {
+        if(!this._nk) {
+            this._nk = this.find(FIND_MY_STRUCTURES, {filter: { structureType: STRUCTURE_NUKER}})[0];
+        }
+        return this._nk;
+    }
+})
 Object.defineProperty(Room.prototype, 'droppedResources', {
     // returns an array of objectIDs of resources that can be picked up
     get: function () {
