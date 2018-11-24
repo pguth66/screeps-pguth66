@@ -39,6 +39,10 @@
          }
          else {
              console.log(this.name + ' wants to sell minerals but doesn\'t have enough energy!');
+             if (!this.hasCreepWithJob('refillTerminal')) {
+                console.log(this.name + 'wants to spawn a refillTerminal hauler');
+                this.refillTerminal('energy');
+             }
          }
      }
  }

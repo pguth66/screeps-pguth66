@@ -43,6 +43,12 @@ Object.defineProperty(Room.prototype, 'spawns', {
         return this._spawns;
     }
 })
+Object.defineProperty(Room.prototype, 'contracthaulers', {
+    get: function () {
+        const contracthaulers = this.getTotalCreeps('contracthauler');
+        return contracthaulers;
+    }
+})
 Object.defineProperty(Room.prototype, 'extensions', {
     get: function () {
         if (!this._extensions) {
@@ -391,7 +397,19 @@ Room.prototype.refillTerminal = function (rsrc) {
             var amountToRefill = 20000 - this.terminal.store[RESOURCE_ENERGY];
             break;
     }
-    this.addToCreepBuildQueue('contracthauler', {resource:rsrc,total:amountToRefill,dropTarget:this.terminal.id,pullTarget:this.storage.id});
+    this.addToCreepBuildQueue('contracthauler', {resource:rsrc,total:amountToRefill,dropTarget:this.terminal.id,pullTarget:this.storage.id,job:'refillTerminal'});
+}
+/**
+ * Checks if there's already a creep performing a specific job
+ * @param {string} job - the job to check on
+ */
+Room.prototype.hasCreepWithJob = function (job) {
+    if (_.filter(this.contracthaulers, (c) => { return (c.memory.job)}).length == 0) {
+        console.log('found no creep with job ' + job);
+        return false;
+    } else {
+        return true;
+    }
 }
 Room.prototype.getTotalCreeps = function (role) {
     // returns an array of the existing creeps with this role in this room plus those in the build queue
@@ -491,7 +509,6 @@ module.exports = {
 
         if (room.storage) {
             const amountToSend = 50000;
-            const contracthaulers = room.getTotalCreeps('contracthauler');
             switch (room.memory.energyState) {
                 case 'normal':
                     if (room.storage.store[RESOURCE_ENERGY] > 700000) {
