@@ -517,11 +517,11 @@ module.exports = {
                     }
                     break;
                 case 'loading':
-                    if (_.filter(contracthaulers, (c) => { return (c.memory.loadingTerminal)}).length == 0) {
+                    if (!room.hasCreepWithJob('loadingTerminal')) {
                         //console.log(room.name + ' would be spawning CH here');
                         room.memory.taskID = Memory.taskID;
                         Memory.taskID++;
-                        room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:amountToSend,dropTarget:room.terminal.id,pullTarget:room.storage.id,taskID:room.memory.taskID,loadingTerminal:true});
+                        room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:amountToSend,dropTarget:room.terminal.id,pullTarget:room.storage.id,taskID:room.memory.taskID,job:'loadingTerminal'});
                     }
                     const taskCreep = _.filter(contracthaulers, (c) => { return c.memory.taskID == room.memory.taskID})[0];
                     if (taskCreep && taskCreep.memory.processed >= amountToSend) {
@@ -550,10 +550,10 @@ module.exports = {
                     }
                     break;
                 case 'unloading':
-                    if (_.filter(contracthaulers, (c) => { return c.memory.unloadingTerminal}).length == 0) {
+                    if (!room.hasCreepWithJob('unloadingTerminal')) {
                         room.memory.taskID = Memory.taskID;
                         Memory.taskID++;
-                        room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:amountToSend,dropTarget:room.storage.id,pullTarget:room.terminal.id,taskID:room.memory.taskID,unloadingTerminal:true});
+                        room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:amountToSend,dropTarget:room.storage.id,pullTarget:room.terminal.id,taskID:room.memory.taskID,job:'unloadingTerminal'});
                     }
                     const unloadTaskCreep = _.filter(contracthaulers, (c) => { return c.memory.taskID == room.memory.taskID})[0];
                     if (unloadTaskCreep && unloadTaskCreep.memory.processed >= amountToSend) {
