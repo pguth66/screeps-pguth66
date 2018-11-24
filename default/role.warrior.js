@@ -21,7 +21,7 @@ var roleWarrior = {
         const hostileCreeps = creep.room.find(FIND_HOSTILE_CREEPS);
         const hostileStructures = creep.room.find(FIND_HOSTILE_STRUCTURES);
 
-        const role = room.owner.my ? 'defense' : 'offense'; 
+        const role = creep.room.my ? 'defense' : 'offense'; 
 
         hostiles = hostileCreeps.concat(hostileStructures);
         hostileTowers = _.remove(hostiles, {structureType: STRUCTURE_TOWER});
@@ -40,15 +40,24 @@ var roleWarrior = {
 
         // console.log(hostiles.length);
 
-        if(hostileTowers.length > 0) {
-            closestHostile = creep.pos.findClosestByPath(hostileTowers);
+        if (role == 'defense') {
+            // only worry about creeps, and prioritize healers
+            var healers = _.filter(hostileCreeps, function (c) { return c.getActiveBodyparts(HEAL) > 0 });
+            if (healers.length > 0) {
+                closestHostile = creep.pos.findClosestByPath(healers, {ignoreCreeps:true});
+            }
         }
-        else {
-            if (hostileSpawns.length > 0) {
-                closestHostile = creep.pos.findClosestByPath(hostileSpawns);
+        if (role == 'offense') {
+            if(hostileTowers.length > 0) {
+                closestHostile = creep.pos.findClosestByPath(hostileTowers);
             }
             else {
-                closestHostile = creep.pos.findClosestByPath(hostiles, {ignoreCreeps:true});
+                if (hostileSpawns.length > 0) {
+                    closestHostile = creep.pos.findClosestByPath(hostileSpawns);
+                }
+                else {
+                    closestHostile = creep.pos.findClosestByPath(hostiles, {ignoreCreeps:true});
+                }
             }
         }
     
