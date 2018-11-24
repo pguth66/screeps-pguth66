@@ -232,7 +232,7 @@ Room.prototype.getCreepBody = function (role,targetRoom) {
         //console.log('using small creep bodies');
         switch (role) {
             case 'harvester':
-                if (room.energyCapacityAvailable <= 450) {
+                if (room.energyCapacityAvailable <= 300) {
                     body = [WORK,WORK,CARRY,MOVE];
                 }
                 else {
