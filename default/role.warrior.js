@@ -20,7 +20,8 @@ var roleWarrior = {
 
         const hostileCreeps = creep.room.find(FIND_HOSTILE_CREEPS);
         const hostileStructures = creep.room.find(FIND_HOSTILE_STRUCTURES);
-        
+
+        const role = room.owner.my ? 'defense' : 'offense'; 
 
         hostiles = hostileCreeps.concat(hostileStructures);
         hostileTowers = _.remove(hostiles, {structureType: STRUCTURE_TOWER});
@@ -54,7 +55,16 @@ var roleWarrior = {
         if(closestHostile) {
             switch(creep.attack(closestHostile)) {
                 case ERR_NOT_IN_RANGE: 
-                    creep.moveTo(closestHostile, {visualizePathStyle: {}});
+                    var onRamp = false ;
+                    const look = creep.pos.lookFor(LOOK_STRUCTURES);
+                    look.foreach(function(l) {
+                        if (l.structureType == STRUCTURE_RAMPART) {
+                            onRamp = true ;
+                        }
+                    })
+                    if (!onRamp) {
+                        creep.moveTo(closestHostile, {visualizePathStyle: {}});
+                    }
                     break;
                 case ERR_INVALID_TARGET:
                     creep.say('inv target');
