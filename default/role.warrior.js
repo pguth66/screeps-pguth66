@@ -47,7 +47,7 @@ var roleWarrior = {
                 closestHostile = creep.pos.findClosestByPath(hostileSpawns);
             }
             else {
-                closestHostile = creep.pos.findClosestByPath(hostiles);
+                closestHostile = creep.pos.findClosestByPath(hostiles, {ignoreCreeps:true});
             }
         }
     
