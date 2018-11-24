@@ -46,6 +46,9 @@ var roleWarrior = {
             if (healers.length > 0) {
                 closestHostile = creep.pos.findClosestByPath(healers, {ignoreCreeps:true});
             }
+            else {
+                closestHostile = creep.pos.findClosestByPath(hostileCreeps, {ignoreCreeps:true});
+            }
         }
         if (role == 'offense') {
             if(hostileTowers.length > 0) {
