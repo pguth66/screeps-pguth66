@@ -67,7 +67,7 @@ var roleHealer = {
                     filter: (structure) => {
                         return (structure.structureType == STRUCTURE_ROAD || 
                                  (structure.structureType == STRUCTURE_WALL && structure.hits < creep.room.memory.wallLevel) ||
-                                 (structure.structureType == STRUCTURE_RAMPART  && structure.hits < (creep.room.memory.wallLevel - 1000)) || 
+                                 (structure.structureType == STRUCTURE_RAMPART  && structure.hits < (creep.room.memory.wallLevel - 2000)) || 
                                  structure.structureType == STRUCTURE_CONTAINER ||
                                   structure.structureType == STRUCTURE_TOWER) && 
                                   structure.hits < structure.hitsMax ;
@@ -77,6 +77,10 @@ var roleHealer = {
             const priorityTargets = _.remove(targets, function(t) { 
                 return t.structureType == STRUCTURE_CONTAINER && (t.hits < (t.hitsMax / 1.25));
             })
+
+            var priorityWalls = _.remove(targets, (function (t) {
+                return (( t.structureType == STRUCTURE_WALL || t.structureType == STRUCTURE_RAMPART ) && t.hits < (0.5 * creep.room.memory.wallLevel));
+            }))
 
             const dismantleFlags = creep.room.find(FIND_FLAGS, { filter: { color: COLOR_RED } });
             if (dismantleFlags.length > 0) {
@@ -93,6 +97,13 @@ var roleHealer = {
 //            const dontHeal = _.remove(targets, dismantleTarget);
             
             //console.log(creep.name + ' has ' + targets.length + ' heal targets')
+            if (priorityWalls.length > 0) {
+                const target = creep.pos.findClosestByPath(priorityWalls);
+                if(creep.repair(target) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                }
+                return;
+            }
             if (priorityTargets.length > 0) {
                 const target = creep.pos.findClosestByPath(priorityTargets);
                 creep.say('Priority');
