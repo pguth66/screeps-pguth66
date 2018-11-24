@@ -66,7 +66,7 @@ var roleWarrior = {
                 case ERR_NOT_IN_RANGE: 
                     var onRamp = false ;
                     const look = creep.pos.lookFor(LOOK_STRUCTURES);
-                    look.foreach(function(l) {
+                    look.forEach(function(l) {
                         if (l.structureType == STRUCTURE_RAMPART) {
                             onRamp = true ;
                         }
