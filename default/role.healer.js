@@ -74,11 +74,11 @@ var roleHealer = {
                     }
             });
             // prioritize containers < 50%
-            const priorityTargets = _.remove(targets, function(t) { 
+            const priorityContainers = _.remove(targets, function(t) { 
                 return t.structureType == STRUCTURE_CONTAINER && (t.hits < (t.hitsMax / 1.25));
             })
 
-            var priorityWalls = _.remove(targets, (function (t) {
+            const priorityWalls = _.remove(targets, (function (t) {
                 return (( t.structureType == STRUCTURE_WALL || t.structureType == STRUCTURE_RAMPART ) && t.hits < (0.5 * creep.room.memory.wallLevel));
             }))
 
@@ -97,13 +97,17 @@ var roleHealer = {
 //            const dontHeal = _.remove(targets, dismantleTarget);
             
             //console.log(creep.name + ' has ' + targets.length + ' heal targets')
+            /*
             if (priorityWalls.length > 0) {
                 const target = creep.pos.findClosestByPath(priorityWalls);
                 if(creep.repair(target) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
                 }
                 return;
-            }
+            } */
+            
+            const priorityTargets = priorityWalls.concat(priorityContainers);
+            
             if (priorityTargets.length > 0) {
                 const target = creep.pos.findClosestByPath(priorityTargets);
                 creep.say('Priority');
