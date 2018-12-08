@@ -191,9 +191,10 @@ Room.prototype.findNearestRoomSelling = function (mineral) {
 
 }
 Room.prototype.findNearestRoomNeedingEnergy = function () {
+    // name is a misnomer right now, returns the room with the LOWEST energy, not the nearest one
     // find all rooms with less than threshold energy
-    const roomsNeedingEnergy = _.filter(Game.rooms, (r) => { if (r.storage && r.terminal) {return r.storage.store[RESOURCE_ENERGY] < 500000}});
-    var destRoomMatrix = [] ;
+    const roomsNeedingEnergy = _.filter(Game.rooms, (r) => { if (r.storage && r.terminal && r.memory.energyState == 'normal') {return r.storage.store[RESOURCE_ENERGY] < 500000}});
+    // var destRoomMatrix = [] ;
     roomsNeedingEnergy.sort(function(a,b) { return a.storage.store[RESOURCE_ENERGY]-b.storage.store[RESOURCE_ENERGY]});
     //console.log(roomsNeedingEnergy);
     return roomsNeedingEnergy[0];
