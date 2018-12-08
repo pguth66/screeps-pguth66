@@ -18,7 +18,7 @@ var roleWarrior = {
         var hostiles = [] ;
         var closestHostile = {} ;
 
-        const hostileCreeps = creep.room.find(FIND_HOSTILE_CREEPS);
+        const hostileCreeps = creep.room.hostileCreeps;
         const hostileStructures = creep.room.find(FIND_HOSTILE_STRUCTURES);
 
         const role = creep.room.my ? 'defense' : 'offense'; 

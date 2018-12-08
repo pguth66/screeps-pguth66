@@ -31,10 +31,7 @@ var roleUpgrader = {
         {
 			var source;
 			var containers = _.filter(creep.room.containers, (c) => { return c.store[RESOURCE_ENERGY] > 0});
-			const links = creep.room.find(FIND_STRUCTURES, {
-				filter: (structure) => { return (structure.structureType == STRUCTURE_LINK &&
-				structure.energy > 0)}
-			});
+			const links = _.filter(creep.room.links,  (structure) => { return structure.energy > 0});
 			
 			var sources = containers.concat(links);
 			//creep.creepLog('found ' + sources.length + ' containers and links to pull from');

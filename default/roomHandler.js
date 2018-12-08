@@ -99,6 +99,7 @@ Object.defineProperty(Room.prototype, 'containers', {
                 }
             },this)
             if(this.storage) {
+                this.storage.isSource = false;
                 this._containers.push(this.storage);
             }
         }
@@ -167,6 +168,15 @@ Object.defineProperty(Room.prototype, 'ramparts', {
         return this._ramparts;
     }
 })
+Object.defineProperty(Room.prototype, 'hostileCreeps', {
+    get: function () {
+        if(!this._hostileCreeps) {
+            this._hostileCreeps = this.find(FIND_HOSTILE_CREEPS);
+        }
+        return this._hostileCreeps;
+    }
+})
+
 Room.prototype.findNearestRoomSelling = function (mineral) {
     const roomsWithMin = _.filter(Game.rooms, (r) => { if (r.minerals[0]) { return r.minerals[0].mineralType == mineral}});
     var destRoomMatrix = [];
@@ -403,12 +413,12 @@ Room.prototype.refillTerminal = function (rsrc) {
  * Checks if there's already a creep performing a specific job
  * @param {string} job - the job to check on
  */
-Room.prototype.hasCreepWithJob = function (job) {
-    if (_.filter(this.contracthaulers, (c) => { return (c.memory.job)}).length == 0) {
-        console.log('found no creep with job ' + job);
-        return false;
-    } else {
+Room.prototype.hasCreepWithJob = function (j) {
+    if (_.filter(this.contracthaulers, (c) => { return c.memory.job == j}).length > 0) {
+        //console.log('found no creep with job ' + j);
         return true;
+    } else {
+        return false;
     }
 }
 Room.prototype.getTotalCreeps = function (role) {
@@ -458,7 +468,7 @@ module.exports = {
             room.memory.wallLevel = (room.controller.level * room.controller.level) * 12000;
         }
 
-        const towers = room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } });
+        const towers = room.towers;
         var dismantleTarget; //have to define up here so tower code can find it
 
         for (i in towers) {
@@ -490,12 +500,12 @@ module.exports = {
             }
             else {
                 // this is duplicated with main.js right now - should really pass it in //TODO
-                var enemies = room.find(FIND_HOSTILE_CREEPS);
+                //var enemies = room.find(FIND_HOSTILE_CREEPS);
                 // whitelist for nice dude next to me
                 if (room.name == 'W27N26') {
-                    _.remove(enemies, function (e) { return e.owner.username == 'Totalschaden' });
+                    _.remove(this.hostileCreeps, function (e) { return e.owner.username == 'Totalschaden' });
                 }
-                const closestHostile = tower.pos.findClosestByRange(enemies);
+                const closestHostile = tower.pos.findClosestByRange(this.hostileCreeps);
                 if (closestHostile) {
                     if (tower.pos.getRangeTo(closestHostile) < 12) {
                         tower.attack(closestHostile);
@@ -523,7 +533,7 @@ module.exports = {
                         Memory.taskID++;
                         room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:amountToSend,dropTarget:room.terminal.id,pullTarget:room.storage.id,taskID:room.memory.taskID,job:'loadingTerminal'});
                     }
-                    const taskCreep = _.filter(contracthaulers, (c) => { return c.memory.taskID == room.memory.taskID})[0];
+                    const taskCreep = _.filter(room.contracthaulers, (c) => { return c.memory.taskID == room.memory.taskID})[0];
                     if (taskCreep && taskCreep.memory.processed >= amountToSend) {
                         room.memory.energyState = 'sending';
                         taskCreep.memory.role='recycle';
@@ -555,7 +565,7 @@ module.exports = {
                         Memory.taskID++;
                         room.addToCreepBuildQueue('contracthauler',{respawn:true,resource:RESOURCE_ENERGY,total:amountToSend,dropTarget:room.storage.id,pullTarget:room.terminal.id,taskID:room.memory.taskID,job:'unloadingTerminal'});
                     }
-                    const unloadTaskCreep = _.filter(contracthaulers, (c) => { return c.memory.taskID == room.memory.taskID})[0];
+                    const unloadTaskCreep = _.filter(room.contracthaulers, (c) => { return c.memory.taskID == room.memory.taskID})[0];
                     if (unloadTaskCreep && unloadTaskCreep.memory.processed >= amountToSend) {
                         room.memory.energyState = 'normal';
                         unloadTaskCreep.memory.role = 'recycle';

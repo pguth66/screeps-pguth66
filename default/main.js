@@ -13,7 +13,7 @@ module.exports.loop = function () {
     Memory.roomToAttack = null; // room to send warriors to
     Memory.roomToBuild = 'W27N26'; // room to send remoteworkers to
     Memory.roomToHarvest = null; // room to harvest energy in (and send interhaulers to)
-    Memory.roomsToObserve = ['W31N35', 'W33N34', 'W31N25', 'W31N36', 'W31N37', 'W28N29' , 'W30N29', 'W30N30', 'W26N27', 'W26N26', 'W26N25', 'W31N33'];
+    Memory.roomsToObserve = ['W31N35', 'W29N24', 'W33N34', 'W31N25', 'W31N36', 'W31N37', 'W28N29' , 'W30N29', 'W30N30', 'W26N27', 'W26N26', 'W26N25', 'W31N33'];
     Memory.capitol='W27N27';
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
@@ -241,7 +241,7 @@ module.exports.loop = function () {
         } // end numCreep adjustments
 
 
-        var enemies = room.find(FIND_HOSTILE_CREEPS);
+        var enemies = room.hostileCreeps;
         // whitelist for nice dude next to me
         if (room.name == 'W27N26') {
             _.remove(enemies, function (e) { return e.owner.username == 'Totalschaden' });
@@ -309,7 +309,7 @@ module.exports.loop = function () {
             }
 
             if ((totalMiners < 1) && (room.controller.level >= 6) &&
-                (room.find(FIND_MINERALS)[0].mineralAmount > 0) &&
+                (room.minerals[0].mineralAmount > 0) &&
                 (room.energyAvailable > (room.energyCapacityAvailable * 0.9))) {
                     room.addToCreepBuildQueue('miner');
                     console.log('Spawning new miner in ' + room.name + ': ' + newName);

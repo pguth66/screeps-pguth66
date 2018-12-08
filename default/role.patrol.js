@@ -15,7 +15,7 @@ var rolePatrol = {
             // build array of targets, then attack closest one
             // if target is controller, have to use different method
         
-            const hostileCreeps = creep.room.find(FIND_HOSTILE_CREEPS);
+            const hostileCreeps = creep.room.hostileCreeps;
 
             var closestHostile = creep.pos.findClosestByPath(hostileCreeps);
             
