@@ -197,7 +197,7 @@ Creep.prototype.respawn = function () {
                 newCreepMemory.targetRoom = this.memory.targetRoom;
                 break;
             case 'contracthauler':
-                memProps = [ 'pullTarget', 'dropTarget', 'upTo', 'resource', 'total', 'taskID', 'loadingTerminal', 'unloadingTerminal', 'processed'];
+                memProps = [ 'pullTarget', 'dropTarget', 'job', 'upTo', 'resource', 'total', 'taskID', 'loadingTerminal', 'unloadingTerminal', 'processed'];
                 memProps.forEach(function (memProp) {
                     if (this.memory[memProp]) {
                         newCreepMemory[memProp] = this.memory[memProp];
@@ -283,6 +283,8 @@ module.exports = {
                 creep.creepLog('has only move parts, recycling')
                 creep.memory.role = 'recycle';
             }
+            // not sure why this excludes creeps with a target - leads to at least one bad behavior, where
+            // harvesters with a targetRoom will never go to it because they get a target on spawn
             if (creep.memory.targetRoom && (!creep.memory.target) && (creep.memory.targetRoom != creep.room.name)) {
                 creep.moveToRoom(creep.memory.targetRoom);
             }
