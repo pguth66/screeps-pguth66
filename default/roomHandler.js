@@ -512,9 +512,6 @@ module.exports = {
                         tower.attack(closestHostile);
                     }
                 }
-                else {
-                                     //   console.log(room.name + ' found hostiles but cant find closestHostile');
-                }
             }
             if (room.memory.foundHostiles && tower.hits < (tower.hitsMax / 2)) {
                 room.needsSafeRoom = true;
@@ -549,14 +546,29 @@ module.exports = {
                     try {
                         //console.log(room.name + ' sending energy to ' + targetRoom.name);
                         // need to add check here for targetRoom terminal having enough room to accept transfer
-                        if (room.terminal.send(RESOURCE_ENERGY,amountToSend,targetRoom.name) == 0 ) {
-                            room.memory.energyState = 'normal';
-                            targetRoom.memory.energyState = 'unloading';
-                            console.log(room.name + ' finished sending to ' + targetRoom.name);
-                        }
-                        else {
-                            console.log(room.name + 'Error sending from ' + room.name + ' to ' + targetRoom.name);
-                            Game.notify('Error sending from ' + room.name + ' to ' + targetRoom.name);
+                        // and for sending room not having enough energy to send it
+                        switch (room.terminal.send(RESOURCE_ENERGY,amountToSend,targetRoom.name)) {
+                            case 0:
+                                room.memory.energyState = 'normal';
+                                targetRoom.memory.energyState = 'unloading';
+                                console.log(room.name + ' finished sending to ' + targetRoom.name);
+                                break;
+                            case -11:
+                                // terminal in cooldown
+                                console.log(room.name + ' wants to send energy but terminal is in cooldown');
+                                break;
+                            case -6:
+                                // not enough energy to send
+                                console.log(room.name + " does not have eneough energy to send");
+                                if (!room.hasCreepWithJob('refillTerminal')) {
+                                    console.log(room.name + ' spawning refill creep');
+                                    room.refillTerminal('energy');
+                                }
+                                break;
+                            default:
+                                console.log(room.name + 'Error sending from ' + room.name + ' to ' + targetRoom.name);
+                                Game.notify('Error sending from ' + room.name + ' to ' + targetRoom.name);
+                                break;
                         }
                     }
                     catch (err) {
