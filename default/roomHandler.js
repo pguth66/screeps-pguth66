@@ -473,7 +473,7 @@ module.exports = {
         var dismantleTarget; //have to define up here so tower code can find it
 
         for (i in towers) {
-            tower = towers[i];
+            const tower = towers[i];
             if (!room.memory.foundHostiles && (tower.energy > tower.energyCapacity / 2)) {
                 var damagedCreeps = tower.room.find(FIND_MY_CREEPS, {
                     filter: (c) => ((c.hits < c.hitsMax)) 
@@ -506,11 +506,14 @@ module.exports = {
                 if (room.name == 'W27N26') {
                     _.remove(this.hostileCreeps, function (e) { return e.owner.username == 'Totalschaden' });
                 }
-                const closestHostile = tower.pos.findClosestByRange(this.hostileCreeps);
+                const closestHostile = tower.pos.findClosestByRange(room.hostileCreeps);
                 if (closestHostile) {
                     if (tower.pos.getRangeTo(closestHostile) < 12) {
                         tower.attack(closestHostile);
                     }
+                }
+                else {
+                                     //   console.log(room.name + ' found hostiles but cant find closestHostile');
                 }
             }
             if (room.memory.foundHostiles && tower.hits < (tower.hitsMax / 2)) {
