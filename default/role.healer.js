@@ -91,21 +91,9 @@ var roleHealer = {
                         //creep.creepLog('pulling from heal targets: ' + s);
                     })
                 })
-               // const dontHeal = _.pullAll(targets, dismantleFlags);
-                //creep.creepLog('pulled ' + dontHeal.length + ' dismantle targets');
-            }
-//            const dontHeal = _.remove(targets, dismantleTarget);
-            
+            }            
             //console.log(creep.name + ' has ' + targets.length + ' heal targets')
-            /*
-            if (priorityWalls.length > 0) {
-                const target = creep.pos.findClosestByPath(priorityWalls);
-                if(creep.repair(target) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
-                }
-                return;
-            } */
-            
+
             const priorityTargets = priorityWalls.concat(priorityContainers);
             
             if (priorityTargets.length > 0) {
