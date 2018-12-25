@@ -20,6 +20,7 @@ var roleHealer = {
             }
             else {
                 creep.memory.healing = false;
+                creep.memory.priorityTarget = null;
                 creep.say('🔄 harvest');                    
             }
 	    }
@@ -63,57 +64,94 @@ var roleHealer = {
             }
         }
         else {
-            var targets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (structure) => {
-                        return (structure.structureType == STRUCTURE_ROAD || 
-                                 (structure.structureType == STRUCTURE_WALL && structure.hits < creep.room.memory.wallLevel) ||
-                                 (structure.structureType == STRUCTURE_RAMPART  && structure.hits < (creep.room.memory.wallLevel - 2000)) || 
-                                 structure.structureType == STRUCTURE_CONTAINER ||
-                                  structure.structureType == STRUCTURE_TOWER) && 
-                                  structure.hits < structure.hitsMax ;
-                    }
-            });
-            // prioritize containers < 50%
-            const priorityContainers = _.remove(targets, function(t) { 
-                return t.structureType == STRUCTURE_CONTAINER && (t.hits < (t.hitsMax / 1.25));
-            })
-
-            const priorityWalls = _.remove(targets, (function (t) {
-                return (( t.structureType == STRUCTURE_WALL || t.structureType == STRUCTURE_RAMPART ) && t.hits < (0.5 * creep.room.memory.wallLevel));
-            }))
-
-            const dismantleFlags = creep.room.find(FIND_FLAGS, { filter: { color: COLOR_RED } });
-            if (dismantleFlags.length > 0) {
-                dismantleFlags.forEach(function(flag) {
-                    const dismantleStructures = flag.pos.lookFor(LOOK_STRUCTURES);
-                    dismantleStructures.forEach(function(s) {
-                        _.pull(targets,s);
-                        //creep.creepLog('pulling from heal targets: ' + s);
-                    })
-                })
-            }            
-            //console.log(creep.name + ' has ' + targets.length + ' heal targets')
-
-            const priorityTargets = priorityWalls.concat(priorityContainers);
-            
-            if (priorityTargets.length > 0) {
-                const target = creep.pos.findClosestByPath(priorityTargets);
-                creep.say('Priority');
-                if(creep.repair(target) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+            // creep is healing
+            var target ;
+            var hasTarget = false ;
+            // if creep already has a priority target, keep healing it unless it's full
+            //if (creep.memory.priorityTarget && (creep.memory.priorityTarget.hits < creep.memory.priorityTarget.hitxMax)) {
+            if (creep.memory.priorityTarget) {
+                const pt = Game.getObjectById(creep.memory.priorityTarget);
+                switch (pt.structureType) {
+                    case STRUCTURE_CONTAINER:
+                        if (pt.hits < (pt.hitsMax / 1.25)) {
+                            target = pt;
+                            hasTarget = true;
+                        }
+                        break;
+                    case STRUCTURE_RAMPART:
+                    case STRUCTURE_WALL:
+                        if (pt.hits < creep.room.memory.wallLevel) {
+                            target = pt;
+                            hasTarget = true;
+                        }
+                    default:
+                        break;
                 }
-                //creep.creepLog(' going to priority target ' + target.id);
-            } else {
-                if(targets.length > 0) {
-                    const target = creep.pos.findClosestByPath(targets);
-                    if(creep.repair(target) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
-                    }
-                }
-                else {
-                    roleBuilder.run(creep);
-                }
+                /* if (pt.hits < pt.hitsMax) {
+                    target = pt;
+                    hasTarget = true;
+                } */
             }
+            if (!hasTarget) {
+                // target selection
+                var targets = creep.room.find(FIND_STRUCTURES, {
+                        filter: (structure) => {
+                            return (structure.structureType == STRUCTURE_ROAD || 
+                                    (structure.structureType == STRUCTURE_WALL && structure.hits < creep.room.memory.wallLevel) ||
+                                    (structure.structureType == STRUCTURE_RAMPART  && structure.hits < (creep.room.memory.wallLevel - 2000)) || 
+                                    structure.structureType == STRUCTURE_CONTAINER ||
+                                    structure.structureType == STRUCTURE_TOWER) && 
+                                    structure.hits < structure.hitsMax ;
+                        }
+                });
+                // prioritize containers < 50%
+                const priorityContainers = _.remove(targets, function(t) { 
+                    return t.structureType == STRUCTURE_CONTAINER && (t.hits < (t.hitsMax / 1.25));
+                })
+
+                const priorityWalls = _.remove(targets, (function (t) {
+                    return (( t.structureType == STRUCTURE_WALL || t.structureType == STRUCTURE_RAMPART ) && t.hits < (0.5 * creep.room.memory.wallLevel));
+                }))
+
+                const dismantleFlags = creep.room.find(FIND_FLAGS, { filter: { color: COLOR_RED } });
+                if (dismantleFlags.length > 0) {
+                    dismantleFlags.forEach(function(flag) {
+                        const dismantleStructures = flag.pos.lookFor(LOOK_STRUCTURES);
+                        dismantleStructures.forEach(function(s) {
+                            _.pull(targets,s);
+                            //creep.creepLog('pulling from heal targets: ' + s);
+                        })
+                    })
+                }            
+                //console.log(creep.name + ' has ' + targets.length + ' heal targets')
+
+                const priorityTargets = priorityWalls.concat(priorityContainers);
+                
+                if (priorityTargets.length > 0) {
+                    target = creep.pos.findClosestByPath(priorityTargets);
+                    creep.memory.priorityTarget = target.id;
+                    creep.say('Priority');
+                    /* if (creep.repair(target) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+                    } */
+                    //creep.creepLog(' going to priority target ' + target.id);
+                } else {
+                    if(targets.length > 0) {
+                        target = creep.pos.findClosestByPath(targets);
+   /*                      if(creep.repair(target) == ERR_NOT_IN_RANGE) {
+                            creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                        } */
+                    }
+                    else {
+                        roleBuilder.run(creep);
+                    }
+                }
+            // end target selection
+            }
+            if(creep.repair(target) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+            }
+        // end healing
         }
 	}
 };
