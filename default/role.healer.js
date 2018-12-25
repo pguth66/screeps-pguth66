@@ -68,7 +68,6 @@ var roleHealer = {
             var target ;
             var hasTarget = false ;
             // if creep already has a priority target, keep healing it unless it's full
-            //if (creep.memory.priorityTarget && (creep.memory.priorityTarget.hits < creep.memory.priorityTarget.hitxMax)) {
             if (creep.memory.priorityTarget) {
                 const pt = Game.getObjectById(creep.memory.priorityTarget);
                 switch (pt.structureType) {
@@ -87,10 +86,6 @@ var roleHealer = {
                     default:
                         break;
                 }
-                /* if (pt.hits < pt.hitsMax) {
-                    target = pt;
-                    hasTarget = true;
-                } */
             }
             if (!hasTarget) {
                 // target selection
@@ -131,16 +126,9 @@ var roleHealer = {
                     target = creep.pos.findClosestByPath(priorityTargets);
                     creep.memory.priorityTarget = target.id;
                     creep.say('Priority');
-                    /* if (creep.repair(target) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-                    } */
-                    //creep.creepLog(' going to priority target ' + target.id);
                 } else {
                     if(targets.length > 0) {
                         target = creep.pos.findClosestByPath(targets);
-   /*                      if(creep.repair(target) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
-                        } */
                     }
                     else {
                         roleBuilder.run(creep);
