@@ -283,8 +283,14 @@ module.exports = {
             else {
             // start with dropped resources of > 50 units
             var sources = [];
+
             if (!creep.room.memory.foundHostiles) {
                  sources = creep.room.droppedResources;
+                 // remove anything in the junkyard
+                 if (creep.room.junkyard) {
+                    creep.creepLog('removing junkyard stuff');
+                    _.remove(sources, function (s) { return s.pos == creep.room.junkyard.pos});
+                }
                  if (creep.room.tombstones) {
                     // cycle through tombstones, add them to sources if they aren't empty
                     creep.room.tombstones.forEach(function (tombstone) {

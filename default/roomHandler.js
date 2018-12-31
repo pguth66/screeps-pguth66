@@ -176,6 +176,23 @@ Object.defineProperty(Room.prototype, 'hostileCreeps', {
         return this._hostileCreeps;
     }
 })
+Object.defineProperty(Room.prototype, 'junkyard', {
+    get: function () {
+        if(this._junkyard == 'nojunkyard') {
+            return null;
+        }
+        else {
+            if (this.memory.junkyard && this.memory.junkyard.x && this.memory.junkyard.y) {
+                this._junkyard = new RoomObject(this.memory.junkyard.x, this.memory.junkyard.y, this.name);
+            }
+            else {
+                this._junkyard = 'nojunkyard';
+                return null;
+            }
+        }
+        return this._junkyard;
+    }
+})
 
 Room.prototype.findNearestRoomSelling = function (mineral) {
     const roomsWithMin = _.filter(Game.rooms, (r) => { if (r.minerals[0]) { return r.minerals[0].mineralType == mineral}});
@@ -458,15 +475,19 @@ module.exports = {
         if (!room.controller.my) { return };
 
         // init
-
-        if (!room.memory.buildQueue) {
-            room.memory.buildQueue = [];
+        try {
+            if (!room.memory.buildQueue) {
+                room.memory.buildQueue = [];
+            }
+            if (!room.memory.energyState) {
+                room.memory.energyState = 'normal';
+            }
+            if (!room.memory.wallLevel) {
+                room.memory.wallLevel = (room.controller.level * room.controller.level) * 12000;
+            }
         }
-        if (!room.memory.energyState) {
-            room.memory.energyState = 'normal';
-        }
-        if (!room.memory.wallLevel) {
-            room.memory.wallLevel = (room.controller.level * room.controller.level) * 12000;
+        catch (err) {
+            console.log(room.name + " error during init: " + err);
         }
 
         const towers = room.towers;
