@@ -218,6 +218,9 @@ module.exports.loop = function () {
                 if (room.controller.level == 8) {
                     numBuilders -= 2;
                 }
+                if (room.memory.wallLevel >  100000000) {
+                    numHealers -= 1;
+                }
                 var sourceContainers = _.filter(room.containers, (c) => c.isSource);
                 //console.log(room + ' has ' + sourceContainers.length + ' source containers');
                 var sourceEnergy = 0;
