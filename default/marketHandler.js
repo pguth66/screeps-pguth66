@@ -33,8 +33,13 @@
      const amountToSell = Math.min(amount,orders[0].amount);
      if (orders[0].price > floor) {
          const cost = Game.market.calcTransactionCost(amountToSell,this.name,orders[0].roomName);
+         const revenue = orders[0].price * orders[0].amount ;
+         const profit = revenue - cost ; 
+         if (cost > revenue) {
+             Game.notify(this.name + " selling at a loss!!!");
+         }
          if (this.terminal.store[RESOURCE_ENERGY] >= cost) {
-            console.log(this.name + ' selling ' + amountToSell + ' to room ' + orders[0].roomName + ' at price ' + orders[0].price);
+            console.log(this.name + ' selling ' + amountToSell + ' to room ' + orders[0].roomName + ' at price ' + orders[0].price + ' with profit ' + profit);
             Game.market.deal(orders[0].id,amountToSell,this.name);
          }
          else {
