@@ -31,25 +31,35 @@
      //console.log(this.name + ' found ' + orders.length + ' potential buyers for ' + mineral);
      //console.log('highest price ' + orders[0].price);
      const amountToSell = Math.min(amount,orders[0].amount);
+     try {
      if (orders[0].price > floor) {
          const cost = Game.market.calcTransactionCost(amountToSell,this.name,orders[0].roomName);
          const revenue = orders[0].price * orders[0].amount ;
          const profit = revenue - cost ; 
          if (cost > revenue) {
              Game.notify(this.name + " selling at a loss!!!");
-         }
-         if (this.terminal.store[RESOURCE_ENERGY] >= cost) {
-            console.log(this.name + ' selling ' + amountToSell + ' to room ' + orders[0].roomName + ' at price ' + orders[0].price + ' with profit ' + profit);
-            Game.market.deal(orders[0].id,amountToSell,this.name);
-         }
+            if (this.junkyard) {
+                this.addToCreepBuildQueue('contracthauler',{resource:mineral,total:amountToSell,pullTarget:this.terminal.id,dropTarget:'junkyard',job:'junkHaul'});
+            }
+        }
          else {
-             console.log(this.name + ' wants to sell minerals but doesn\'t have enough energy!');
-             if (!this.hasCreepWithJob('refillTerminal')) {
-                console.log(this.name + 'wants to spawn a refillTerminal hauler');
-                this.refillTerminal('energy');
-             }
+            if (this.terminal.store[RESOURCE_ENERGY] >= cost) {
+                console.log(this.name + ' selling ' + amountToSell + ' to room ' + orders[0].roomName + ' at price ' + orders[0].price + ' with profit ' + profit);
+                Game.market.deal(orders[0].id,amountToSell,this.name);
+            }
+            else {
+                console.log(this.name + ' wants to sell minerals but doesn\'t have enough energy!');
+                if (!this.hasCreepWithJob('refillTerminal')) {
+                    console.log(this.name + 'wants to spawn a refillTerminal hauler');
+                    this.refillTerminal('energy');
+                }
+            }
          }
      }
+    }
+    catch (err) {
+        console.log(this.name + " error while selling: " + err);
+    }
  }
  module.exports = {
 
