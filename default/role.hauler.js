@@ -287,9 +287,9 @@ module.exports = {
             if (!creep.room.memory.foundHostiles) {
                  sources = creep.room.droppedResources;
                  // remove anything in the junkyard
-                 if (creep.room.junkyard) {
+                 if ((sources.length > 0) && creep.room.junkyard) {
                     creep.creepLog('removing junkyard stuff');
-                    _.remove(sources, function (s) { return s.pos == creep.room.junkyard.pos});
+                    _.remove(sources, function (s) { return s.pos.isEqualTo(creep.room.junkyard.pos)});
                 }
                  if (creep.room.tombstones) {
                     // cycle through tombstones, add them to sources if they aren't empty
