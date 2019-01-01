@@ -397,7 +397,7 @@ Room.prototype.buildRoomRoads = function () {
 }
 Room.prototype.buildSourceContainers = function () {
     this.sources.forEach(function (source) {
-        const path = this.findPath(source.pos, this.controller.pos, {ignoreCreps:true,ignoreRoads:true,range:1});
+        const path = this.findPath(source.pos, this.controller.pos, {ignoreCreeps:true,ignoreRoads:true,range:1});
         console.log('building container at ' + path[0].x + ',' + path[0].y);
         if (this.createConstructionSite(path[0].x,path[0].y,STRUCTURE_CONTAINER) != 0) {
             console.log(this.name + ': Error creating contruction site');
