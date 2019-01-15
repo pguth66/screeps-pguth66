@@ -60,7 +60,7 @@ module.exports = {
                 }
                 if (creep.memory.dropTarget == 'junkyard') {
                     if (creep.memory.processed >= creep.memory.total) {
-                        creep.memory.role='pause';
+                        creep.memory.role='recycle';
                     }
                 }
                 else {
