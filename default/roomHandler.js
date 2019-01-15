@@ -216,6 +216,25 @@ Room.prototype.findNearestRoomNeedingEnergy = function () {
     //console.log(roomsNeedingEnergy);
     return roomsNeedingEnergy[0];
 }
+/**
+ * Adds a task to the room's lab queue
+ * @param {StructureLab} lab to haul to
+ * @param {resourceType} mineral to bring
+ */
+Room.prototype.addToLabQueue = function (lab, resource) {
+    //console.log('adding creep to build queue: '+ creepType);
+    var lq = this.memory.labQueue;
+
+    lq.push({lab:lab, resource:resource});
+
+    // verify it worked
+    if (lq[lq.length - 1].lab == lab && lq[lq.length-1].resource == resource) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 Room.prototype.addToCreepBuildQueue = function (creepType, memoryObject) {
     //console.log('adding creep to build queue: '+ creepType);
     var bq = this.memory.buildQueue;
@@ -235,7 +254,6 @@ Room.prototype.addToCreepBuildQueue = function (creepType, memoryObject) {
     }
     console.log(JSON.stringify(bq[bq.length - 1]));
 }
-
 Room.prototype.getCreepBody = function (role,targetRoom) {
     
     // have to pass in targetRoom to handle the special case of harvesters being sent to other
@@ -476,6 +494,9 @@ module.exports = {
 
         // init
         try {
+            if(!room.memory.labQueue) {
+                room.memory.labQueue = [];
+            }
             if (!room.memory.buildQueue) {
                 room.memory.buildQueue = [];
             }

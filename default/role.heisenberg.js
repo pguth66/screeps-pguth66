@@ -7,21 +7,47 @@
  * mod.thing == 'a thing'; // true
  */
 var roleContractHauler = require('role.contracthauler');
+var roleHauler = require('role.hauler');
+const HaulTask = require('class.haultask');
 
 module.exports = {
 
     run: function(creep) {
 
+        function pullHaulTaskFromQueue (room) {
+            try {
+                if (room.memory.labQueue[0]) {
+                    creep.creepLog('found a task!');
+                    haulTask = room.memory.labQueue.shift();
+                    return haulTask;
+                }
+                return;
+            }
+            catch (err) {
+                console.log(err + ' while pulling haulTask in ' + creep.room.name);
+            }
+        }
         // is always going to be bringing to a lab
         // but might be bringing energy or minerals
+        // have to drop off any excess minerals if we're done
         if (!creep.memory.destination) {
-            //new HaulTask(RESOURCE_ENERGY, '59d31c27299d5e073fc87275', 1000);
-            creep.memory.destination = '59d2d4844fc7a444cccf0f68';
-            creep.memory.resource = RESOURCE_UTRIUM;
-            creep.memory.targetAmount = 3000;
+            if (_.sum(creep.carry) > 0) {
+                creep.memory.hauling=true;
+                roleHauler.run(creep);
+            }
+            const task = pullHaulTaskFromQueue(creep.room);
+            //console.log(JSON.stringify(task));
+            if (task) {
+                creep.memory.destination = task.lab.id;
+                creep.memory.resource = task.resource;
+                creep.memory.targetAmount = 3000 - task.lab.mineralAmount;
 
-            creep.memory.dropTarget = creep.memory.destination;
-            creep.memory.pullTarget = creep.room.storage.id;
+                creep.memory.dropTarget = creep.memory.destination;
+                creep.memory.pullTarget = creep.room.terminal.id;
+            }
+            else {
+                return;
+            }
         }
         else {
             // if target has reached targetAmount, do a new task
