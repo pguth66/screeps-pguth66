@@ -33,10 +33,12 @@
      const amountToSell = Math.min(amount,orders[0].amount);
      try {
      if (orders[0].price > floor) {
-         const cost = Game.market.calcTransactionCost(amountToSell,this.name,orders[0].roomName);
-         const revenue = orders[0].price * orders[0].amount ;
-         const profit = revenue - cost ; 
-         if (cost > revenue) {
+         const cost = Game.market.calcTransactionCost(amountToSell,this.name,orders[0].roomName); // in energy
+         const revenue = orders[0].price * orders[0].amount ; // in credits
+         const EnergyExchangeRate = 1 // how many credits to buy 1 energy
+         const costInCredits = cost * EnergyExchangeRate ;
+         const profit = revenue - costInCredits ; 
+         if (profit < 0) {
              Game.notify(this.name + " selling at a loss!!!");
             if (this.junkyard) {
                 this.addToCreepBuildQueue('contracthauler',{resource:mineral,total:amountToSell,pullTarget:this.terminal.id,dropTarget:'junkyard',job:'junkHaul'});
