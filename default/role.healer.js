@@ -123,7 +123,7 @@ var roleHealer = {
                 const priorityTargets = priorityWalls.concat(priorityContainers);
                 
                 if (priorityTargets.length > 0) {
-                    target = creep.pos.findClosestByPath(priorityTargets);
+                    target = creep.pos.findClosestByPath(priorityTargets, {ignoreCreeps:true});
                     creep.memory.priorityTarget = target.id;
                     creep.say('Priority');
                 } else {
