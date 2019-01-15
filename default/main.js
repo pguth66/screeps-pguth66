@@ -17,6 +17,16 @@ module.exports.loop = function () {
     Memory.capitol='W27N27';
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
+    
+    /**
+     * returns current GCL level as a string formatted for output
+     * @returns {string} Current GCL 
+     */
+    function printGCL () {
+        //console.log('GCL ' + Game.gcl.level + "-" + ((Game.gcl.progress / Game.gcl.progressTotal) * 100).toFixed(0) + "%");
+        var string = 'GCL' + Game.gcl.level + "-" + ((Game.gcl.progress / Game.gcl.progressTotal) * 100).toFixed(0) + "%";
+        return string;
+    }
 
     for (var name in Memory.creeps) {
         if (!Game.creeps[name]) {
@@ -53,7 +63,7 @@ module.exports.loop = function () {
     // minhaulers aren't per room but global so they spawn outside the room loops
     //console.log(numMinHaulers.length + " mineral haulers");
     if (numMinHaulers < 1) {
-        Game.rooms[Memory.capitol].addToCreepBuildQueue('minhauler');
+        //Game.rooms[Memory.capitol].addToCreepBuildQueue('minhauler');
 //        Game.spawns['Spawn8'].createCreep([CARRY, CARRY, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'minhauler' });
     }
 
@@ -320,16 +330,6 @@ module.exports.loop = function () {
         } // end Spawning
 
         // Console report
-
-        /**
-         * returns current GCL level as a string formatted for output
-         * @returns {string} Current GCL 
-         */
-        function printGCL () {
-            //console.log('GCL ' + Game.gcl.level + "-" + ((Game.gcl.progress / Game.gcl.progressTotal) * 100).toFixed(0) + "%");
-            var string = 'GCL' + Game.gcl.level + "-" + ((Game.gcl.progress / Game.gcl.progressTotal) * 100).toFixed(0) + "%";
-            return string;
-        }
 
         if ((Game.time % 24) == 0) {
             // don't report on rooms I don't own
