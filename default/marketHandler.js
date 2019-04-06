@@ -39,10 +39,8 @@
          const costInCredits = cost * EnergyExchangeRate ;
          const profit = revenue - costInCredits ; 
          if (profit < 0) {
-             Game.notify(this.name + " selling at a loss!!!");
-            if (this.junkyard) {
-                this.addToCreepBuildQueue('contracthauler',{resource:mineral,total:amountToSell,pullTarget:this.terminal.id,dropTarget:'junkyard',job:'junkHaul'});
-            }
+             return false;
+            
         }
          else {
             if (this.terminal.store[RESOURCE_ENERGY] >= cost) {
@@ -67,12 +65,11 @@
 
     runMarket: function (room) {
 
-        function getAveragePrice(mineralType) {
+        function getAveragePrice(mineralType,amountinTerminal,totalInTerminal) {
             //console.log('computing average price of ' + mineralType);
             const orders = Game.market.getAllOrders({resourceType: mineralType, type: ORDER_SELL});
             _.remove(orders, (o) => { return o.amount < 100});
-            const amountinTerminal = room.terminal.store[mineralType]; 
-            const totalInTerminal = _.sum(room.terminal.store);
+
             //console.log(room.name + ' has ' + amountinTerminal + ' units of ' + mineralType);           
             // pull out just the price
             const prices = orders.map(function (order) { return order.price}).sort((a,b) => (a - b));
@@ -80,12 +77,7 @@
             //console.log(room.name + ' lowest price ' + prices[0] + ' highest price ' + prices[prices.length -1]);
             //console.log(JSON.stringify(prices,null,4));
             // this really shouldn't be inside this function
-            if ((amountinTerminal > 198000) || (totalInTerminal > 295000)) {
-                // desparate at this point, sell for whatever people are buying for
-                console.log(room.name + ' is almost full of ' + mineralType + ', selling cheap!');
-                Game.notify(room.name + ' is almost full of ' + mineralType + ', selling cheap!');
-                room.sellToHighestBidder(mineralType,10000,0.01);
-            }
+
             if (amountinTerminal > 190000 || (totalInTerminal > 280000)) {
                 //console.log(room.name + ' picking lowest price');                
                 return prices[0];
@@ -101,13 +93,10 @@
             }
         }
 
-        function processOrder (order, room) {
+        function processOrder (order, room, averagePrice) {
 
             // set price, then extend order
-
             const floor = 0.08 ;
-
-            const averagePrice = getAveragePrice(mineralType);
             const amountinTerminal = room.terminal.store[mineralType];
             
             //console.log('average price of ' + mineralType + ' is ' + averagePrice )
@@ -151,18 +140,37 @@
         // main loop
 
         const mineralType = room.minerals[0].mineralType;
+        const amountinTerminal = room.terminal.store[mineralType]; 
+        const totalInTerminal = _.sum(room.terminal.store);
+        const averagePrice = getAveragePrice(mineralType,amountinTerminal,totalInTerminal);
         
         var roomOrders = _.filter(Game.market.orders, {roomName: room.name, type: ORDER_SELL});
         switch (roomOrders.length) {
+            // if there are no existing orders, create one for the room's mineralType
             case 0:
-                Game.market.createOrder(ORDER_SELL, mineralType, getAveragePrice(mineralType),1,room.name);
+                Game.market.createOrder(ORDER_SELL, mineralType, averagePrice, 1 ,room.name);
                 break;
+            // if there's one or two, try to sell
             case 1:
             case 2:
                 //console.log('doing orders in ' + room.name);
+                if ((amountinTerminal > 198000) || (totalInTerminal > 295000)) {
+                    // desparate at this point, sell for whatever people are buying for
+                    console.log(room.name + ' is almost full of ' + mineralType + ', selling cheap!');
+                    Game.notify(room.name + ' is almost full of ' + mineralType + ', selling cheap!');
+                    if (room.sellToHighestBidder(mineralType,10000,0.01)) {
+                        break;
+                    }
+                    else {
+                        Game.notify(this.name + " selling at a loss!!!");
+                        if (this.junkyard) {
+                            this.addToCreepBuildQueue('contracthauler',{resource:mineral,total:amountToSell,pullTarget:this.terminal.id,dropTarget:'junkyard',job:'junkHaul'});
+                        }
+                    }
+                }
                 const roomOrder = _.filter(roomOrders, {resourceType: mineralType})[0];
                 room.sellToHighestBidder(mineralType,10000,roomOrder.price);
-                processOrder(roomOrder, room);
+                processOrder(roomOrder, room, averagePrice);
                 break;
             default:
                 //console.log(room.name + " needs to clean up orders");

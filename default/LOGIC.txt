@@ -117,6 +117,16 @@ common creep methods
         so findTargets is a big switch statement?
             based on the role, run the logic and return the right array?
 
+Contracthauler / creep subclass logic
+    a common pattern is to find some condition, and if there isn't a contracthauler dealing with it, spawn one
+    example: refilling a terminal, unloading a terminal
+    so I want code that looks something like this
+        if ( terminal.credtis < 5000) {
+            if ( ! room.hasCreepWithJob('refillterminal')) {
+                spawn contracthauler with job refillterminal
+            }
+        }
+
 Room selection logic
     creeps have different kind of room targets
         spawnRoom = where they spawned
@@ -349,14 +359,31 @@ telling creeps to move
 
 minerals and labs
     have new creep (heisenberg?) that handles all lab stuff
+        this guy will change jobs, do differen things, may require more complex lifecycle
     select 3 labs - 2 as reactant one as product
     start with utrium oxide
+    lock all 3 labs
+    init them (meaning remove any minearls currently in them, fill them up on energy if required)
     fill reactant 1 with energy and utrium
     fill reactant 2 with energy and oxide
     run reactions
+    should have way to lock labs being used for reactants so they never have anything put into or taken out of them
+        means all default harvest/deposit behavior has to ignore locked resources
+        implement in memory e.g. room.lab3.memory.locked == true
+
 
 getting minerals to labs with contracthaulers
     group labs into 3s (labGroup)
+    need 1 or 2 that are just for creepboosting 
+        utrium hydride for attack
+        keanium oxide for ranged attack
+        lemergium oxide for heal
+        zynthium is useless
+        ghodium oxide is upgraded armor
+        so always need hydrogen, oxide, hydroxied, and catalyst 
+        only potentail thing zynthium is good for is dismantling fast, or reducing fatigue fast (better move)
+
+
     [ reactant1, reactant2, product]
     build a queue of tasks - for now queue = array
     this queue is per room - a list of contract hauler jobs per room
@@ -369,6 +396,13 @@ getting minerals to labs with contracthaulers
         new Task (utrium to reactant1)
         new Task (oxide to reactant2)
     should labHandler assign tasks to a creep? probably to handle creep loss
+    have to know if there's already a creep doing that HaulTask
+        so when the creep grabs it, pop it off the stack
+            lock the lab 
+        where does this queue live? in the room? or in the labhandler?
+        probably room 
+        how does the room know that there's already a creep working on that lab?
+        have a lock for each lab
     basically those are conditions that need to be satisfied:
         r1 has energy? if not, bring some
         r2 has energy? if not, bring some
@@ -409,6 +443,52 @@ getting minerals to labs with contracthaulers
             dropT = r2, pullT = terminal, resource = O
             done when lab is full
         run reactions
+
+    diff rooms should do diff things to build what I need
+        one to build ghodium (Z+K=ZK, U+L=UL, ZK+UL=G)
+            naively need 7 labs : z, k, zk, u, l, ul, g 
+        one for LO for healing 
+            3 labs : l , o, lo (last is used for creep boosting)
+        one for UH for attack 
+            3 labs : u, h, uh (last is used for creep boosting)
+        one for GO for armor (except I have that from invaders)
+        one to build hydroxide (for stage 2+)
+        each room should have boost labs for: heal, tough, attack 
+    
+    so in a room that needs LO for example, have to do the following
+        init
+            fill r1/r2 with energy
+            empty any unwanted minerals from r1/r2
+        prepare
+            fill r1 with mineral1, fill r2 with mineral2
+        p1.runreaction(r1,r2)
+            can actually do this as long as there's enough minerals in r1/r2 
+            so check if in cooldown, if r1 and r2 have enough minerals, do the runreaction
+    who is the creep that is doing this?
+        have a heisenberg creep that does it all? 
+        how does it know what to do?
+        needs state machine
+            FILLR1 - when full, go to 
+            FILLR2 - when full, go to 
+            PAUSE 
+
+
+
+
+market - selling via buy orders
+    want to do this when we are selling ours super cheap
+    check the highest buy order, see if it's higher than what we're selling 
+        var orders = Game.market.getAllOrders({type:ORDER_SELL,resource:myResource});
+    sort that list;
+        orders.sort(function(a,b) {return a.price - b.price});
+    (up to here should be a function in the market code probably)
+    compare that to our price;
+    if smaller, execute the order (check for exit code of not enough reousrces)
+
+    if so, execute that order up to 20k
+    spawn contracthauler to replenish what's in the terminal (same amount used)
+        maybe check if there's already a contracthauler on "top-up" duty - if so add it to that one
+    
 
 creep boosting
     during init, check if appropriate boost is available, if so set needsBoost
@@ -475,3 +555,58 @@ transferring energy from one room to another
         can do it all 
         downside to this is that we can't really verify the last step 
             
+Observing rooms
+    have array of rooms to observe - roomsToObserve[] with values as room names
+    make new method room.observe(roomname) (in roomHandler, because observing happnes from observers which live in rooms)
+    in roomhandler pop (shift) first room out of roomsToObserve, call room.observe(roomname)
+
+NUKING logic    
+    NEW MODULE diplomacy
+    diplomacy.nukeTheWorld([rooms])
+        create array of my rooms with full nukers
+        foreach of those, shift the target room off roomsToNuke, then send a nuke to it
+
+attack healers first
+    don't want this code in every tower/warrior/etc block
+    so need a function like getCreepToAttack()
+        that gets all hostiles, does the sorting, and returns the Creep object for the target
+
+building source containers
+    should this be part of state machine?
+    or could have it be a flag set when numSourceContainers < numSources 
+    draw path from source to controller, put constructionsite on first spot along that path
+    call it buildSourceContainers() as a room method 
+
+laying out EXTENSIONS
+    first need to create a map of the entire room
+        array of {{x,y},object}
+            where object is like: unbuildable, open, STRUCTURE_TYPE, road_only, DNB
+    start with source.pos 
+      find all pos within 2 range, mark them unbuildable
+      get array of pos at range 3, filter for open
+      use that array as input to a function that will build extensions on each one
+      if none are open, start with first member, and move out one pos and run again
+
+junkyard
+    square on map to drop stuff we don't want anymore
+    record in memory as room.memory.junkyard.x and room.memory.junkyard.y
+    make it a new object? with a roomPos? a structure? a RoomObject?
+        would like to refer to it as room.junkyard
+    init would be
+        create object from room memory 
+        if (!room.junkyard && room.terminal) {
+            var junkyard = new RoomObject ;
+            junkyard.room = room;
+            junkyard.pos = new RoomPosition(x, y, room.name);
+
+        }
+    haulers need to ignore that position for dropped items
+    contracthaulers need to be able to drop in it (maybe it should be a structure then?)
+    to use, check cost of fire sales, if cost is higher than profit, instead get a CH to move it to junkyard
+
+contracthauler reuse
+    want to not have to spawn a new one every time
+    so new room method like room.getContractHaulerForJob(job)
+        if free CH (e.g. job = none), give that one this job
+        if no free CH, spawn new CH with that job 
+    eventually probably will have queue of jobs, and CH will pick the next one when they finish a current one 
