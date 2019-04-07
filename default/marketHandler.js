@@ -162,9 +162,9 @@
                         break;
                     }
                     else {
-                        Game.notify(this.name + " selling at a loss!!!");
-                        if (this.junkyard) {
-                            this.addToCreepBuildQueue('contracthauler',{resource:mineral,total:amountToSell,pullTarget:this.terminal.id,dropTarget:'junkyard',job:'junkHaul'});
+                        Game.notify(room.name + " selling at a loss!!!");
+                        if (room.junkyard) {
+                            room.addToCreepBuildQueue('contracthauler',{resource:mineralType,total:10000,pullTarget:room.terminal.id,dropTarget:'junkyard',job:'junkHaul'});
                         }
                     }
                 }
