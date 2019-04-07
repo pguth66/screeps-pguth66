@@ -438,7 +438,7 @@ module.exports.loop = function () {
 
 
         // renew creeps 
-        if (spawn != null && room.energyAvailable > 500) {
+        /*if (spawn != null && room.energyAvailable > 500) {
             const targetCreeps = spawn.pos.findInRange(FIND_MY_CREEPS, 1);
             if (targetCreeps.length > 0) {
                 // console.log('creep in range of spawn in ' +room.name + ': ' + targetCreeps[0].name);
@@ -450,6 +450,7 @@ module.exports.loop = function () {
                 }
             }
         } // end renew creeps
+        */
         labHandler.run(room);
     } // end room loop
     if ((Game.time % 24) == 12) {
