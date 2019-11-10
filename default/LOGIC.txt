@@ -370,6 +370,9 @@ minerals and labs
     should have way to lock labs being used for reactants so they never have anything put into or taken out of them
         means all default harvest/deposit behavior has to ignore locked resources
         implement in memory e.g. room.lab3.memory.locked == true
+    have to have way to identify which labs are which, something in the room object or the lab object themselves
+    labType? e.g. room.memory.lab3.labType
+    so average room will have one lab for boosting healing, one lab for boosting attack
 
 
 getting minerals to labs with contracthaulers
@@ -459,6 +462,7 @@ getting minerals to labs with contracthaulers
         init
             fill r1/r2 with energy
             empty any unwanted minerals from r1/r2
+            get reactants from another room if required 
         prepare
             fill r1 with mineral1, fill r2 with mineral2
         p1.runreaction(r1,r2)
@@ -471,6 +475,46 @@ getting minerals to labs with contracthaulers
             FILLR1 - when full, go to 
             FILLR2 - when full, go to 
             PAUSE 
+
+    to build ghodium
+        preconditions - have enough z, k, u, and l
+        zk + ul
+        to build zk
+            z + k
+        to build ul
+            u + l
+        so lab group 1 is z, k , zk
+        lab group 2 is u, l, ul
+        lab group 3 is zk, ul, g (really only adds the g)
+        so take the array of labs, make the first 3 r1,r2,p1(zk)
+        make the next 3 r3,r4,p2(ul)
+        make the next 1 p3(ghodium)
+        store these in memory? zkLabGroup, ulLabGroup, gLab (later)
+        have to do the first two and then can use those for the third 
+        so FSM is
+            start
+                send z to 1 lab
+                send k to 1 lab
+                make zk
+                send u to 1 lab
+                send l to 1 lab
+                make ul
+                STAGE 2
+                make G 
+        what this looks like logic wise
+            simplest is to spawn CH to do all 4 haul jobs
+            then be waiting for right conditions
+                if LG1 has z + k, make zk
+                if LG2 has U + L, make ul
+                if LG1P and LG2P have ul and zk, make G 
+        how do you nkow you're done?
+        test this in one of my early rooms that has Z or K
+        should this be a labgroup function? 
+            like labGroup.make(ZK)
+                goal is always to fill product lab with product
+                if don't have right minerals, spawn CH to get them
+                if room doesn't have them, get them from another room
+                then labGroup keeps track of state - init, getMins, react, done 
 
 
 
@@ -508,6 +552,21 @@ Market stuff
             have a floor for each mineral you won't go below (in memory)
             so need some memory object for each mineral, like
              {mineral:'X', floor: 0.1, }
+    FIXING MARKETHANDLER - sellToHighestBidder
+        what it should do:
+            get all the sell orders
+            filter out tiny ones 
+            pick the one with the highest price
+            calculate profit (revenue and cost of sending)
+            if it's profitable, make the deal
+        so what it's also doing:
+            if unprofitable, haul what you were going to sell to the junkyard
+                DOESN'T CHECK IF IT'S ALREADY BEING HAULED
+                DOESN'T CHECK IF THE TERMINAL IS full
+        sellToHighestBidder is called from getAveragePrice and from the main marketHandler loop
+        looks like the thing to do is just move the logic on getting rid of ofull stuff out of getAveragePrice
+            and into the main loop?
+
 
 fix for blocking
     problem is that when 3-4 creeps are all stuck in teh same narrow hallway, random movement
