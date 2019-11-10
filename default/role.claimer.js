@@ -19,7 +19,7 @@ var roleClaimer = {
                 creep.move(TOP);
                 break;
         }
-            if((creep.room.controller.owner != null) || (creep.room.controller.reservation.ticksToEnd > 0)) {
+            if((creep.room.controller.owner != null) && !creep.room.controller.my && (!creep.room.controller.reservation.ticksToEnd == 0)) {
                 switch(creep.attackController(creep.room.controller)) {
                     case ERR_NOT_IN_RANGE:
                         creep.moveTo(creep.room.controller, {visualizePathStyle: {}});
