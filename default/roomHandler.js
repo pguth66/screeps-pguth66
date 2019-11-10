@@ -484,6 +484,19 @@ Room.prototype.observeRoom = function (roomToObserve) {
         observer.observeRoom(roomToObserve);
     }
 }
+
+/* Gauges threat level to the room - returns the count of attack and heal body parts on hostile creeps */
+Room.prototype.getThreatLevel = function ()  {
+    const hostileCreeps = this.find(FIND_HOSTILE_CREEPS);
+    let threatLevel = 0;
+    hostileCreeps.forEach(function (creep) {
+        console.log(this.name + 'found creep attacker ' + creep.name)
+        threatLevel += creep.getActiveBodyparts(ATTACK);
+        threatLevel += creep.getActiveBodyparts(RANGED_ATTACK);
+        threatLevel += creep.getActiveBodyparts(HEAL);
+    },this);
+    return threatLevel;
+}
 module.exports = {
 
     handleRoom: function(room) {

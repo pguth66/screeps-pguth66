@@ -68,6 +68,7 @@ module.exports.loop = function () {
     }
 
     for (i in Game.rooms) {
+        // ALL OF THIS should be in roomHandler
         const room = Game.rooms[i];
         const spawn = room.spawns[0];
         const towers = room.towers;
@@ -259,6 +260,7 @@ module.exports.loop = function () {
        /* if (room.name == 'W27N26') {
             _.remove(enemies, function (e) { return e.owner.username == 'Totalschaden' });
         }*/
+
         switch (enemies.length) {
             case 0:
                 room.memory.foundHostiles = false;
@@ -268,6 +270,13 @@ module.exports.loop = function () {
                 prioritySpawn = true;
 
                 break;
+        }
+
+        var threatLevel = 0;
+
+        if (room.memory.foundHostiles) {
+            threatLevel = room.getThreatLevel();
+            console.log(room.name + " detected threatlevel: " + threatLevel)
         }
 
         //const harvestersInQueue = _.filter(room.memory.buildQueue, {role: 'harvester'});
@@ -281,7 +290,7 @@ module.exports.loop = function () {
 
         // spawning
         if ((room.controller && room.controller.my) && spawn) {
-            if (room.memory.foundHostiles && (_.filter(roomCreeps, (creep) => creep.memory.role == 'warrior') < 1)) {
+            if (room.memory.foundHostiles && (threatLevel > 20) && (_.filter(roomCreeps, (creep) => creep.memory.role == 'warrior') < 1)) {
                 var newName;
                 newName = spawn.createCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, ATTACK], undefined, { role: 'warrior' });
                 console.log('Spawning new WARRIOR in ' + room.name);
