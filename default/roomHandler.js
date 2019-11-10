@@ -319,8 +319,9 @@ Room.prototype.getCreepBody = function (role,targetRoom) {
                 body = [CARRY,CARRY,CARRY,CARRY,MOVE,MOVE];
                 break;
             case 'patrol':
+            case 'warrior':
                 body = [TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE];
-                break;   
+                break;
             case 'hauler':
                 body = [CARRY,CARRY,CARRY,MOVE,MOVE,MOVE];
                 break;
@@ -506,6 +507,9 @@ module.exports = {
             if (!room.memory.wallLevel) {
                 room.memory.wallLevel = (room.controller.level * room.controller.level) * 12000;
             }
+            if (!room.memory.minType) {
+                room.memory.minType = 'generic';
+            }
         }
         catch (err) {
             console.log(room.name + " error during init: " + err);
@@ -545,9 +549,9 @@ module.exports = {
                 // this is duplicated with main.js right now - should really pass it in //TODO
                 //var enemies = room.find(FIND_HOSTILE_CREEPS);
                 // whitelist for nice dude next to me
-                if (room.name == 'W27N26') {
+                /* if (room.name == 'W27N26') {
                     _.remove(this.hostileCreeps, function (e) { return e.owner.username == 'Totalschaden' });
-                }
+                } */
                 const closestHostile = tower.pos.findClosestByRange(room.hostileCreeps);
                 if (closestHostile) {
                     if (tower.pos.getRangeTo(closestHostile) < 12) {

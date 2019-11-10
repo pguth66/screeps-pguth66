@@ -180,7 +180,7 @@
         const basicMinerals = [ 'U', 'X', 'Z', 'L', 'K', 'O', 'H'];
 
         basicMinerals.forEach(function (mineral) {
-            if (mineral == mineralType) {
+            if (mineral == mineralType || room.memory.minType == 'ghodium') {
                 return;
             }
             else {
