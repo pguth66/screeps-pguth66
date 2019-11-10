@@ -29,6 +29,36 @@ var roleHeisenberg = require('role.heisenberg');
 Creep.prototype.creepLog = function (text) {
     console.log(this.name + "-" + this.memory.role + ": " + text)
 }
+Creep.prototype.attackTarget = function (target) {
+    if(target) {
+        switch(creep.attack(target)) {
+            case ERR_NOT_IN_RANGE: 
+                var onRamp = false ;
+                const look = creep.pos.lookFor(LOOK_STRUCTURES);
+                look.forEach(function(l) {
+                    if (l.structureType == STRUCTURE_RAMPART) {
+                        onRamp = true ;
+                    }
+                })
+                if (!onRamp) {
+                    creep.moveTo(target, {visualizePathStyle: {}});
+                }
+                break;
+            case ERR_INVALID_TARGET:
+                creep.say('inv target');
+                break;
+            case OK:
+                creep.say('ATTACK!');                
+                break;
+            default:
+                creep.say('attackerr');
+        }
+        return;
+    }
+    else {
+        return false;
+    }   
+}
 Creep.prototype.moveToTarget = function (target) {
     //this.creepLog('moving to target ' + target.id);
     switch (this.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}})) {
