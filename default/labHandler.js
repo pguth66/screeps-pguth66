@@ -100,6 +100,10 @@ module.exports = {
             ulLabGroup.produce();
             gLabGroup.produce();
 
+            if (gLabGroup.product.store[RESOURCE_GHODIUM] >= 2900 && !room.hasCreepWithJob('emptyG')) {
+                room.addToCreepBuildQueue('contracthauler',{resource:RESOURCE_GHODIUM,job:'emptyG',total:gLabGroup.product.store[RESOURCE_GHODIUM],pullTarget:gLabGroup.product.id,dropTarget:room.terminal.id});
+            }
+
             return;
         }
         else {
