@@ -31,27 +31,27 @@ Creep.prototype.creepLog = function (text) {
 }
 Creep.prototype.attackTarget = function (target) {
     if(target) {
-        switch(creep.attack(target)) {
+        switch(this.attack(target)) {
             case ERR_NOT_IN_RANGE: 
                 var onRamp = false ;
-                const look = creep.pos.lookFor(LOOK_STRUCTURES);
+                const look = this.pos.lookFor(LOOK_STRUCTURES);
                 look.forEach(function(l) {
                     if (l.structureType == STRUCTURE_RAMPART) {
                         onRamp = true ;
                     }
                 })
                 if (!onRamp) {
-                    creep.moveTo(target, {visualizePathStyle: {}});
+                    this.moveTo(target, {visualizePathStyle: {}});
                 }
                 break;
             case ERR_INVALID_TARGET:
-                creep.say('inv target');
+                this.say('inv target');
                 break;
             case OK:
-                creep.say('ATTACK!');                
+                this.say('ATTACK!');                
                 break;
             default:
-                creep.say('attackerr');
+                this.say('attackerr');
         }
         return;
     }
