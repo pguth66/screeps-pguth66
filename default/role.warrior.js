@@ -26,6 +26,8 @@ var roleWarrior = {
         hostiles = hostileCreeps.concat(hostileStructures);
         hostileTowers = _.remove(hostiles, {structureType: STRUCTURE_TOWER});
         hostileSpawns = _.remove(hostiles, {structureType: STRUCTURE_SPAWN});
+        powerBank = creep.room.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_POWER_BANK}});
+
         typesToRemove = [ STRUCTURE_RAMPART, STRUCTURE_CONTROLLER, STRUCTURE_STORAGE, STRUCTURE_TERMINAL ];
         typesToRemove.forEach(function (t) {
             const removed = _.remove(hostiles, {structureType: t});
@@ -89,6 +91,9 @@ var roleWarrior = {
             }
         }   
         else {
+            if(powerBank) {
+                creep.attackTarget(powerBank);
+            }
             if(!(Memory.roomToAttack) && (hostiles.length == 0)) {
                 creep.memory.role='recycle';
                 return;
