@@ -39,14 +39,14 @@ make warriors only attack spawns and towers, so they don't destroy structures wi
 build roomMaps automatically
     containers DONE
     sources DONE
-    links
+    links DONE 
     extensions?
 remove SOURCE/SINK code - DONE
-switch to forEach for iterating over spawns in room
-automatically sell minerals when I have too many
+switch to forEach for iterating over spawns in room - DONE
+automatically sell minerals when I have too many DONE
 have creeps send message when blocked for > 5 ticks, and have other creep flee from them
-    done via having blocking creep move randomly - but didn't implement the 5 tick limit
-switch to a build queue in each room
+    DONE via having blocking creep move randomly - including the 5 tick limit
+switch to a build queue in each room - DONE
 have builders move away from source if they are full and near one - DONE
     say the source is at 23,24
     and the creep is at 24,24
@@ -58,7 +58,7 @@ have builders move away from source if they are full and near one - DONE
     newX = creep.pos.x + (creep.pos.x - fleeTarget.pos.x)
     newY = creep.pos.y + (creep.pos.y - fleeTarget.pos.y)
     creep.moveTo(newX, newY)
-make haulers deposit minerals in terminals instead of storage
+make haulers deposit minerals in terminals instead of storage DONE
 do the lab logic 
     fill with energy
     select 2 as reactors and one as destination
@@ -183,16 +183,16 @@ Optimize storage and container hauling
 Make creeps run inside walls when attacked
 Handle multiple terminals
 
-add creeps (interharveter and interhaulr) to harvest from nextdoor room that I don't owner
+add creeps (interharveter and interhaulr) to harvest from nextdoor room that I don't owner - DONE
     probably into a container next to the source
 fix tower code to cycle through all of them - DONE
-make claimers try to claim first, then reserve if that doesn't work
-make non-harvesters move away from source if they aren't harvesting
+make claimers try to claim first, then reserve if that doesn't work - DONE
+make non-harvesters move away from source if they aren't harvesting - DONE for builders
 fix claim logic so it will send builders and an upgrader to the room until the spawn is built
-make harvesters split themselves between sources if more than one
+make harvesters split themselves between sources if more than one - DONE
     if sources = 1 then just go to that one
     if sources = 2 then alternate between the two (start with closest to spawn)
-base harvester numbers etc on how quickly you can empty the source before restore (have to do the math)
+base harvester numbers etc on how quickly you can empty the source before restore (have to do the math) - DONE
 
 
 NOTES
