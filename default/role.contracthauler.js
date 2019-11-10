@@ -43,6 +43,7 @@ module.exports = {
                             creep.memory.hauling = true;                        
                             break;
                         case ERR_NOT_ENOUGH_RESOURCES:
+                            creep.withdraw(pt, resourceType, pt.store[resourceType])
                             creep.creepLog('not enough ' + resourceType + ' to withdraw');
                             break;
                         case ERR_INVALID_TARGET:
@@ -83,7 +84,7 @@ module.exports = {
                             }
                             else {
                                 if (dt.mineralAmount >= creep.memory.upTo) {
-                                    creep.memory.role='pause;'
+                                    creep.memory.role='recycle'
                                 }
                             }
                             break;
