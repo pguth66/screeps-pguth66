@@ -338,6 +338,9 @@ Room.prototype.getCreepBody = function (role,targetRoom) {
             case 'remoteworker':
                 body = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
                 break;
+            case 'medic':
+                body = [TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE];
+                break;
             default:
                 body = [WORK,CARRY,WORK,CARRY,WORK,CARRY,MOVE,MOVE,MOVE];
         }
@@ -490,7 +493,7 @@ Room.prototype.getThreatLevel = function ()  {
     const hostileCreeps = this.find(FIND_HOSTILE_CREEPS);
     let threatLevel = 0;
     hostileCreeps.forEach(function (creep) {
-        console.log(this.name + 'found creep attacker ' + creep.name)
+        //console.log(this.name + 'found creep attacker ' + creep.name)
         threatLevel += creep.getActiveBodyparts(ATTACK);
         threatLevel += creep.getActiveBodyparts(RANGED_ATTACK);
         threatLevel += creep.getActiveBodyparts(HEAL);
