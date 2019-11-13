@@ -15,20 +15,25 @@ var roleMedic = {
                 target = targets.sort(function(a,b) {return (b.hitsMax - b.hits) - (a.hitsMax - a.hits)})[0];
             }
             if (target) {
-
                 switch (creep.heal(target)) {
                     case ERR_NOT_IN_RANGE:
-                        creep.moveToTarget(target);
+                        switch (creep.rangedHeal(target)) {
+                            case ERR_NOT_IN_RANGE:
+                                creep.moveToTarget(target);
+                                break;
+                            default:
+                                break;
+                        }
                         break;
                     case OK:
                         break;
                     default:
                         creep.say('hepl');
+                    }
                 }
 
             }
         }
     }
-}
 
 module.exports = roleMedic;
