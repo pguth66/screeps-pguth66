@@ -13,7 +13,7 @@ module.exports.loop = function () {
     Memory.roomToAttack = null; // room to send warriors to
     Memory.roomToBuild = 'W27N26'; // room to send remoteworkers to
     Memory.roomToHarvest = null; // room to harvest energy in (and send interhaulers to)
-    Memory.roomsToObserve = ['W31N35', 'W29N24', 'W33N34', 'W31N25', 'W31N36', 'W31N37', 'W28N29' , 'W30N29', 'W30N30', 'W26N27', 'W26N26', 'W26N25', 'W31N33'];
+    Memory.roomsToObserve = ['W30N20', 'W31N35', 'W29N24', 'W33N34', 'W31N25', 'W31N36', 'W31N37', 'W28N29' , 'W30N29', 'W30N30', 'W26N27', 'W26N26', 'W26N25', 'W31N33'];
     Memory.capitol='W27N27';
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
@@ -276,7 +276,7 @@ module.exports.loop = function () {
 
         if (room.memory.foundHostiles) {
             threatLevel = room.getThreatLevel();
-            console.log(room.name + " detected threatlevel: " + threatLevel)
+            //console.log(room.name + " detected threatlevel: " + threatLevel)
         }
 
         //const harvestersInQueue = _.filter(room.memory.buildQueue, {role: 'harvester'});
