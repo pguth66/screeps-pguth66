@@ -24,7 +24,8 @@ class LabGroup {
         const reactionMap = {
             'zk': { r1: RESOURCE_ZYNTHIUM, r2: RESOURCE_KEANIUM},
             'ul': { r1: RESOURCE_UTRIUM, r2: RESOURCE_LEMERGIUM},
-            'g': { r1: RESOURCE_UTRIUM_LEMERGITE, r2: RESOURCE_ZYNTHIUM_KEANITE}
+            'g': { r1: RESOURCE_UTRIUM_LEMERGITE, r2: RESOURCE_ZYNTHIUM_KEANITE},
+            'oh': { r1: RESOURCE_OXYGEN, r2: RESOURCE_HYDROGEN}
         }
          //   { target: 'zk', r1: RESOURCE_ZYNTHIUM, r2: RESOURCE_KEANIUM};
         const r1 = reactionMap[this.target].r1;
@@ -45,7 +46,7 @@ class LabGroup {
                         console.log(this.reactant1.room.name + " invalid args for " + this.target);
                         break;
                     case ERR_NOT_ENOUGH_RESOURCES:
-                        console.log(this.reactant1.room.name + ' not enough resources for ' + this.target);
+                        //console.log(this.reactant1.room.name + ' not enough resources for ' + this.target);
                         break;
                     case ERR_FULL:
                         break;
@@ -72,44 +73,65 @@ module.exports = {
 
     run: function(room) {
 
-        if (room.memory.minType == 'ghodium') {
-            // console.log('running lab stuff in ' + room.name);
-            zkLabGroup = new LabGroup (room.labs[0], room.labs[1], room.labs[2], 'zk');
-            ulLabGroup = new LabGroup (room.labs[4], room.labs[5], room.labs[8], 'ul');
-            gLabGroup = new LabGroup(room.labs[2], room.labs[8], room.labs[3], 'g');
-
-            function fillLab(lab,resource,jobName) {
-                if (lab.mineralType == resource) {
-                    if (lab.store[resource] < 500 && (!room.hasCreepWithJob(jobName))) {
+        function fillLab(lab,resource,jobName) {
+            if (lab.mineralType == resource || lab.mineralType === undefined ) {
+                //console.log(room.name +  " " + lab.mineralType + resource + jobName)
+                if ((lab.store[resource] < 500) && (!room.hasCreepWithJob(jobName))) {
+                    if (room.terminal.store[resource] > 0) { 
                         console.log(room.name + " filling lab " + lab.id + ' with ' + resource);
-                        room.addToCreepBuildQueue('contracthauler', {resource:resource, upTo:3000, job:jobName, pullTarget:room.terminal.id, dropTarget:lab.id})
+                        let amountToGet = room.terminal.store[resource];
+                        if (amountToGet > 3000) { amountToGet = 3000 };
+                        room.addToCreepBuildQueue('contracthauler', {resource:resource, upTo:amountToGet, job:jobName, pullTarget:room.terminal.id, dropTarget:lab.id})
                     }
-                } else {
-                    console.log(room.name + " emptying lab");
-                    lab.emptyLab();
+                    else {
+                        // add something to get needed resource here
+                    }
                 }
+            } else {
+                console.log(room.name + " emptying lab");
+                lab.emptyLab();
             }
-
-            fillLab(ulLabGroup.reactant1,RESOURCE_UTRIUM,'fillul1');
-            fillLab(ulLabGroup.reactant2,RESOURCE_LEMERGIUM,'fillul2');
-            fillLab(zkLabGroup.reactant1,RESOURCE_ZYNTHIUM,'fillzk1');
-            fillLab(zkLabGroup.reactant2,RESOURCE_KEANIUM,'fillzk2');
-            //console.log('product lab is ' + zkLabGroup.product.id);
-
-            zkLabGroup.produce();
-            ulLabGroup.produce();
-            gLabGroup.produce();
-
-            if (gLabGroup.product.store[RESOURCE_GHODIUM] >= 2900 && !room.hasCreepWithJob('emptyG')) {
-                room.addToCreepBuildQueue('contracthauler',{resource:RESOURCE_GHODIUM,job:'emptyG',total:gLabGroup.product.store[RESOURCE_GHODIUM],pullTarget:gLabGroup.product.id,dropTarget:room.terminal.id});
-            }
-
-            return;
         }
-        else {
-            return;
-        }
-        
+
+        switch (room.memory.minType) {
+            case 'ghodium':
+                // console.log('running lab stuff in ' + room.name);
+                zkLabGroup = new LabGroup (room.labs[0], room.labs[1], room.labs[2], 'zk');
+                ulLabGroup = new LabGroup (room.labs[4], room.labs[5], room.labs[8], 'ul');
+                gLabGroup = new LabGroup(room.labs[2], room.labs[8], room.labs[3], 'g');
+
+                fillLab(ulLabGroup.reactant1,RESOURCE_UTRIUM,'fillul1');
+                fillLab(ulLabGroup.reactant2,RESOURCE_LEMERGIUM,'fillul2');
+                fillLab(zkLabGroup.reactant1,RESOURCE_ZYNTHIUM,'fillzk1');
+                fillLab(zkLabGroup.reactant2,RESOURCE_KEANIUM,'fillzk2');
+                //console.log('product lab is ' + zkLabGroup.product.id);
+
+                zkLabGroup.produce();
+                ulLabGroup.produce();
+                gLabGroup.produce();
+
+                if (gLabGroup.product.store[RESOURCE_GHODIUM] >= 2900 && !room.hasCreepWithJob('emptyG')) {
+                    room.addToCreepBuildQueue('contracthauler',{resource:RESOURCE_GHODIUM,job:'emptyG',total:gLabGroup.product.store[RESOURCE_GHODIUM],pullTarget:gLabGroup.product.id,dropTarget:room.terminal.id});
+                }
+                return;
+                break;
+            case 'hydroxide':
+                const ohLabGroup = new LabGroup (room.labs[0], room.labs[1], room.labs[2], 'oh');
+
+                fillLab(ohLabGroup.reactant1,RESOURCE_OXYGEN,'filloh1');
+                fillLab(ohLabGroup.reactant2,RESOURCE_HYDROGEN,'filloh2');
+                ohLabGroup.produce();
+                if (ohLabGroup.product.store[RESOURCE_HYDROXIDE] >= 2900 && !room.hasCreepWithJob('emptyOH')) {
+                    room.addToCreepBuildQueue('contracthauler',{resource:RESOURCE_HYDROXIDE,job:'emptyOH',total:ohLabGroup.product.store[RESOURCE_HYDROXIDE],pullTarget:ohLabGroup.product.id,dropTarget:room.terminal.id})
+                }
+                return;
+
+                break;
+
+
+            default:
+                return;
+        }        
 
         if (!Memory.rooms[room.name].taskqueue) {
             Memory.rooms[room.name].taskqueue = [] ;
