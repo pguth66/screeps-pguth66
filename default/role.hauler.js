@@ -307,6 +307,8 @@ module.exports = {
             if(sources.length == 0) {
                 creep.room.containers.forEach(function (container) {
                     if((container.isSource) && (_.sum(container.store) > creep.carryCapacity)){
+                        // if there's no terminal, don't pull minerals out of containers
+                        // not sure this is a good idea or why it's here
                         if(typeof(creep.room.terminal) === 'undefined' && (container.store[RESOURCE_ENERGY] == 0)) {
                             console.log(creep.room + ' has no terminal');
                         }
