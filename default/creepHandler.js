@@ -145,8 +145,17 @@ Creep.prototype.inRangeToTarget = function (target) {
 Creep.prototype.moveToRoom = function (room) {
     // expects room to be a room NAME
     targetRoom = Game.rooms[room];
-    if (targetRoom) {
-        this.moveTo(targetRoom.controller, {visualizePathStyle: {}});
+
+    if (targetRoom && targetRoom.controller) {
+        switch(this.moveTo(targetRoom.controller, {visualizePathStyle: {}})) {
+            case OK:
+                break;
+            case ERR_INVALID_TARGET:
+                this.creepLog('invalid target err');
+                break;
+            default:
+                this.say('moveerr');
+        };
     }
     else {
         const exitDir = this.room.findExitTo(room);
@@ -315,9 +324,7 @@ module.exports = {
                 creep.creepLog('has only move parts, recycling')
                 creep.memory.role = 'recycle';
             }
-            // not sure why this excludes creeps with a target - leads to at least one bad behavior, where
-            // harvesters with a targetRoom will never go to it because they get a target on spawn
-            if (creep.memory.targetRoom && (!creep.memory.target) && (creep.memory.targetRoom != creep.room.name)) {
+            if (creep.memory.targetRoom && (creep.memory.targetRoom != creep.room.name)) {
                 creep.moveToRoom(creep.memory.targetRoom);
             }
             else {
