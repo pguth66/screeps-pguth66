@@ -307,9 +307,14 @@ module.exports = {
             if(sources.length == 0) {
                 creep.room.containers.forEach(function (container) {
                     if((container.isSource) && (_.sum(container.store) > creep.carryCapacity)){
-                        sources.push(container);
-                        if (_.sum(container.store) >= (container.storeCapacity - 250)) {
-                            fullsources.push(container);
+                        if(typeof(creep.room.terminal) === 'undefined' && (container.store[RESOURCE_ENERGY] == 0)) {
+                            console.log(creep.room + ' has no terminal');
+                        }
+                        else {
+                            sources.push(container);
+                            if (_.sum(container.store) >= (container.storeCapacity - 250)) {
+                                fullsources.push(container);
+                            }
                         }
                     }
                     else {
