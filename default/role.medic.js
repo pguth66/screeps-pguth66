@@ -5,6 +5,7 @@ var roleMedic = {
 
         const targets = creep.room.find(FIND_MY_CREEPS, {filter: function (c) { return c.memory.role == 'warrior'}});
         var target = {} ;
+
         if (creep.hits < (creep.hitsMax / 2)) {
             creep.heal(creep);
         }
@@ -22,6 +23,7 @@ var roleMedic = {
                                 creep.moveToTarget(target);
                                 break;
                             default:
+                                creep.moveToTarget(target);
                                 break;
                         }
                         break;
