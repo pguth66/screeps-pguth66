@@ -466,4 +466,7 @@ module.exports.loop = function () {
         //console.log('GCL ' + Game.gcl.level + "-" + ((Game.gcl.progress / Game.gcl.progressTotal) * 100).toFixed(0) + "%");
         console.log(printGCL());
     }
+    
+    // diplomacy
+    diplomacy.run();
 }

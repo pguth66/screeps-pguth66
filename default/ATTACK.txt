@@ -22,3 +22,61 @@ need to fix code to deal with walls
     a wall, then break it down
     in the short term let me set a flag and then go attack that wall if no creeps/buildings reachable
     
+need to build combat groups
+    first use case - harvesting power
+        needs one big creep with mostly ATTACK/MOVE
+            open question does it need TOUGH
+        then two creeps that heal the big one, mostly HEAL/MOVE
+    behavior of a group
+        set common target for moving to 
+            healers follow tank, tank just goes there
+            need way for tank to wait if healers fall behind
+        set common target for attacking
+            tank attackes it, healers follow tank and heal it as needed
+        stage 
+            wait for entire group to be spawned and reach a specified box
+    how do you create a group
+        say "I want a group with a medic and an attacker"
+        so createSquad(medic:1,attacker:1)
+            that will spawn the two creeps, and assign them as the right parts of the squad, e.g. squad.medic 
+    what does group look like
+        could be arbitrary number of creeps
+        >1 tho, only 2 3 4 5 probably
+        start with 2
+        what if we pass an array, like creep spawning, [attack attack medic]
+        then you can process that array with forEach
+            give it an id
+            if no creep with id, spawn it
+            if creep with id, process it
+            if not all creeps ready yet, wait
+            maybe a state model where you know when they're all spawned
+            like a lifecycle - init, spawn, spawnDone, form, meet, move 
+        always going to have a target room and a mission
+        like mission is [attack,defend]
+        target is [powerSpawn, room, specific structure]
+        how do you maintain state across ticks
+            each squad has an ID, store the squad in memory?
+                so memory looks like
+                    { id {
+                        mission:
+                        target:
+                        spawnRoom:
+                        }
+                    }
+            so you create the squad one tick, based off of what? a queue?
+    once you have the squad defined (in memory)
+        spawn each of the members
+        send them to stage point
+        send them to target room
+        have them kick ass
+    spawning
+        use buildQueue I guess?
+        so just assume if it successfully got in the build queue, it's going to spawn?
+        give it a job or some ID in memory so you can wait for it to show up, maybe like squad-squadID-memberID
+    once creeps are spawned
+        medic will come to attacker
+        attacker waits for medic to be within 3 squares, then starts going to targetRoom, checks each tick and if medic is >3 squares away, waits
+        
+
+
+        
