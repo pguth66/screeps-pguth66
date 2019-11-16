@@ -93,6 +93,7 @@
             }
         }
 
+        /* update prices, extend orders if needed. works on room's primary mineral order. */
         function processOrder (order, room, averagePrice) {
 
             // set price, then extend order
@@ -145,30 +146,32 @@
         const averagePrice = getAveragePrice(mineralType,amountinTerminal,totalInTerminal);
         
         var roomOrders = _.filter(Game.market.orders, {roomName: room.name, type: ORDER_SELL});
+
+        // if there are no existing orders for the primary mineral, create one
+        const roomOrder = _.remove(roomOrders, {resourceType: mineralType})[0];
+        if (!roomOrder) {
+            Game.market.createOrder(ORDER_SELL, mineralType, averagePrice, 1 ,room.name);
+        }
+
         switch (roomOrders.length) {
-            // if there are no existing orders, create one for the room's mineralType
-            case 0:
-                Game.market.createOrder(ORDER_SELL, mineralType, averagePrice, 1 ,room.name);
-                break;
             // if there's one or two, try to sell
+            case 0:
             case 1:
             case 2:
                 //console.log('doing orders in ' + room.name);
                 if ((amountinTerminal > 198000) || (totalInTerminal > 295000)) {
                     // desparate at this point, sell for whatever people are buying for
                     console.log(room.name + ' is almost full of ' + mineralType + ', selling cheap!');
-                    Game.notify(room.name + ' is almost full of ' + mineralType + ', selling cheap!');
                     if (room.sellToHighestBidder(mineralType,10000,0.01)) {
                         break;
                     }
                     else {
-                        Game.notify(room.name + " selling at a loss!!!");
+                        Game.notify(room.name + " junking " + mineralType);
                         if (room.junkyard) {
                             room.addToCreepBuildQueue('contracthauler',{resource:mineralType,total:10000,pullTarget:room.terminal.id,dropTarget:'junkyard',job:'junkHaul'});
                         }
                     }
                 }
-                const roomOrder = _.filter(roomOrders, {resourceType: mineralType})[0];
                 room.sellToHighestBidder(mineralType,10000,roomOrder.price);
                 processOrder(roomOrder, room, averagePrice);
                 break;
