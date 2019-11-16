@@ -665,6 +665,24 @@ module.exports = {
             }
         }
 
+        if (room.memory.minType == 'boosttest') {
+            const attackBoostLab = room.labs[9];
+            const healBoostLab = room.labs[8];
+            const armorBoostLab = room.labs[7];
+            room.boostAvailable = [];
+
+            if (attackBoostLab && attackBoostLab.store[RESOURCE_UTRIUM_HYDRIDE] >=300 && attackBoostLab.store[RESOURCE_ENERGY] >= 200) {
+                room.boostAvailable.push('attack');
+            }
+            if (healBoostLab && healBoostLab.store[RESOURCE_LEMERGIUM_OXIDE] >= 300 && healBoostLab.store[RESOURCE_ENERGY] >= 200) {
+                room.boostAvailable.push('heal');
+            }
+            if (armorBoostLab && armorBoostLab.store[RESOURCE_GHODIUM_OXIDE] >= 300 && armorBoostLab.store[RESOURCE_ENERGY] >= 200) {
+                room.boostAvailable.push('armor');
+            }
+            //console.log(room.name + room.boostAvailable);
+        }
+
         //console.log(room.avgWallStrength() + ' ' + room.memory.wallLevel);
         if ((Game.time % 79) == 0) {
             if ((room.controller.level == 8) && (room.minWallStrength() >= room.memory.wallLevel)) {

@@ -31,6 +31,10 @@ class LabGroup {
         const r1 = reactionMap[this.target].r1;
         const r2 = reactionMap[this.target].r2;
 
+        if (this.product.cooldown != 0) {
+            return;
+        }
+
         // right now this has an edge failure case if the two reactant labs contain the same mineral
         if ((this.reactant1.mineralType == r1) || (this.reactant1.mineralType == r2) && this.reactant1.mineralAmount >= 5 &&
             (this.reactant2.mineralType == r2) || (this.reactant2.mineralType == r1) && zkLabGroup.reactant2.mineralAmount >= 5) {
@@ -56,7 +60,7 @@ class LabGroup {
                }
             }
         else {
-            console.log(this.reactant1.room.name + " set up wrong to run " + this.target)
+            //console.log(this.reactant1.room.name + " set up wrong to run " + this.target)
         } 
     }
 }
@@ -127,6 +131,16 @@ module.exports = {
                 return;
 
                 break;
+            case 'boosttest':
+                const attackBoostLab = room.labs[9];
+                const healBoostLab = room.labs[8];
+                const armorBoostLab = room.labs[7];
+
+                fillLab(attackBoostLab,RESOURCE_UTRIUM_HYDRIDE,'fillattk');
+                fillLab(healBoostLab,RESOURCE_LEMERGIUM_OXIDE,'fillheal');
+                fillLab(armorBoostLab,RESOURCE_GHODIUM_OXIDE,'fillarmor');
+                return;
+                
 
 
             default:
