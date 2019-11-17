@@ -13,7 +13,8 @@ module.exports.loop = function () {
     Memory.roomToAttack = null; // room to send warriors to
     Memory.roomToBuild = 'W27N26'; // room to send remoteworkers to
     Memory.roomToHarvest = null; // room to harvest energy in (and send interhaulers to)
-    Memory.roomsToObserve = ['W30N20', 'W31N35', 'W29N24', 'W33N34', 'W31N25', 'W31N36', 'W31N37', 'W28N29' , 'W30N29', 'W30N30', 'W26N27', 'W26N26', 'W26N25', 'W31N33'];
+    Memory.highwayRooms = [ 'W30N29', 'W30N28', 'W30N27', 'W30N26', 'W30N25', 'W30N24', 'W30N23', 'W30N22' ]
+    Memory.roomsToObserve = ['W30N20', 'W28N29', 'W27N26', 'W27N25', 'W26N25', 'W26N24', 'W28N24'];
     Memory.capitol='W27N27';
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
@@ -139,13 +140,43 @@ module.exports.loop = function () {
                         { align: 'left', opacity: 0.8 });
                 }
                 // observe rooms
+                // highway rooms first
+                if (Game.time % 2 == 0) {
+                    var highwayRooms = Memory.highwayRooms;
+                    if (highwayRooms[0]) {
+                        const targetRoom = highwayRooms[0];
+                        if (room.observer) {
+                            room.observeRoom(targetRoom);
+                            highwayRooms.shift();
+                        }
+                    }
+                }
+                if (Game.time %2 == 1) {
+                    var highwayRooms = Memory.highwayRooms;
+                    if (highwayRooms[0]) {
+                        const targetRoom = highwayRooms[0];
+                        const highwayRoom = Game.rooms[targetRoom];
+                        //console.log(highwayRoom + ' ' + targetRoom);
+                        if (!highwayRoom) {
+                            //console.log('no room object for ' + targetRoom);
+                        } else {
+                            const powerBanks = highwayRoom.find(FIND_STRUCTURES, {structureTye: STRUCTURE_POWER_SPAWN});
+                            if (powerBanks.length > 0) {
+                                console.log('powerbank found in room ' + highwayRoom.name + ' with id ' + powerBanks[0].id );
+                            }
+                        }
+                        highwayRooms.shift();
+                    }
+                }
                 if (Game.time % 57 == 0) {
                     var roomsToObserve = Memory.roomsToObserve;
                     if (roomsToObserve[0]) {
                         const targetRoom = roomsToObserve[0];
                         //console.log(room.name + ' observing room ' + targetRoom)
-                        room.observeRoom(targetRoom);
-                        roomsToObserve.shift();
+                        if (room.observer) {
+                            room.observeRoom(targetRoom);
+                            roomsToObserve.shift();
+                        }
                     }
                 }
                 try {
