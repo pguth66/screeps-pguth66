@@ -39,7 +39,7 @@ module.exports = {
         if(!creep.memory.hauling && !(creep.room.name == creep.memory.workRoom)) {
             const targetRoom = Game.rooms[creep.memory.workRoom];
             //console.log(targetRoom.name);    
-            if(targetRoom) {        
+            if(targetRoom && targetRoom.controller) {        
                 creep.moveTo(targetRoom.controller);
             }
             else {

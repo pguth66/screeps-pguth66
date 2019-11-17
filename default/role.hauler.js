@@ -284,6 +284,12 @@ module.exports = {
             // start with dropped resources of > 50 units
             var sources = [];
 
+            // process powerSpawns first, chances are if there's one it's the only thing in the room
+            const powerBanks = creep.room.find(FIND_STRUCTURES, { structureType: STRUCTURE_POWER_BANK}) ;
+            if (powerBanks.length > 0 && powerBanks[0].hits == 0 && powerBanks[0].store[RESOURCE_POWER] > 0) {
+                sources.push(powerBanks[0]);
+            }
+
             if (!creep.room.memory.foundHostiles) {
                  sources = creep.room.droppedResources;
                  // remove anything in the junkyard
