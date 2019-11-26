@@ -95,7 +95,7 @@ var roleWarrior = {
                 creep.attackTarget(powerBank);
             }
             if(!(Memory.roomToAttack) && (hostiles.length == 0)) {
-                creep.memory.role='recycle';
+                //creep.memory.role='recycle';
                 return;
             }
             if((creep.room != Game.rooms[Memory.roomToAttack]) && (creep.room.name != creep.memory.targetRoom)) {
