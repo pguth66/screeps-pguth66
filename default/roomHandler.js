@@ -364,7 +364,12 @@ Room.prototype.getCreepBody = function (role, targetRoom) {
                 body = this.getSoldierBody({ tough:1, attack:1, move:1});
                 break;
             case 'hauler':
-                body = [CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
+                if (this.controller.level == 8) {
+                    body = [CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE];
+                }
+                else {
+                    body = [CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
+                }
                 break;
             case 'healer':
             case 'builder':
@@ -498,12 +503,12 @@ Room.prototype.refillTerminal = function (rsrc) {
 }
 /**
  * Checks if there's already a creep performing a specific job
+ * Returns true if there is, false if there is not
  * @param {string} job - the job to check on
  */
 Room.prototype.hasCreepWithJob = function (j) {
     const roomCreeps2 = _.filter(Game.creeps, (creep) => { return creep.room.name == this.name });
     if (_.filter(roomCreeps2, (c) => { return c.memory.job == j }).length > 0) {
-        //console.log('found no creep with job ' + j);
         return true;
     } else {
         return false;
