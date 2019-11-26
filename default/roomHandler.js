@@ -265,7 +265,7 @@ Room.prototype.addToCreepBuildQueue = function (creepType, memoryObject) {
 
 /**
  * Return the proper body part array for a soldier
- * @param {object} parts - object containing what parts and how many
+ * @param {object} parts - object containing what parts and how many, e.g. {tough:2,attack:2}
  */
 Room.prototype.getSoldierBody = function (parts) {
     numTough = parts.tough;
@@ -273,6 +273,7 @@ Room.prototype.getSoldierBody = function (parts) {
     numMove = parts.move;
     let newbody = [];
 
+    // order matters here, this is how the body will be constructed
     for (i = 0; i < parts.tough; i++) {
         newbody.push(TOUGH);
     }
@@ -335,7 +336,7 @@ Room.prototype.getCreepBody = function (role, targetRoom) {
                 body = [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE];
                 break;
             case 'interhauler':
-                body = [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
+                body = [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE];
                 break;
             case 'harvester':
             case 'miner':
@@ -358,6 +359,9 @@ Room.prototype.getCreepBody = function (role, targetRoom) {
             case 'warrior':
                 body = this.getSoldierBody({ tough: 16, attack: 17, move: 17 });
                 //body = [TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE];
+                break;
+            case 'testsquad':
+                body = this.getSoldierBody({ tough:1, attack:1, move:1});
                 break;
             case 'hauler':
                 body = [CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
@@ -497,7 +501,8 @@ Room.prototype.refillTerminal = function (rsrc) {
  * @param {string} job - the job to check on
  */
 Room.prototype.hasCreepWithJob = function (j) {
-    if (_.filter(this.contracthaulers, (c) => { return c.memory.job == j }).length > 0) {
+    const roomCreeps2 = _.filter(Game.creeps, (creep) => { return creep.room.name == this.name });
+    if (_.filter(roomCreeps2, (c) => { return c.memory.job == j }).length > 0) {
         //console.log('found no creep with job ' + j);
         return true;
     } else {
@@ -628,7 +633,7 @@ module.exports = {
             }
         } // end towers
 
-        if (room.storage) {
+        if (room.storage && room.terminal) {
             const amountToSend = 50000;
             switch (room.memory.energyState) {
                 case 'normal':
