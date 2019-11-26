@@ -13,8 +13,8 @@ module.exports.loop = function () {
     Memory.roomToAttack = null; // room to send warriors to
     Memory.roomToBuild = 'W27N26'; // room to send remoteworkers to
     Memory.roomToHarvest = null; // room to harvest energy in (and send interhaulers to)
-    Memory.highwayRooms = [ 'W30N29', 'W30N28', 'W30N27', 'W30N26', 'W30N25', 'W30N24', 'W30N23', 'W30N22' ]
-    Memory.roomsToObserve = ['W30N20', 'W28N29', 'W27N26', 'W27N25', 'W26N25', 'W26N24', 'W28N24'];
+    Memory.highwayRooms = [ 'W30N29', 'W30N28', 'W30N27', 'W30N26', 'W30N25', 'W30N24', 'W30N23', 'W30N22', 'W30N30', 'W30N29' ]
+    Memory.roomsToObserve = ['W30N20', 'W28N29', 'W27N26', 'W27N25', 'W26N25', 'W26N24', 'W28N24', 'W28N29'];
     Memory.capitol='W27N27';
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
@@ -160,8 +160,8 @@ module.exports.loop = function () {
                         if (!highwayRoom) {
                             //console.log('no room object for ' + targetRoom);
                         } else {
-                            const powerBanks = highwayRoom.find(FIND_STRUCTURES, {structureTye: STRUCTURE_POWER_SPAWN});
-                            if (powerBanks.length > 0) {
+                            const powerBanks = highwayRoom.find(FIND_STRUCTURES, {structureType: STRUCTURE_POWER_BANK});
+                            if (powerBanks.length > 0 && Game.time && 20 == 0) {
                                 console.log('powerbank found in room ' + highwayRoom.name + ' with id ' + powerBanks[0].id );
                             }
                         }
