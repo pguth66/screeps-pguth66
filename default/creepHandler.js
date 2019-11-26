@@ -234,6 +234,8 @@ Creep.prototype.respawn = function () {
             case 'patrol':
             case 'dismantle':
             case 'remoteworker':
+            case 'warrior':
+            case 'medic':
                 newCreepMemory.targetRoom = this.memory.targetRoom;
                 break;
             case 'contracthauler':
