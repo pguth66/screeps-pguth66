@@ -371,10 +371,24 @@ module.exports = {
                 //console.log(creep.name + ' no SOURCE containers found in room ' + creep.room.name);
                 return;
             } else {
-                var source=creep.pos.findClosestByPath(sources);
-                if (!source) {
-                    source=creep.pos.findClosestByRange(sources);
+                var powerSources = _.remove(sources, (s) => { return s.resourceType == RESOURCE_POWER});
+                var source ;
+                switch (powerSources.length) {
+                    case 0:
+                        break;
+                    case 1:
+                        source = powerSources[0];
+                        break;
+                    default:
+                        source = creep.pos.findClosestByPath(powerSources);
+                        
                 }
+                if (!source) { 
+                    source=creep.pos.findClosestByPath(sources);
+                    if (!source) {
+                        source=creep.pos.findClosestByRange(sources);
+                    }
+                }        
                 creep.memory.target = source.id ;
             }
             // we're wasting a tick here, by not moving to the target now
