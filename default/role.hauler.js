@@ -250,7 +250,7 @@ module.exports = {
             try{
             if(creep.hasTarget()) {
                 target = Game.getObjectById(creep.memory.target);
-                if(target == null) {
+                if(target == null || (target.store && target.store.getUsedCapacity() == 0)) {
                     creep.memory.target = null ; 
                     creep.say('memwipe');
                 }
