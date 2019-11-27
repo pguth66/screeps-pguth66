@@ -26,6 +26,7 @@ var roleDismantle = require('role.dismantle');
 var roleContractHauler = require('role.contracthauler');
 var roleHeisenberg = require('role.heisenberg');
 var roleMedic = require('role.medic');
+var rolePowerProcessor = require('role.powerProcessor');
 
 Creep.prototype.creepLog = function (text) {
     console.log(this.name + "-" + this.memory.role + ": " + text)
@@ -107,6 +108,14 @@ Creep.prototype.hasTarget = function () {
 }
 Creep.prototype.hasEnergy = function () {
     if (this.carry[RESOURCE_ENERGY] > 0) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+Creep.prototype.hasPower = function () {
+    if (this.carry[RESOURCE_POWER] > 0) {
         return true;
     }
     else {
@@ -317,7 +326,8 @@ module.exports = {
             { role: 'contracthauler', run:roleContractHauler.run},
             { role: 'heisenberg', run: roleHeisenberg.run},
             { role: 'remoteworker', run: roleRemoteworker.run },
-            { role: 'medic', run: roleMedic.run }
+            { role: 'medic', run: roleMedic.run },
+            { role: 'powerProcessor', run:rolePowerProcessor.run }
         ];
         //    console.log('role: ' + creepMap[0].role + " function: " + creepMap[0].run);
 

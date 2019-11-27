@@ -353,6 +353,7 @@ Room.prototype.getCreepBody = function (role, targetRoom) {
                 break;
             case 'contracthauler':
             case 'minhauler':
+            case 'powerProcessor':
                 body = [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE];
                 break;
             case 'patrol':

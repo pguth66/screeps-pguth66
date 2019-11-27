@@ -536,11 +536,21 @@ market - selling via buy orders
 
 creep boosting
     during init, check if appropriate boost is available, if so set needsBoost
+    creep.needsBoost[ attack, heal]
+    this means rooms need to have a thing that says boost available:
+        room.boostAvailable = [ attack, heal, move ]
+        this gets set when
+            you have a lab for that
+            it has minerals in it
     while needsBoost = true, 
         move to appropriate lab (set as target), 
         when there tell target to boost you, 
         then set needsBoost = false and boosted = true
         then back to regular harvesting
+    first case is for power harvesting groups
+        want to boost: armor, attack, heal - 3 labs
+        so in generic rooms make that labs[9][8][7]
+        fillLabs with UH, GO, LO
 
 Market stuff
     each room has a mineral that it harvests and sells
@@ -646,7 +656,7 @@ laying out EXTENSIONS
       use that array as input to a function that will build extensions on each one
       if none are open, start with first member, and move out one pos and run again
 
-junkyard
+junkyard DONE
     square on map to drop stuff we don't want anymore
     record in memory as room.memory.junkyard.x and room.memory.junkyard.y
     make it a new object? with a roomPos? a structure? a RoomObject?
@@ -669,3 +679,23 @@ contracthauler reuse
         if free CH (e.g. job = none), give that one this job
         if no free CH, spawn new CH with that job 
     eventually probably will have queue of jobs, and CH will pick the next one when they finish a current one 
+
+power processing creep
+    this one has more states
+        fillingPower
+        fillingEnergy
+    spawn when there is power somewhere in the room
+    first fill the powerSpawn with power
+        grab as much power as needed to fill it
+    then keep filling it with energy until it's down to 2 power
+    then go back to line 685
+    if (powerSpawn < 5)
+        if (I'm full of power)
+            dropoff Power, if too far, move towards powerSpawn
+        else
+            pick up power from closest spot
+    else
+        if (i'm full of energy)
+            droppoff energy, if too far, move towards powerSpawn
+        else
+            pick up energy from closest spot
