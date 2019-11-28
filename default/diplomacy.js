@@ -42,7 +42,6 @@ class Squadron {
         this.state = state;
 
         this.serialNumberPattern = 'squad-' + id + '-'; // used to construct member IDs
-        const properties = [ 'id', 'spawnRoom', 'mission', 'target', 'targetRoom', 'state'];
 
         this.members.forEach(function (member, i) {
             //console.log (JSON.stringify(member) + ' ' + i)
@@ -61,6 +60,7 @@ class Squadron {
             console.log(spawnRoom + ' creating squadron of ' + members.length);
         } else {
             //rebuild object from what's stored in Memory
+            const     properties = [ 'id', 'spawnRoom', 'mission', 'target', 'targetRoom', 'state'];
             properties.forEach(function (p) {
                 this[p] = Memory.squads[this.id][p];
             },this);
@@ -71,6 +71,7 @@ class Squadron {
     } // end constructor
 
     saveState() {
+        const     properties = [ 'id', 'spawnRoom', 'mission', 'target', 'targetRoom', 'state'];
         properties.forEach(function(p) {
             //console.log(p);
             Memory.squads[this.id][p] = this[p];
@@ -94,12 +95,12 @@ module.exports = {
         }
         const currId = Memory.currentSquadNum;
 
-        if (currId == 9) {
-            testSquad = new Squadron('W29N23',['testsquad','testsquad'],'attack','powerSpawn','W29N23',currId,'init');
+        if (currId == 14) {
+            testSquad = new Squadron('W29N28',['testsquad','testsquad'],'attack','powerSpawn','W29N23',currId,'init');
             Memory.currentSquadNum += 1;
         }
-         if (currId == 10) {
-                testSquad2 = new Squadron('W29N23',['warrior','medic','warrior'],'attack','powerSpawn','W30N23',currId);
+         if (currId == 11) {
+                testSquad2 = new Squadron('W29N29',['warrior','medic','warrior'],'attack','powerSpawn','W29N30',currId);
                 Memory.currentSquadNum += 1;
         } 
 
