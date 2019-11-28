@@ -78,12 +78,12 @@ module.exports = {
                             break;
                         case STRUCTURE_LAB:
                             if (resourceType == RESOURCE_ENERGY) {
-                                if (dt.energy >= creep.memory.upTo) {
+                                if (dt.store[RESOURCE_ENERGY] >= creep.memory.upTo) {
                                     creep.memory.role='pause';
                                 }
                             }
                             else {
-                                if (dt.mineralAmount >= creep.memory.upTo) {
+                                if (dt.store[dt.mineralType] >= creep.memory.upTo) {
                                     creep.memory.role='recycle'
                                 }
                             }
