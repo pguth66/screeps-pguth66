@@ -81,7 +81,7 @@ var roleWarrior = {
                     }
                     break;
                 case ERR_INVALID_TARGET:
-                    creep.say('inv target');
+                    creep.say('inv target during attack');
                     break;
                 case OK:
                     creep.say('ATTACK!');                
