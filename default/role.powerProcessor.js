@@ -81,7 +81,7 @@ var rolePowerProcessor = {
                 else {
                     const energySources = creep.room.find(FIND_MY_STRUCTURES, {
                         filter: function (s) {
-                            return  s.structureType != STRUCTURE_POWER_SPAWN && s.structureType != STRUCTURE_NUKER && s.structureType != STRUCTURE_NUKER && s.store && s.store[RESOURCE_ENERGY] > creep.store.getCapacity();
+                            return  s.structureType != STRUCTURE_POWER_SPAWN && s.structureType != STRUCTURE_TOWER && s.structureType != STRUCTURE_NUKER && s.structureType != STRUCTURE_NUKER && s.store && s.store[RESOURCE_ENERGY] > creep.store.getCapacity();
                         }
                     })
                     const target = creep.pos.findClosestByPath(energySources);
