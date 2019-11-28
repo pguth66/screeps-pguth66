@@ -42,6 +42,7 @@ class Squadron {
         this.state = state;
 
         this.serialNumberPattern = 'squad-' + id + '-'; // used to construct member IDs
+        const properties = [ 'id', 'spawnRoom', 'mission', 'target', 'targetRoom', 'state'];
 
         this.members.forEach(function (member, i) {
             //console.log (JSON.stringify(member) + ' ' + i)
@@ -58,18 +59,25 @@ class Squadron {
             this.state = 'init';
             this.saveState();
             console.log(spawnRoom + ' creating squadron of ' + members.length);
+        } else {
+            //rebuild object from what's stored in Memory
+            properties.forEach(function (p) {
+                this[p] = Memory.squads[this.id][p];
+            },this);
+            Memory.squads[this.id]['members'].forEach(function (m,i) {
+                this['members'][i] = m;
+            },this);
         }
     } // end constructor
 
     saveState() {
-        const properties = [ 'id', 'spawnRoom', 'mission', 'target', 'targetRoom', 'state'];
         properties.forEach(function(p) {
             //console.log(p);
             Memory.squads[this.id][p] = this[p];
         },this);
         Memory.squads[this.id].members = [];
         this.members.forEach(function (m,i) {
-            console.log('storing memory for ' + this.id + ' member ' + m.id)
+            //console.log('storing memory for ' + this.id + ' member ' + m.id)
             Memory.squads[this.id]['members'][i] = m;
         },this);
     }
@@ -86,12 +94,12 @@ module.exports = {
         }
         const currId = Memory.currentSquadNum;
 
-        if (currId == 7) {
+        if (currId == 9) {
             testSquad = new Squadron('W29N23',['testsquad','testsquad'],'attack','powerSpawn','W29N23',currId,'init');
             Memory.currentSquadNum += 1;
         }
-         if (currId == 5) {
-                testSquad2 = new Squadron('W29N23',['warrior','medic','warrior'],'attack','powerSpawn','W30N24',currId);
+         if (currId == 10) {
+                testSquad2 = new Squadron('W29N23',['warrior','medic','warrior'],'attack','powerSpawn','W30N23',currId);
                 Memory.currentSquadNum += 1;
         } 
 
@@ -104,7 +112,6 @@ module.exports = {
         Object.keys(Memory.squads).forEach( function (key) {
             // first rebuild the Squadron object from Memory
             if (Memory.squads[key].state != 'inactive') {
-                //const properties = [ 'id', 'spawnRoom', 'members', 'mission', 'target', 'targetRoom', 'state'];
                 const id = key;
                 const spawnRoomName = Memory.squads[key].spawnRoom;
                 let members = Memory.squads[key].members;
@@ -131,9 +138,6 @@ module.exports = {
                 switch (squad.state) {
                     case 'init':
                         //console.log('init state');
-                        const spawnNamePattern = 'squad-' + squad.id + '-';
-                        //const spawnNamePattern = 
-                        //console.log(spawnNamePattern)
                         squad.members.forEach(function (member, i) {
                             console.log("member " + i + ' has state ' + member.memberState);
                             // because dry runs work one creep at a time, need to only add one creep per turn to build queue
@@ -144,7 +148,8 @@ module.exports = {
                                         console.log('spawning error');
                                         return;
                                     }
-                                    return members[i].memberState = 'queued';
+                                    console.log('setting to queued');
+                                    return squad.members[i].memberState = 'queued';
                                 }
                             }
                             //console.log(memberID);
