@@ -25,7 +25,8 @@ class LabGroup {
             'zk': { r1: RESOURCE_ZYNTHIUM, r2: RESOURCE_KEANIUM},
             'ul': { r1: RESOURCE_UTRIUM, r2: RESOURCE_LEMERGIUM},
             'g': { r1: RESOURCE_UTRIUM_LEMERGITE, r2: RESOURCE_ZYNTHIUM_KEANITE},
-            'oh': { r1: RESOURCE_OXYGEN, r2: RESOURCE_HYDROGEN}
+            'oh': { r1: RESOURCE_OXYGEN, r2: RESOURCE_HYDROGEN},
+            'lo' : {r1: RESOURCE_LEMERGIUM, r2: RESOURCE_OXYGEN}
         }
          //   { target: 'zk', r1: RESOURCE_ZYNTHIUM, r2: RESOURCE_KEANIUM};
         const r1 = reactionMap[this.target].r1;
@@ -47,7 +48,7 @@ class LabGroup {
                         console.log(this.reactant1.room.name + ' not in range error when making ' + this.target);
                         break;
                     case ERR_INVALID_ARGS:
-                        console.log(this.reactant1.room.name + " invalid args for " + this.target);
+                        console.log(this.reactant1.room.name + " has wrong resources for " + this.target);
                         break;
                     case ERR_NOT_ENOUGH_RESOURCES:
                         //console.log(this.reactant1.room.name + ' not enough resources for ' + this.target);
@@ -67,8 +68,8 @@ class LabGroup {
 
 /* empties a Lab of any minerals in it, taking them to terminal */
 StructureLab.prototype.emptyLab = function () {
-    console.log('emptying lab ' + this.id + " of " + this.store[this.mineralType] + " " + this.mineralType);
     if (!this.room.hasCreepWithJob('emptylab')) {
+        console.log('emptying lab ' + this.id + " of " + this.store[this.mineralType] + " " + this.mineralType);
         this.room.addToCreepBuildQueue('contracthauler',{resource:this.mineralType, total:this.store[this.mineralType],job:'emptylab',pullTarget:this.id,dropTarget:this.room.terminal.id});
     }
 }
@@ -83,16 +84,16 @@ module.exports = {
                 if ((lab.store[resource] < 500) && (!room.hasCreepWithJob(jobName))) {
                     if (room.terminal.store[resource] > 0) { 
                         console.log(room.name + " filling lab " + lab.id + ' with ' + resource);
-                        let amountToGet = room.terminal.store[resource];
+                        let amountToGet = lab.store.getFreeCapacity(resource);
                         if (amountToGet > 3000) { amountToGet = 3000 };
-                        room.addToCreepBuildQueue('contracthauler', {resource:resource, upTo:amountToGet, job:jobName, pullTarget:room.terminal.id, dropTarget:lab.id})
+                        room.addToCreepBuildQueue('contracthauler', {resource:resource, total:amountToGet, job:jobName, pullTarget:room.terminal.id, dropTarget:lab.id})
                     }
                     else {
                         // add something to get needed resource here
                     }
                 }
             } else {
-                console.log(room.name + " emptying lab");
+                //console.log(room.name + " emptying lab");
                 lab.emptyLab();
             }
         }
@@ -131,17 +132,36 @@ module.exports = {
                 return;
 
                 break;
+            case 'LO':
+                const loLabGroup = new LabGroup (room.labs[3],room.labs[4],room.labs[5], 'lo')
+
+                fillLab(loLabGroup.reactant1,RESOURCE_LEMERGIUM,'filllo1');
+                fillLab(loLabGroup.reactant2,RESOURCE_OXYGEN,'filllo2');
+                loLabGroup.produce();
+                if (loLabGroup.product.store[RESOURCE_LEMERGIUM_OXIDE] >= 2900 && !room.hasCreepWithJob('emptyLO')) {
+                    room.addToCreepBuildQueue('contracthauler',{resource:RESOURCE_LEMERGIUM_OXIDE,job:'emptyLO',total:loLabGroup.product.store[RESOURCE_LEMERGIUM_OXIDE],pullTarget:loLabGroup.product.id,dropTarget:room.terminal.id})
+                }
+                return;
             case 'boosttest':
-                const attackBoostLab = room.labs[9];
-                const healBoostLab = room.labs[8];
-                const armorBoostLab = room.labs[7];
+                const attackBoostLab = room.labs[0];
+                const healBoostLab = room.labs[1];
+                const armorBoostLab = room.labs[2];
 
                 fillLab(attackBoostLab,RESOURCE_UTRIUM_HYDRIDE,'fillattk');
                 fillLab(healBoostLab,RESOURCE_LEMERGIUM_OXIDE,'fillheal');
                 fillLab(armorBoostLab,RESOURCE_GHODIUM_OXIDE,'fillarmor');
-                return;
-                
 
+                labs = [attackBoostLab, healBoostLab, armorBoostLab];
+                labs.forEach(function (lab) {
+                    //console.log(lab.id + ' has ' + lab.store.getUsedCapacity(RESOURCE_ENERGY) + ' energy');
+                });
+
+                if (armorBoostLab.store[RESOURCE_GHODIUM_OXIDE] > 30 && armorBoostLab.store[RESOURCE_ENERGY] > 20) {
+                    room.boostAvailable.push['armor'];
+                    //console.log(room.name + ' has armor boost available');
+                }
+                
+                return;
 
             default:
                 return;
