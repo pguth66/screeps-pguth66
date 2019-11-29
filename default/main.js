@@ -13,7 +13,7 @@ module.exports.loop = function () {
     Memory.roomToAttack = null; // room to send warriors to
     Memory.roomToBuild = 'W27N26'; // room to send remoteworkers to
     Memory.roomToHarvest = null; // room to harvest energy in (and send interhaulers to)
-    Memory.highwayRooms = [ 'W30N29', 'W30N28', 'W30N27', 'W30N26', 'W30N25', 'W30N24', 'W30N23', 'W30N22', 'W30N30', 'W30N29' ]
+    Memory.highwayRooms = [ 'W30N29', 'W30N28', 'W30N27', 'W30N26', 'W30N25', 'W30N24', 'W30N23', 'W30N22', 'W30N29' ]
     Memory.roomsToObserve = ['W30N20', 'W28N29', 'W27N26', 'W27N25', 'W26N25', 'W26N24', 'W28N24', 'W28N29'];
     Memory.capitol='W27N27';
 
@@ -161,8 +161,8 @@ module.exports.loop = function () {
                             //console.log('no room object for ' + targetRoom);
                         } else {
                             const powerBanks = highwayRoom.find(FIND_STRUCTURES, {structureType: STRUCTURE_POWER_BANK});
-                            if (powerBanks.length > 0 && Game.time && 20 == 0) {
-                                console.log('powerbank found in room ' + highwayRoom.name + ' with id ' + powerBanks[0].id );
+                            if (powerBanks.length > 0) {
+                                console.log('powerbank found in room ' + highwayRoom.name + ' hits ' + powerBanks[0].hits + ' decay ' + powerBanks[0].ticksToDecay);
                             }
                         }
                         highwayRooms.shift();
@@ -320,53 +320,57 @@ module.exports.loop = function () {
         const totalMiners = room.getTotalCreeps('miner').length;
 
         // spawning
-        if ((room.controller && room.controller.my) && spawn) {
-            if (room.memory.foundHostiles && (threatLevel > 20) && (_.filter(roomCreeps, (creep) => creep.memory.role == 'warrior') < 1)) {
-                var newName;
-                newName = spawn.createCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, ATTACK], undefined, { role: 'warrior' });
-                console.log('Spawning new WARRIOR in ' + room.name);
-            }
-            //        console.log('running spawns for ' + room.name);
+        try {
+            if ((room.controller && room.controller.my) && spawn) {
+                if (room.memory.foundHostiles && (threatLevel > 20) && (_.filter(roomCreeps, (creep) => creep.memory.role == 'warrior') < 1)) {
+                    var newName;
+                    newName = spawn.createCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, ATTACK], undefined, { role: 'warrior' });
+                    console.log('Spawning new WARRIOR in ' + room.name);
+                }
+                //        console.log('running spawns for ' + room.name);
 
-            if (totalHarvesters < numHarvesters) {
-                room.addToCreepBuildQueue('harvester',{respawn:true});
-                prioritySpawn = true;
-                console.log('Spawning new harvester in ' + room.name + ': ' + newName);
-            }
+                if (totalHarvesters < numHarvesters) {
+                    room.addToCreepBuildQueue('harvester',{respawn:true});
+                    prioritySpawn = true;
+                    console.log('Spawning new harvester in ' + room.name + ': ' + newName);
+                }
 
-            if (((totalHaulers < numHaulers) && !prioritySpawn) || (totalHaulers.length == 0 && room.memory.stage != 'start')) {
-                room.addToCreepBuildQueue('hauler');
-                prioritySpawn = true;
-                console.log('Spawning new hauler in ' + room.name + ': ' + newName);
-            }
+                if (((totalHaulers < numHaulers) && !prioritySpawn) || (totalHaulers.length == 0 && room.memory.stage != 'start')) {
+                    room.addToCreepBuildQueue('hauler');
+                    prioritySpawn = true;
+                    console.log('Spawning new hauler in ' + room.name + ': ' + newName);
+                }
 
-            if ((totalUpgraders < numUpgraders) && !prioritySpawn) {
-                room.addToCreepBuildQueue('upgrader');
-                console.log('Spawning new upgrader in ' + room.name + ': ' + newName);
-            }
+                if ((totalUpgraders < numUpgraders) && !prioritySpawn) {
+                    room.addToCreepBuildQueue('upgrader');
+                    console.log('Spawning new upgrader in ' + room.name + ': ' + newName);
+                }
 
-            if ((totalBuilders < numBuilders) && !prioritySpawn) {
-                room.addToCreepBuildQueue('builder');
-                console.log('Spawning new builder in ' + room.name + ': ' + newName);
-            }
+                if ((totalBuilders < numBuilders) && !prioritySpawn) {
+                    room.addToCreepBuildQueue('builder');
+                    console.log('Spawning new builder in ' + room.name + ': ' + newName);
+                }
 
-            if ((totalHealers < numHealers) && !prioritySpawn) {
-                room.addToCreepBuildQueue('healer');
-                console.log('Spawning new healer in ' + room.name + ': ' + newName);
-            }
+                if ((totalHealers < numHealers) && !prioritySpawn) {
+                    room.addToCreepBuildQueue('healer');
+                    console.log('Spawning new healer in ' + room.name + ': ' + newName);
+                }
 
-            const claimers = _.filter(roomCreeps, (creep) => creep.memory.role == 'claimer');
-            if ((claimers.length < numClaimers) && !prioritySpawn) {
-                const newName = spawn.createCreep([CLAIM, MOVE], undefined, { role: 'claimer' });
-                console.log('Spawning new claimer in ' + room.name + ': ' + newName);
-            }
+                const claimers = _.filter(roomCreeps, (creep) => creep.memory.role == 'claimer');
+                if ((claimers.length < numClaimers) && !prioritySpawn) {
+                    const newName = spawn.createCreep([CLAIM, MOVE], undefined, { role: 'claimer' });
+                    console.log('Spawning new claimer in ' + room.name + ': ' + newName);
+                }
 
-            if ((totalMiners < 1) && (room.controller.level >= 6) &&
-                (room.minerals[0].mineralAmount > 0) &&
-                (room.energyAvailable > (room.energyCapacityAvailable * 0.9))) {
-                    room.addToCreepBuildQueue('miner');
-                    console.log('Spawning new miner in ' + room.name + ': ' + newName);
+                if ((totalMiners < 1) && (room.controller.level >= 6) &&
+                    (room.minerals[0].mineralAmount > 0) &&
+                    (room.energyAvailable > (room.energyCapacityAvailable * 0.9))) {
+                        room.addToCreepBuildQueue('miner');
+                        console.log('Spawning new miner in ' + room.name + ': ' + newName);
+                }
             }
+        } catch {
+            console.log(room.name + ' err');
         } // end Spawning
 
         // Console report

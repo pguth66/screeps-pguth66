@@ -731,11 +731,14 @@ module.exports = {
                     break;
             }
         }
-
-        if (room.memory.buildQueue.length > 0) {
-            room.runBuildQueue();
+        try{
+            if (room.memory.buildQueue.length > 0) {
+                room.runBuildQueue();
+            }
         }
-
+        catch(err) {
+            console.log(room.name + ' err')
+        }
         if (room.powerSpawn) {
             if (room.powerSpawn.energy > 50 && room.powerSpawn.power > 1) {
                 room.powerSpawn.processPower();
