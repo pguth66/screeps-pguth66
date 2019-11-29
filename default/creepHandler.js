@@ -336,6 +336,45 @@ module.exports = {
                 creep.creepLog('has only move parts, recycling')
                 creep.memory.role = 'recycle';
             }
+            if (typeof creep.memory.needsBoost !== 'undefined' && creep.memory.needsBoost.length > 0) {
+                boostTypes = [ 'armor', 'attack', 'move'];
+                creep.creepLog('needs Boost!');
+                boostTypes.forEach(function (bt) {
+                    if (creep.room.boostAvailable.includes(bt)) {
+                        // try to boost armor
+                        var boostLab ; 
+                        switch (bt) {
+                            case 'armor':
+                                boostLab = creep.room.labs[2];
+                               break;
+                            case 'move':
+                                boostLab = creep.room.labs[1];
+                                break;
+                            case 'attack':
+                                boostLab = creep.room.labs[0];
+                               break;
+                            default:
+                                console.log(room.name + ' unknown boost type: ' + bt);
+
+                        }
+                        switch(boostLab.boostCreep(creep)) {
+                            case ERR_NOT_IN_RANGE:
+                                creep.moveToTarget(boostLab);
+                                break;
+                            case OK:
+                                _.remove(creep.memory.needsBoost, (b) => { return b == bt});
+                                break;
+                            default:
+                                creep.creepLog('error trying to boost');
+                        } 
+                    } else {
+                        creep.creepLog('no boost available, removing ' + bt);
+                        _.remove(creep.memory.needsBoost, (b) => { return b == bt});
+
+                    }
+                })
+                return;
+            }
             if (creep.memory.targetRoom && (creep.memory.targetRoom != creep.room.name)) {
                 creep.moveToRoom(creep.memory.targetRoom);
             }
@@ -363,6 +402,13 @@ module.exports = {
             }
             if (!creep.memory.targetRoom && !((creep.memory.role == 'interhauler') || (creep.memory.role == 'contracthauler') || (creep.memory.role == 'minhauler'))) {
                 creep.memory.targetRoom = creep.room.name;
+            }
+            if (!creep.memory.needsBoost) {
+                creep.memory.needsBoost = [];
+                if (creep.memory.role == 'testsquad' || creep.memory.role == 'warrior') {
+                    creep.memory.needsBoost.push('armor');
+                    creep.memory.needsBoost.push('attack');
+                }
             }
         }
         
