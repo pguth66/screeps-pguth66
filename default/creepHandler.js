@@ -337,7 +337,7 @@ module.exports = {
                 creep.memory.role = 'recycle';
             }
             if (typeof creep.memory.needsBoost !== 'undefined' && creep.memory.needsBoost.length > 0) {
-                boostTypes = [ 'armor', 'attack', 'move'];
+                boostTypes = [ 'armor', 'attack', 'move', 'heal'];
                 creep.creepLog('needs Boost!');
                 boostTypes.forEach(function (bt) {
                     if (creep.room.boostAvailable.includes(bt)) {
@@ -348,13 +348,16 @@ module.exports = {
                                 boostLab = creep.room.labs[2];
                                break;
                             case 'move':
-                                boostLab = creep.room.labs[1];
+                                boostLab = creep.room.labs[3];
                                 break;
                             case 'attack':
                                 boostLab = creep.room.labs[0];
                                break;
+                            case 'heal':
+                                boostLab = creep.room.labs[1];
+                                break;
                             default:
-                                console.log(room.name + ' unknown boost type: ' + bt);
+                                console.log(creep.room.name + ' unknown boost type: ' + bt);
 
                         }
                         switch(boostLab.boostCreep(creep)) {
@@ -408,6 +411,9 @@ module.exports = {
                 if (creep.memory.role == 'testsquad' || creep.memory.role == 'warrior') {
                     creep.memory.needsBoost.push('armor');
                     creep.memory.needsBoost.push('attack');
+                }
+                if (creep.memory.role == 'medic') {
+                    creep.memory.needsBoost.push('heal');
                 }
             }
         }
