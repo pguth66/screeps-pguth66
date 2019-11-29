@@ -33,6 +33,12 @@ module.exports = {
 
         const resourceType = creep.memory.resource;
 
+        if (typeof creep.memory.total !== 'undefined') {
+            if (creep.memory.processed >= creep.memory.total) {
+                creep.memory.role='recycle';
+                return;
+            }
+        }
         try{
             if(!creep.memory.hauling) {
                 if (creep.pos.inRangeTo(pt,1)) {
