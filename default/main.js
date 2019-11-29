@@ -318,6 +318,7 @@ module.exports.loop = function () {
         const totalBuilders = room.getTotalCreeps('builder').length;
         const totalHealers = room.getTotalCreeps('healer').length;
         const totalMiners = room.getTotalCreeps('miner').length;
+        const totalPowerProcessors = room.getTotalCreeps('powerProcessor').length;
 
         // spawning
         try {
@@ -368,9 +369,13 @@ module.exports.loop = function () {
                         room.addToCreepBuildQueue('miner');
                         console.log('Spawning new miner in ' + room.name + ': ' + newName);
                 }
+                if ((totalPowerProcessors == 0) && room.terminal && room.terminal.store[RESOURCE_POWER] > 200) {
+                    room.addToCreepBuildQueue('powerProcessor');
+                    console.log('Spawning new powerProcessor in ' + room.name)
+                }
             }
-        } catch {
-            console.log(room.name + ' err');
+        } catch(err) {
+            console.log(room.name + ' ' + err);
         } // end Spawning
 
         // Console report
