@@ -369,7 +369,7 @@ module.exports.loop = function () {
                         room.addToCreepBuildQueue('miner');
                         console.log('Spawning new miner in ' + room.name + ': ' + newName);
                 }
-                if ((totalPowerProcessors == 0) && room.terminal && room.terminal.store[RESOURCE_POWER] > 200) {
+                if ((totalPowerProcessors == 0) && room.terminal && room.terminal.store[RESOURCE_POWER] > 200 && room.storage && room.storage.store[RESOURCE_ENERGY] > 150000) {
                     room.addToCreepBuildQueue('powerProcessor');
                     console.log('Spawning new powerProcessor in ' + room.name)
                 }
