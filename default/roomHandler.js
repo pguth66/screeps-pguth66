@@ -224,6 +224,29 @@ Room.prototype.findNearestRoomNeedingEnergy = function () {
     //console.log(roomsNeedingEnergy);
     return roomsNeedingEnergy[0];
 }
+Room.prototype.getMinsFromNearestRoom = function (mineral) {
+    const roomsWithMin = _.filter(Game.rooms, (r) => { if (r.controller && r.controller.my && r.terminal && r.terminal.store[mineral] > 15000) { return r } });
+    var destRoomMatrix = [];
+    roomsWithMin.forEach(function (room, i) {
+        if (room.terminal) {
+            destRoomMatrix[i] = { 'room': room, 'dist': Game.map.getRoomLinearDistance(this.name, room.name, true) };
+        }
+    }, this);
+    destRoomMatrix.sort(function (a, b) { return a.dist - b.dist });
+    //console.log(JSON.stringify(destRoomMatrix,null,4));
+    if(destRoomMatrix.length == 0) {
+        return false;
+    }
+    console.log(this.name + ' requesting ' + mineral + ' from ' + destRoomMatrix[0].room.name);
+    switch(destRoomMatrix[0].room.terminal.send(mineral,6000,this.name)) {
+        case OK:
+        case ERR_TIRED:
+            break;
+        default:
+            console.log(this.name + ' error while requesting ' + mineral + ' from ' + destRoomMatrix[0].room.name);
+    }
+    return destRoomMatrix[0].room;
+}
 /**
  * Adds a task to the room's lab queue
  * @param {StructureLab} lab to haul to
@@ -509,7 +532,9 @@ Room.prototype.refillTerminal = function (rsrc) {
  */
 Room.prototype.hasCreepWithJob = function (j) {
     const roomCreeps2 = _.filter(Game.creeps, (creep) => { return creep.room.name == this.name });
-    if (_.filter(roomCreeps2, (c) => { return c.memory.job == j }).length > 0) {
+    const queuedCreeps = _.filter(this.memory.buildQueue, (c) => {return c.memory.job == j});
+    const allCreeps = roomCreeps2.concat(queuedCreeps);
+    if (_.filter(allCreeps, (c) => { return c.memory.job == j }).length > 0) {
         return true;
     } else {
         return false;
@@ -737,7 +762,7 @@ module.exports = {
             }
         }
         catch(err) {
-            console.log(room.name + ' err')
+            console.log(room.name + ' ' + err)
         }
         if (room.powerSpawn) {
             if (room.powerSpawn.energy > 50 && room.powerSpawn.power > 1) {
