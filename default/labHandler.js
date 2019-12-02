@@ -18,20 +18,18 @@ class LabGroup {
         this.target = target;
     }
 
-    produce () {
+    produce (reactionMap) {
         //console.log(this.reactant1.room.name + " now making labgroup to make " + this.target);
                 
-        const reactionMap = {
-            'zk': { r1: RESOURCE_ZYNTHIUM, r2: RESOURCE_KEANIUM},
-            'ul': { r1: RESOURCE_UTRIUM, r2: RESOURCE_LEMERGIUM},
-            'g': { r1: RESOURCE_UTRIUM_LEMERGITE, r2: RESOURCE_ZYNTHIUM_KEANITE},
-            'oh': { r1: RESOURCE_OXYGEN, r2: RESOURCE_HYDROGEN},
-            'lo' : {r1: RESOURCE_LEMERGIUM, r2: RESOURCE_OXYGEN}
-        }
+       
          //   { target: 'zk', r1: RESOURCE_ZYNTHIUM, r2: RESOURCE_KEANIUM};
         const r1 = reactionMap[this.target].r1;
         const r2 = reactionMap[this.target].r2;
 
+        if (typeof this.product === 'undefined') {
+            console.log(this.reactant1.room.name + ' no lab to hold product!');
+            return;
+        }
         if (this.product.cooldown != 0) {
             return;
         }
@@ -79,13 +77,18 @@ module.exports = {
     run: function(room) {
 
         function fillLab(lab,resource,jobName) {
+            if (typeof lab === 'undefined') {
+                console.log(room.name + ' missing lab!');
+                return;
+            }
             if (lab.mineralType == resource || lab.mineralType === undefined ) {
                 //console.log(room.name +  " " + lab.mineralType + resource + jobName)
                 if ((lab.store[resource] < 500) && (!room.hasCreepWithJob(jobName))) {
-                    if (room.terminal.store[resource] > 0) { 
+                    if (room.terminal.store[resource] > 500) { 
                         console.log(room.name + " filling lab " + lab.id + ' with ' + resource);
                         let amountToGet = lab.store.getFreeCapacity(resource);
                         if (amountToGet > 3000) { amountToGet = 3000 };
+                        if (amountToGet > room.terminal.store[resource]) {amountToGet = room.terminal.store[resource]};
                         room.addToCreepBuildQueue('contracthauler', {resource:resource, total:amountToGet, job:jobName, pullTarget:room.terminal.id, dropTarget:lab.id})
                     }
                     else {
@@ -97,13 +100,82 @@ module.exports = {
                 lab.emptyLab();
             }
         }
+        
+        function makeCompounds(compoundsToMake) {
+            compoundsToMake.forEach( function (compound) {
+                switch (compound) {
+                    case 'UO':
+                    case 'OH':
+                    case 'ZO':
+                        lg = new LabGroup (room.labs[0], room.labs[1], room.labs[2], compound);
+                        break;
+                    case 'UH':
+                    case 'KO':
+                        lg = new LabGroup (room.labs[3], room.labs[4], room.labs[5], compound);
+                        break;
+                    case 'UH2O':
+                        lg = new LabGroup (room.labs[5],room.labs[7],room.labs[8],compound);
+                        break;
+                    case 'KHO2':
+                        lg = new LabGroup ( room.labs[5], room.labs[6], room.labs[7], compound);
+                        break;
+                    case 'LO':
+                        lg = new LabGroup (room.labs[0], room.labs[4], room.labs[2], compound);
+                        break;
+                    case 'LHO2':
+                        lg = new LabGroup (room.labs[2], room.labs[1], room.labs[3], compound);
+                        break;
+                }
+                fillLab(lg.reactant1,reactionMap[compound].r1,'filllab' + reactionMap[compound].r1);
+                fillLab(lg.reactant2,reactionMap[compound].r2, 'filllab' + reactionMap[compound].r2);
+                // if the 'product' lab has the wrong minerals in it, empty it
+                if (lg.product.store[lg.product.mineralType] > 0 && lg.product.mineralType != compound) {
+                    let emptyJob = 'empty' + compound + 'productlab';
+                    if (!room.hasCreepWithJob(emptyJob)) {
+                        console.log('need to empty lab for ' + compound);
+                        room.addToCreepBuildQueue('contracthauler',{resource:lg.product.mineralType,job:emptyJob,total:lg.product.store[lg.product.mineralType],pullTarget:lg.product.id,dropTarget:room.terminal.id});
+                    } else {
+                        // no point running the reaction if the product lab is occupied
+                        return;
+                    }
+                }
+                lg.produce(reactionMap);
+                let emptyJob = 'empty' + compound;
+                if (lg.product.store[lg.product.mineralType] >= 2900 && !room.hasCreepWithJob(emptyJob)) {
+                    console.log(room.name + 'emptying lab of ' + compound)
+                    room.addToCreepBuildQueue('contracthauler',{resource:lg.product.mineralType,job:emptyJob,total:lg.product.store[lg.product.mineralType],pullTarget:lg.product.id,dropTarget:room.terminal.id});
+ 
+                }
+                [reactionMap[compound].r1, reactionMap[compound].r2].forEach( (m) => {
+                    if (room.terminal.store[m] < 3000) {
+                        room.getMinsFromNearestRoom(m);
+                    }
+                })
+            });
+        }
+        const reactionMap = {
+            'ZK': { r1: RESOURCE_ZYNTHIUM, r2: RESOURCE_KEANIUM},
+            'UL': { r1: RESOURCE_UTRIUM, r2: RESOURCE_LEMERGIUM},
+            'G': { r1: RESOURCE_UTRIUM_LEMERGITE, r2: RESOURCE_ZYNTHIUM_KEANITE},
+            'OH': { r1: RESOURCE_OXYGEN, r2: RESOURCE_HYDROGEN},
+            'LO' : {r1: RESOURCE_LEMERGIUM, r2: RESOURCE_OXYGEN},
+            'LHO2' : {r1: RESOURCE_LEMERGIUM_OXIDE, r2:RESOURCE_HYDROXIDE},
+            'GHO2': {r1: RESOURCE_GHODIUM_OXIDE, r2:RESOURCE_HYDROXIDE},
+            'UO': {r1: RESOURCE_UTRIUM, r2: RESOURCE_OXYGEN},
+            'UH': {r1: RESOURCE_UTRIUM, r2: RESOURCE_HYDROGEN},
+            'UH2O': {r1: RESOURCE_UTRIUM_HYDRIDE, r2: RESOURCE_HYDROXIDE},
+            'KO': {r1: RESOURCE_KEANIUM, r2: RESOURCE_OXYGEN},
+            'ZO': {r1: RESOURCE_ZYNTHIUM, r2: RESOURCE_OXYGEN},
+            'KHO2' : {r1:RESOURCE_KEANIUM_OXIDE, r2:RESOURCE_HYDROXIDE}
+        }
 
+        var compoundsToMake = [];
         switch (room.memory.minType) {
             case 'ghodium':
                 // console.log('running lab stuff in ' + room.name);
-                zkLabGroup = new LabGroup (room.labs[0], room.labs[1], room.labs[2], 'zk');
-                ulLabGroup = new LabGroup (room.labs[4], room.labs[5], room.labs[8], 'ul');
-                gLabGroup = new LabGroup(room.labs[2], room.labs[8], room.labs[3], 'g');
+                zkLabGroup = new LabGroup (room.labs[0], room.labs[1], room.labs[2], 'ZK');
+                ulLabGroup = new LabGroup (room.labs[4], room.labs[5], room.labs[8], 'UL');
+                gLabGroup = new LabGroup(room.labs[2], room.labs[8], room.labs[3], 'G');
 
                 fillLab(ulLabGroup.reactant1,RESOURCE_UTRIUM,'fillul1');
                 fillLab(ulLabGroup.reactant2,RESOURCE_LEMERGIUM,'fillul2');
@@ -111,37 +183,45 @@ module.exports = {
                 fillLab(zkLabGroup.reactant2,RESOURCE_KEANIUM,'fillzk2');
                 //console.log('product lab is ' + zkLabGroup.product.id);
 
-                zkLabGroup.produce();
-                ulLabGroup.produce();
-                gLabGroup.produce();
+                zkLabGroup.produce(reactionMap);
+                ulLabGroup.produce(reactionMap);
+                gLabGroup.produce(reactionMap);
 
                 if (gLabGroup.product.store[RESOURCE_GHODIUM] >= 2900 && !room.hasCreepWithJob('emptyG')) {
                     room.addToCreepBuildQueue('contracthauler',{resource:RESOURCE_GHODIUM,job:'emptyG',total:gLabGroup.product.store[RESOURCE_GHODIUM],pullTarget:gLabGroup.product.id,dropTarget:room.terminal.id});
                 }
+
+                goLabGroup = new LabGroup(room.labs[6],room.labs[7],room.labs[9], 'GHO2');
+
+                fillLab(goLabGroup.reactant1,RESOURCE_GHODIUM_OXIDE,'fullgo1');
+                fillLab(goLabGroup.reactant2,RESOURCE_HYDROXIDE,'fillgo2');
+                goLabGroup.produce(reactionMap);
                 return;
                 break;
             case 'hydroxide':
-                const ohLabGroup = new LabGroup (room.labs[0], room.labs[1], room.labs[2], 'oh');
-
-                fillLab(ohLabGroup.reactant1,RESOURCE_OXYGEN,'filloh1');
-                fillLab(ohLabGroup.reactant2,RESOURCE_HYDROGEN,'filloh2');
-                ohLabGroup.produce();
-                if (ohLabGroup.product.store[RESOURCE_HYDROXIDE] >= 2900 && !room.hasCreepWithJob('emptyOH')) {
-                    room.addToCreepBuildQueue('contracthauler',{resource:RESOURCE_HYDROXIDE,job:'emptyOH',total:ohLabGroup.product.store[RESOURCE_HYDROXIDE],pullTarget:ohLabGroup.product.id,dropTarget:room.terminal.id})
-                }
+                compoundsToMake = [ 'OH' ];
+                makeCompounds(compoundsToMake);
                 return;
 
                 break;
             case 'LO':
-                const loLabGroup = new LabGroup (room.labs[3],room.labs[4],room.labs[5], 'lo')
+                compoundsToMake = [ 'LO', 'LHO2' ];
+                makeCompounds(compoundsToMake);
 
-                fillLab(loLabGroup.reactant1,RESOURCE_LEMERGIUM,'filllo1');
-                fillLab(loLabGroup.reactant2,RESOURCE_OXYGEN,'filllo2');
-                loLabGroup.produce();
-                if (loLabGroup.product.store[RESOURCE_LEMERGIUM_OXIDE] >= 2900 && !room.hasCreepWithJob('emptyLO')) {
-                    room.addToCreepBuildQueue('contracthauler',{resource:RESOURCE_LEMERGIUM_OXIDE,job:'emptyLO',total:loLabGroup.product.store[RESOURCE_LEMERGIUM_OXIDE],pullTarget:loLabGroup.product.id,dropTarget:room.terminal.id})
-                }
+                // use labs 8 and 9 to make catalyzed
                 return;
+
+            case 'UO':
+                compoundsToMake = [ 'UO','UH', 'UH2O'];
+                makeCompounds(compoundsToMake);
+
+                return;
+            
+            case 'KO':
+                compoundsToMake = [ 'KO'];
+                makeCompounds(compoundsToMake);
+                return;
+
             case 'boosttest':
                 const attackBoostLab = room.labs[0];
                 const healBoostLab = room.labs[1];
@@ -154,13 +234,11 @@ module.exports = {
                 labs = [attackBoostLab, healBoostLab, armorBoostLab];
                 labs.forEach(function (lab) {
                     //console.log(lab.id + ' has ' + lab.store.getUsedCapacity(RESOURCE_ENERGY) + ' energy');
+                    if (lab.store.getUsedCapacity(RESOURCE_ENERGY) < 500 && !room.hasCreepWithJob('refilllabenergy')) {
+                        room.addToCreepBuildQueue('contracthauler',{resource:RESOURCE_ENERGY,job:'refilllabenergy',upTo:lab.store.getCapacity(RESOURCE_ENERGY),dropTarget:lab.id,pullTarget:room.storage.id})
+                    }
                 });
 
-                if (armorBoostLab.store[RESOURCE_GHODIUM_OXIDE] > 30 && armorBoostLab.store[RESOURCE_ENERGY] > 20) {
-                    room.boostAvailable.push['armor'];
-                    //console.log(room.name + ' has armor boost available');
-                }
-                
                 return;
 
             default:
