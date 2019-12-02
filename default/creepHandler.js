@@ -338,45 +338,47 @@ module.exports = {
             }
             if (typeof creep.memory.needsBoost !== 'undefined' && creep.memory.needsBoost.length > 0) {
                 boostTypes = [ 'armor', 'attack', 'move', 'heal'];
-                creep.creepLog('needs Boost!');
                 boostTypes.forEach(function (bt) {
-                    if (creep.room.boostAvailable.includes(bt)) {
-                        // try to boost armor
-                        var boostLab ; 
-                        switch (bt) {
-                            case 'armor':
-                                boostLab = creep.room.labs[2];
-                               break;
-                            case 'move':
-                                boostLab = creep.room.labs[3];
-                                break;
-                            case 'attack':
-                                boostLab = creep.room.labs[0];
-                               break;
-                            case 'heal':
-                                boostLab = creep.room.labs[1];
-                                break;
-                            default:
-                                console.log(creep.room.name + ' unknown boost type: ' + bt);
+                    if (creep.memory.needsBoost.includes(bt)) {
+                        creep.creepLog('needs Boost ' + bt);
+                        if (creep.room.boostAvailable && creep.room.boostAvailable.includes(bt)) {
+                            // try to boost
+                            var boostLab ; 
+                            switch (bt) {
+                                case 'armor':
+                                    boostLab = creep.room.labs[2];
+                                    break;
+                                case 'move':
+                                    boostLab = creep.room.labs[3];
+                                    break;
+                                case 'attack':
+                                    boostLab = creep.room.labs[0];
+                                    break;
+                                case 'heal':
+                                    boostLab = creep.room.labs[1];
+                                    break;
+                                default:
+                                    console.log(creep.room.name + ' unknown boost type: ' + bt);
+
+                            }
+                            switch(boostLab.boostCreep(creep)) {
+                                case ERR_NOT_IN_RANGE:
+                                    creep.moveToTarget(boostLab);
+                                    break;
+                                case OK:
+                                    _.remove(creep.memory.needsBoost, (b) => { return b == bt});
+                                    break;
+                                default:
+                                    creep.creepLog('error trying to boost');
+                            } 
+                        } else {
+                            creep.creepLog('no boost available, removing ' + bt);
+                            _.remove(creep.memory.needsBoost, (b) => { return b == bt});
 
                         }
-                        switch(boostLab.boostCreep(creep)) {
-                            case ERR_NOT_IN_RANGE:
-                                creep.moveToTarget(boostLab);
-                                break;
-                            case OK:
-                                _.remove(creep.memory.needsBoost, (b) => { return b == bt});
-                                break;
-                            default:
-                                creep.creepLog('error trying to boost');
-                        } 
-                    } else {
-                        creep.creepLog('no boost available, removing ' + bt);
-                        _.remove(creep.memory.needsBoost, (b) => { return b == bt});
-
                     }
                 })
-                return;
+                return; // this is here because when we're boosting we can't send more move commands to creeps
             }
             if (creep.memory.targetRoom && (creep.memory.targetRoom != creep.room.name)) {
                 creep.moveToRoom(creep.memory.targetRoom);
