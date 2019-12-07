@@ -621,14 +621,23 @@ module.exports = {
             const healBoostLab = room.labs[1];
             const armorBoostLab = room.labs[2];
 
-            if (attackBoostLab && attackBoostLab.store[RESOURCE_UTRIUM_HYDRIDE] >= 300 && attackBoostLab.store[RESOURCE_ENERGY] >= 200) {
-                room.boostAvailable.push('attack');
+            if (attackBoostLab) {
+                if ((attackBoostLab.store[RESOURCE_UTRIUM_HYDRIDE] >= 300 || attackBoostLab.store[RESOURCE_UTRIUM_ACID] >=300 || attackBoostLab.store[RESOURCE_CATALYZED_UTRIUM_ACID] >=300 )
+                     && attackBoostLab.store[RESOURCE_ENERGY] >= 200) {
+                    room.boostAvailable.push('attack');
+                    }
             }
-            if (healBoostLab && healBoostLab.store[RESOURCE_LEMERGIUM_OXIDE] >= 300 && healBoostLab.store[RESOURCE_ENERGY] >= 200) {
-                room.boostAvailable.push('heal');
+            if (healBoostLab) {
+                if ((healBoostLab.store[RESOURCE_LEMERGIUM_OXIDE] >= 300 || healBoostLab.store[RESOURCE_LEMERGIUM_ALKALIDE] >= 300 || healBoostLab.store[RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE] >= 300)
+                    && healBoostLab.store[RESOURCE_ENERGY] >= 200) {
+                    room.boostAvailable.push('heal');
+                    }
             }
-            if (armorBoostLab && armorBoostLab.store[RESOURCE_GHODIUM_OXIDE] >= 300 && armorBoostLab.store[RESOURCE_ENERGY] >= 200) {
-                room.boostAvailable.push('armor');
+            if (armorBoostLab) {
+                if ((armorBoostLab.store[RESOURCE_GHODIUM_OXIDE] >= 300 || armorBoostLab.store[RESOURCE_GHODIUM_ALKALIDE] >= 300 || armorBoostLab.store[RESOURCE_CATALYZED_GHODIUM_ALKALIDE] >= 300) 
+                && armorBoostLab.store[RESOURCE_ENERGY] >= 200) {
+                    room.boostAvailable.push('armor');
+                }
             }
             //console.log(room.name + room.boostAvailable);
         }
