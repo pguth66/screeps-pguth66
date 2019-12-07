@@ -141,6 +141,11 @@
         // main loop
 
         const mineralType = room.minerals[0].mineralType;
+        const dontSell = [ 'X', 'L' ];
+        if (dontSell.includes[mineralType]) {
+            return;
+        }
+        
         const amountinTerminal = room.terminal.store[mineralType]; 
         const totalInTerminal = _.sum(room.terminal.store);
         const averagePrice = getAveragePrice(mineralType,amountinTerminal,totalInTerminal);
@@ -180,10 +185,10 @@
                 //pruneOrders(roomOrders, mineralType);
         }
 
-        const basicMinerals = [ 'U', 'X', 'Z', 'L', 'K', 'O', 'H'];
+        const basicMinerals = [ 'U', 'Z', 'K', 'O', 'H', 'X', 'L'];
 
         basicMinerals.forEach(function (mineral) {
-            if (mineral == mineralType || room.memory.minType == 'ghodium' || room.memory.minType == 'hydroxide') {
+            if (mineral == mineralType || (room.memory.minType != 'generic' || room.memory.minType != 'boosttest')) {
                 return;
             }
             else {
