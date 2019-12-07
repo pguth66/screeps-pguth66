@@ -86,7 +86,8 @@ module.exports = {
                 if ((lab.store[resource] < 500) && (!room.hasCreepWithJob(jobName))) {
                     if (room.terminal.store[resource] > 500) { 
                         console.log(room.name + " filling lab " + lab.id + ' with ' + resource);
-                        let amountToGet = lab.store.getFreeCapacity(resource);
+                        // don't fill past 2900 because that will trigger an empty job if this is a product for a different labgroup
+                        let amountToGet = lab.store.getFreeCapacity(resource) - 150;
                         if (amountToGet > 3000) { amountToGet = 3000 };
                         if (amountToGet > room.terminal.store[resource]) {amountToGet = room.terminal.store[resource]};
                         room.addToCreepBuildQueue('contracthauler', {resource:resource, total:amountToGet, job:jobName, pullTarget:room.terminal.id, dropTarget:lab.id})
@@ -161,7 +162,9 @@ module.exports = {
                 let emptyJob = 'empty' + compound;
                 if (lg.product.store[lg.product.mineralType] >= 2900 && !room.hasCreepWithJob(emptyJob)) {
                     console.log(room.name + 'emptying lab of ' + compound)
-                    room.addToCreepBuildQueue('contracthauler',{resource:lg.product.mineralType,job:emptyJob,total:lg.product.store[lg.product.mineralType],pullTarget:lg.product.id,dropTarget:room.terminal.id});
+                    // want to leave more than 500 so we don't trigger a fill job if this is an reactant for a higher order compound
+                    let emptyAmt = lg.product.store[lg.product.mineralType] - 510;
+                    room.addToCreepBuildQueue('contracthauler',{resource:lg.product.mineralType,job:emptyJob,total:emptyAmt,pullTarget:lg.product.id,dropTarget:room.terminal.id});
  
                 }
 
