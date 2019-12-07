@@ -143,6 +143,10 @@ module.exports = {
                     console.log(room.name + ' missing lab!');
                     return false;
                 }
+                const r1cpd = reactionMap[compound].r1;
+                const r2cpd = reactionMap[compound].r2;
+                const prodcpd = reactionMap[compound].product;
+
                 fillLab(lg.reactant1,reactionMap[compound].r1,'filllab' + reactionMap[compound].r1);
                 fillLab(lg.reactant2,reactionMap[compound].r2, 'filllab' + reactionMap[compound].r2);
                 // if the 'product' lab has the wrong minerals in it, empty it
@@ -160,11 +164,11 @@ module.exports = {
 
                 // if product is full, empty it to terminal (maybe should be separate function?)
                 let emptyJob = 'empty' + compound;
-                if (lg.product.store[lg.product.mineralType] >= 2900 && !room.hasCreepWithJob(emptyJob)) {
+                if (lg.product.store[lg.product[prodcpd]] >= 2900 && !room.hasCreepWithJob(emptyJob)) {
                     console.log(room.name + 'emptying lab of ' + compound)
                     // want to leave more than 500 so we don't trigger a fill job if this is an reactant for a higher order compound
                     let emptyAmt = lg.product.store[lg.product.mineralType] - 510;
-                    room.addToCreepBuildQueue('contracthauler',{resource:lg.product.mineralType,job:emptyJob,total:emptyAmt,pullTarget:lg.product.id,dropTarget:room.terminal.id});
+                    room.addToCreepBuildQueue('contracthauler',{resource:prodcpd,job:emptyJob,total:emptyAmt,pullTarget:lg.product.id,dropTarget:room.terminal.id});
  
                 }
 
@@ -177,19 +181,19 @@ module.exports = {
             });
         }
         const reactionMap = {
-            'ZK': { r1: RESOURCE_ZYNTHIUM, r2: RESOURCE_KEANIUM},
-            'UL': { r1: RESOURCE_UTRIUM, r2: RESOURCE_LEMERGIUM},
-            'G': { r1: RESOURCE_ZYNTHIUM_KEANITE, r2:RESOURCE_UTRIUM_LEMERGITE },
-            'OH': { r1: RESOURCE_OXYGEN, r2: RESOURCE_HYDROGEN},
-            'LO' : {r1: RESOURCE_LEMERGIUM, r2: RESOURCE_OXYGEN},
-            'LHO2' : {r1: RESOURCE_LEMERGIUM_OXIDE, r2:RESOURCE_HYDROXIDE},
-            'GHO2': {r1: RESOURCE_GHODIUM_OXIDE, r2:RESOURCE_HYDROXIDE},
-            'UO': {r1: RESOURCE_UTRIUM, r2: RESOURCE_OXYGEN},
-            'UH': {r1: RESOURCE_UTRIUM, r2: RESOURCE_HYDROGEN},
-            'UH2O': {r1: RESOURCE_UTRIUM_HYDRIDE, r2: RESOURCE_HYDROXIDE},
-            'KO': {r1: RESOURCE_KEANIUM, r2: RESOURCE_OXYGEN},
-            'ZO': {r1: RESOURCE_ZYNTHIUM, r2: RESOURCE_OXYGEN},
-            'KHO2' : {r1:RESOURCE_KEANIUM_OXIDE, r2:RESOURCE_HYDROXIDE}
+            'ZK': { r1: RESOURCE_ZYNTHIUM, r2: RESOURCE_KEANIUM, product: RESOURCE_ZYNTHIUM_KEANITE},
+            'UL': { r1: RESOURCE_UTRIUM, r2: RESOURCE_LEMERGIUM, product: RESOURCE_UTRIUM_LEMERGITE},
+            'G': { r1: RESOURCE_ZYNTHIUM_KEANITE, r2:RESOURCE_UTRIUM_LEMERGITE, product:RESOURCE_GHODIUM },
+            'OH': { r1: RESOURCE_OXYGEN, r2: RESOURCE_HYDROGEN, product:RESOURCE_HYDROXIDE},
+            'LO' : {r1: RESOURCE_LEMERGIUM, r2: RESOURCE_OXYGEN, product: RESOURCE_LEMERGIUM_OXIDE},
+            'LHO2' : {r1: RESOURCE_LEMERGIUM_OXIDE, r2:RESOURCE_HYDROXIDE, product: RESOURCE_LEMERGIUM_ALKALIDE},
+            'GHO2': {r1: RESOURCE_GHODIUM_OXIDE, r2:RESOURCE_HYDROXIDE, product: RESOURCE_GHODIUM_ALKALIDE},
+            'UO': {r1: RESOURCE_UTRIUM, r2: RESOURCE_OXYGEN, product:RESOURCE_UTRIUM_OXIDE},
+            'UH': {r1: RESOURCE_UTRIUM, r2: RESOURCE_HYDROGEN, product: RESOURCE_UTRIUM_HYDRIDE},
+            'UH2O': {r1: RESOURCE_UTRIUM_HYDRIDE, r2: RESOURCE_HYDROXIDE, product: RESOURCE_UTRIUM_ACID},
+            'KO': {r1: RESOURCE_KEANIUM, r2: RESOURCE_OXYGEN, product: RESOURCE_KEANIUM_OXIDE},
+            'ZO': {r1: RESOURCE_ZYNTHIUM, r2: RESOURCE_OXYGEN, product: RESOURCE_ZYNTHIUM_OXIDE},
+            'KHO2' : {r1:RESOURCE_KEANIUM_OXIDE, r2:RESOURCE_HYDROXIDE, product: RESOURCE_KEANIUM_ALKALIDE}
         }
 
         var compoundsToMake = [];
