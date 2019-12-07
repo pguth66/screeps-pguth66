@@ -196,7 +196,7 @@ module.exports = {
                             }
                         })
                         var powerSpawn=creep.room.powerSpawn;
-                        if (powerSpawn && !isFull(powerSpawn)) { targets.push(powerSpawn)};
+                        if (creep.hasPower() && powerSpawn && !isFull(powerSpawn)) { targets.push(powerSpawn)};
                         try {
                             if (targets.length > 0) {
                                 target = creep.pos.findClosestByPath(targets);
