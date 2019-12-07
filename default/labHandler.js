@@ -36,7 +36,7 @@ class LabGroup {
 
         // right now this has an edge failure case if the two reactant labs contain the same mineral
         if ((this.reactant1.mineralType == r1) || (this.reactant1.mineralType == r2) && this.reactant1.mineralAmount >= 5 &&
-            (this.reactant2.mineralType == r2) || (this.reactant2.mineralType == r1) && zkLabGroup.reactant2.mineralAmount >= 5) {
+            (this.reactant2.mineralType == r2) || (this.reactant2.mineralType == r1) && this.reactant2.mineralAmount >= 5) {
              //console.log(labGroup.product.id);
                 if (this.product.cooldown == 0) {
                     switch(this.product.runReaction(this.reactant1,this.reactant2)) {
@@ -125,6 +125,22 @@ module.exports = {
                     case 'LHO2':
                         lg = new LabGroup (room.labs[2], room.labs[1], room.labs[3], compound);
                         break;
+                    case 'GHO2':
+                        lg = new LabGroup(room.labs[6],room.labs[9],room.labs[7], 'GHO2');
+                        break;
+                    case 'ZK':
+                        lg = new LabGroup (room.labs[0], room.labs[1], room.labs[2], 'ZK');
+                        break;
+                    case 'UL':
+                        lg = new LabGroup (room.labs[4], room.labs[5], room.labs[8], 'UL');
+                        break;
+                    case 'G':
+                        lg = new LabGroup(room.labs[2], room.labs[8], room.labs[3], 'G');
+                        break;
+                }
+                if (typeof lg.reactant1 === 'undefined' || typeof lg.reactant2 === 'undefined') {
+                    console.log(room.name + ' missing lab!');
+                    return false;
                 }
                 fillLab(lg.reactant1,reactionMap[compound].r1,'filllab' + reactionMap[compound].r1);
                 fillLab(lg.reactant2,reactionMap[compound].r2, 'filllab' + reactionMap[compound].r2);
@@ -140,12 +156,16 @@ module.exports = {
                     }
                 }
                 lg.produce(reactionMap);
+
+                // if product is full, empty it to terminal (maybe should be separate function?)
                 let emptyJob = 'empty' + compound;
                 if (lg.product.store[lg.product.mineralType] >= 2900 && !room.hasCreepWithJob(emptyJob)) {
                     console.log(room.name + 'emptying lab of ' + compound)
                     room.addToCreepBuildQueue('contracthauler',{resource:lg.product.mineralType,job:emptyJob,total:lg.product.store[lg.product.mineralType],pullTarget:lg.product.id,dropTarget:room.terminal.id});
  
                 }
+
+                // if reactants are low, get mins from other rooms (maybe should be separate function?)
                 [reactionMap[compound].r1, reactionMap[compound].r2].forEach( (m) => {
                     if (room.terminal.store[m] < 3000) {
                         room.getMinsFromNearestRoom(m);
@@ -156,7 +176,7 @@ module.exports = {
         const reactionMap = {
             'ZK': { r1: RESOURCE_ZYNTHIUM, r2: RESOURCE_KEANIUM},
             'UL': { r1: RESOURCE_UTRIUM, r2: RESOURCE_LEMERGIUM},
-            'G': { r1: RESOURCE_UTRIUM_LEMERGITE, r2: RESOURCE_ZYNTHIUM_KEANITE},
+            'G': { r1: RESOURCE_ZYNTHIUM_KEANITE, r2:RESOURCE_UTRIUM_LEMERGITE },
             'OH': { r1: RESOURCE_OXYGEN, r2: RESOURCE_HYDROGEN},
             'LO' : {r1: RESOURCE_LEMERGIUM, r2: RESOURCE_OXYGEN},
             'LHO2' : {r1: RESOURCE_LEMERGIUM_OXIDE, r2:RESOURCE_HYDROXIDE},
@@ -172,64 +192,63 @@ module.exports = {
         var compoundsToMake = [];
         switch (room.memory.minType) {
             case 'ghodium':
-                // console.log('running lab stuff in ' + room.name);
-                zkLabGroup = new LabGroup (room.labs[0], room.labs[1], room.labs[2], 'ZK');
-                ulLabGroup = new LabGroup (room.labs[4], room.labs[5], room.labs[8], 'UL');
-                gLabGroup = new LabGroup(room.labs[2], room.labs[8], room.labs[3], 'G');
-
-                fillLab(ulLabGroup.reactant1,RESOURCE_UTRIUM,'fillul1');
-                fillLab(ulLabGroup.reactant2,RESOURCE_LEMERGIUM,'fillul2');
-                fillLab(zkLabGroup.reactant1,RESOURCE_ZYNTHIUM,'fillzk1');
-                fillLab(zkLabGroup.reactant2,RESOURCE_KEANIUM,'fillzk2');
-                //console.log('product lab is ' + zkLabGroup.product.id);
-
-                zkLabGroup.produce(reactionMap);
-                ulLabGroup.produce(reactionMap);
-                gLabGroup.produce(reactionMap);
-
-                if (gLabGroup.product.store[RESOURCE_GHODIUM] >= 2900 && !room.hasCreepWithJob('emptyG')) {
-                    room.addToCreepBuildQueue('contracthauler',{resource:RESOURCE_GHODIUM,job:'emptyG',total:gLabGroup.product.store[RESOURCE_GHODIUM],pullTarget:gLabGroup.product.id,dropTarget:room.terminal.id});
-                }
-
-                goLabGroup = new LabGroup(room.labs[6],room.labs[7],room.labs[9], 'GHO2');
-
-                fillLab(goLabGroup.reactant1,RESOURCE_GHODIUM_OXIDE,'fullgo1');
-                fillLab(goLabGroup.reactant2,RESOURCE_HYDROXIDE,'fillgo2');
-                goLabGroup.produce(reactionMap);
+                compoundsToMake = [ 'G', 'UL', 'ZK', 'GHO2' ];
+                makeCompounds(compoundsToMake);
                 return;
                 break;
             case 'hydroxide':
                 compoundsToMake = [ 'OH' ];
                 makeCompounds(compoundsToMake);
                 return;
-
                 break;
             case 'LO':
                 compoundsToMake = [ 'LO', 'LHO2' ];
                 makeCompounds(compoundsToMake);
-
                 // use labs 8 and 9 to make catalyzed
                 return;
-
+                break;
+            case 'UH':
+                compoundsToMake = [ 'UH'];
+                makeCompounds(compoundsToMake);
+                return;
+                break;
             case 'UO':
                 compoundsToMake = [ 'UO','UH', 'UH2O'];
                 makeCompounds(compoundsToMake);
-
                 return;
-            
+                break;
             case 'KO':
-                compoundsToMake = [ 'KO'];
+                compoundsToMake = [ 'KO', 'KHO2'];
                 makeCompounds(compoundsToMake);
                 return;
-
+                break;
             case 'boosttest':
                 const attackBoostLab = room.labs[0];
                 const healBoostLab = room.labs[1];
                 const armorBoostLab = room.labs[2];
-
-                fillLab(attackBoostLab,RESOURCE_UTRIUM_HYDRIDE,'fillattk');
+                var boostLabs=[];
+                boostLabs['attackBoost'] = room.labs[0];
+                boostLabs['healBoost'] = room.labs[1];
+                boostLabs['armorBoost'] = room.labs[2];
+                const attackBoost = [ RESOURCE_CATALYZED_UTRIUM_ACID, RESOURCE_UTRIUM_ACID, RESOURCE_UTRIUM_HYDRIDE];
+                const healBoost = [ RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE, RESOURCE_LEMERGIUM_ALKALIDE, RESOURCE_LEMERGIUM_OXIDE];
+                const armorBoost = [RESOURCE_CATALYZED_GHODIUM_ALKALIDE, RESOURCE_GHODIUM_ALKALIDE, RESOURCE_GHODIUM_OXIDE];
+                boostLabMap = {attack: {boost:attackBoost, jobName:'attack', lab: room.labs[0]},
+                                heal: {boost:healBoost, jobName: 'heal', lab: room.labs[1]},
+                                armor: {boost:armorBoost, jobName: 'armor', lab: room.labs[2]}};
+                [ 'attack', 'heal', 'armor'].forEach(function(boostType) {
+                    for (const compound of boostLabMap[boostType]['boost']) {
+                        // maybe we should only do this when refilling?
+                        if (room.terminal.store[compound]>500) {
+                            //console.log(room.name + ' would fill lab ' + boostLabMap[boostType]['lab'] + ' with '  + compound);
+                            fillLab(boostLabMap[boostType]['lab'],compound,'fill' + boostLabMap[boostType]['jobName']);
+                            break;
+                        }
+                    }
+                });
+                /* 
                 fillLab(healBoostLab,RESOURCE_LEMERGIUM_OXIDE,'fillheal');
-                fillLab(armorBoostLab,RESOURCE_GHODIUM_OXIDE,'fillarmor');
+                fillLab(armorBoostLab,RESOURCE_GHODIUM_OXIDE,'fillarmor'); */
 
                 labs = [attackBoostLab, healBoostLab, armorBoostLab];
                 labs.forEach(function (lab) {
