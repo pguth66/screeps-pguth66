@@ -35,21 +35,23 @@ var rolePowerProcessor = {
                 } else {
                     const powerSources = creep.room.find(FIND_MY_STRUCTURES, {
                         filter: function (s) {
-                            return s.structureType != STRUCTURE_POWER_SPAWN && s.store && s.store[RESOURCE_POWER] > creep.store.getCapacity();
+                            return s.structureType != STRUCTURE_POWER_SPAWN && s.store && s.store[RESOURCE_POWER] > 0;
                         }
                     })
                     const target = creep.pos.findClosestByPath(powerSources);
-                    switch (creep.withdraw(target, RESOURCE_POWER)) {
-                        case ERR_NOT_IN_RANGE:
-                            creep.moveTo(target);
-                            break;
-                        case ERR_NOT_ENOUGH_RESOURCES:
-                            creep.withdraw(target, target.store[RESOURCE_POWER]);
-                            break;
-                        case OK:
-                            return;
-                        default:
-                            creep.creepLog('error while picking up power')
+                    if (target) {
+                        switch (creep.withdraw(target, RESOURCE_POWER)) {
+                            case ERR_NOT_IN_RANGE:
+                                creep.moveTo(target);
+                                break;
+                            case ERR_NOT_ENOUGH_RESOURCES:
+                                creep.suicide();
+                                break;
+                            case OK:
+                                return;
+                            default:
+                                creep.creepLog('error while picking up power from ' + target.id)
+                        }
                     }
                 }
             }
