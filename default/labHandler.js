@@ -112,6 +112,7 @@ module.exports = {
                         break;
                     case 'UH':
                     case 'KO':
+                    case 'GH':
                         lg = new LabGroup (room.labs[3], room.labs[4], room.labs[5], compound);
                         break;
                     case 'UH2O':
@@ -202,6 +203,7 @@ module.exports = {
             'UH2O': {r1: RESOURCE_UTRIUM_HYDRIDE, r2: RESOURCE_HYDROXIDE, product: RESOURCE_UTRIUM_ACID},
             'KO': {r1: RESOURCE_KEANIUM, r2: RESOURCE_OXYGEN, product: RESOURCE_KEANIUM_OXIDE},
             'ZO': {r1: RESOURCE_ZYNTHIUM, r2: RESOURCE_OXYGEN, product: RESOURCE_ZYNTHIUM_OXIDE},
+            'GH': {r1: RESOURCE_GHODIUM, r2: RESOURCE_HYDROGEN, product: RESOURCE_GHODIUM_HYDRIDE},
             'KHO2' : {r1:RESOURCE_KEANIUM_OXIDE, r2:RESOURCE_HYDROXIDE, product: RESOURCE_KEANIUM_ALKALIDE},
             'XUH2O': {r1: RESOURCE_UTRIUM_ACID, r2:RESOURCE_CATALYST, product: RESOURCE_CATALYZED_UTRIUM_ACID},
             'XLHO2': {r1: RESOURCE_LEMERGIUM_ALKALIDE, r2:RESOURCE_CATALYST, product: RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE},
@@ -211,7 +213,7 @@ module.exports = {
         var compoundsToMake = [];
         switch (room.memory.minType) {
             case 'ghodium':
-                compoundsToMake = [ 'G', 'UL', 'ZK', 'GHO2' ];
+                compoundsToMake = [ 'ZO', 'GH', 'GHO2' ];
                 makeCompounds(compoundsToMake);
                 return;
                 break;
@@ -232,7 +234,7 @@ module.exports = {
                 return;
                 break;
             case 'UO':
-                compoundsToMake = [ 'UO','UH', 'UH2O'];
+                compoundsToMake = [ 'UH', 'UH2O'];
                 makeCompounds(compoundsToMake);
                 return;
                 break;
