@@ -164,7 +164,7 @@ module.exports = {
 
                 // if product is full, empty it to terminal (maybe should be separate function?)
                 let emptyJob = 'empty' + compound;
-                if (lg.product.store[lg.product[prodcpd]] >= 2900 && !room.hasCreepWithJob(emptyJob)) {
+                if (lg.product.store[prodcpd] >= 2900 && !room.hasCreepWithJob(emptyJob)) {
                     console.log(room.name + 'emptying lab of ' + compound)
                     // want to leave more than 500 so we don't trigger a fill job if this is an reactant for a higher order compound
                     let emptyAmt = lg.product.store[lg.product.mineralType] - 510;
