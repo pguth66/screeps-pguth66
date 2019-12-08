@@ -142,7 +142,8 @@
 
         const mineralType = room.minerals[0].mineralType;
         const dontSell = [ 'X', 'L' ];
-        if (dontSell.includes[mineralType]) {
+        if (dontSell.includes(mineralType)) {
+            console.log(room.name + ' skipping market for ' + mineralType);
             return;
         }
         
