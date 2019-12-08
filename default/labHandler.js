@@ -138,6 +138,15 @@ module.exports = {
                     case 'G':
                         lg = new LabGroup(room.labs[2], room.labs[8], room.labs[3], 'G');
                         break;
+                    case 'XUH2O':
+                        lg = new LabGroup(room.labs[6],room.labs[5],room.labs[3], 'XUH2O');
+                        break;
+                    case 'XLHO2':
+                        lg = new LabGroup(room.labs[4],room.labs[5],room.labs[7], 'XLHO2');
+                        break;
+                    case 'XGHO2':
+                        lg = new LabGroup(room.labs[9],room.labs[5],room.labs[8], 'XGHO2');
+                        break;
                 }
                 if (typeof lg.reactant1 === 'undefined' || typeof lg.reactant2 === 'undefined') {
                     console.log(room.name + ' missing lab!');
@@ -193,7 +202,10 @@ module.exports = {
             'UH2O': {r1: RESOURCE_UTRIUM_HYDRIDE, r2: RESOURCE_HYDROXIDE, product: RESOURCE_UTRIUM_ACID},
             'KO': {r1: RESOURCE_KEANIUM, r2: RESOURCE_OXYGEN, product: RESOURCE_KEANIUM_OXIDE},
             'ZO': {r1: RESOURCE_ZYNTHIUM, r2: RESOURCE_OXYGEN, product: RESOURCE_ZYNTHIUM_OXIDE},
-            'KHO2' : {r1:RESOURCE_KEANIUM_OXIDE, r2:RESOURCE_HYDROXIDE, product: RESOURCE_KEANIUM_ALKALIDE}
+            'KHO2' : {r1:RESOURCE_KEANIUM_OXIDE, r2:RESOURCE_HYDROXIDE, product: RESOURCE_KEANIUM_ALKALIDE},
+            'XUH2O': {r1: RESOURCE_UTRIUM_ACID, r2:RESOURCE_CATALYST, product: RESOURCE_CATALYZED_UTRIUM_ACID},
+            'XLHO2': {r1: RESOURCE_LEMERGIUM_ALKALIDE, r2:RESOURCE_CATALYST, product: RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE},
+            'XGHO2': {r1: RESOURCE_GHODIUM_ALKALIDE, r2: RESOURCE_CATALYST, product: RESOURCE_CATALYZED_GHODIUM_ALKALIDE}
         }
 
         var compoundsToMake = [];
@@ -229,6 +241,11 @@ module.exports = {
                 makeCompounds(compoundsToMake);
                 return;
                 break;
+            case 'XUH2O':
+                compoundsToMake = [ 'XUH2O', 'XLHO2', 'XGHO2'];
+                makeCompounds(compoundsToMake);
+                return;
+                break;
             case 'boosttest':
                 const attackBoostLab = room.labs[0];
                 const healBoostLab = room.labs[1];
@@ -260,7 +277,7 @@ module.exports = {
                 labs = [attackBoostLab, healBoostLab, armorBoostLab];
                 labs.forEach(function (lab) {
                     //console.log(lab.id + ' has ' + lab.store.getUsedCapacity(RESOURCE_ENERGY) + ' energy');
-                    if (lab.store.getUsedCapacity(RESOURCE_ENERGY) < 500 && !room.hasCreepWithJob('refilllabenergy')) {
+                    if (lab.store.getUsedCapacity(RESOURCE_ENERGY) < 1000 && !room.hasCreepWithJob('refilllabenergy')) {
                         room.addToCreepBuildQueue('contracthauler',{resource:RESOURCE_ENERGY,job:'refilllabenergy',upTo:lab.store.getCapacity(RESOURCE_ENERGY),dropTarget:lab.id,pullTarget:room.storage.id})
                     }
                 });
