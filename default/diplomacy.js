@@ -73,7 +73,7 @@ class Squadron {
     saveState() {
         const     properties = [ 'id', 'spawnRoom', 'mission', 'target', 'targetRoom', 'state'];
         properties.forEach(function(p) {
-            //console.log(p);
+            //console.log(p + this[p]);
             Memory.squads[this.id][p] = this[p];
         },this);
         Memory.squads[this.id].members = [];
@@ -95,12 +95,12 @@ module.exports = {
         }
         const currId = Memory.currentSquadNum;
 
-        if (currId == 14) {
-            testSquad = new Squadron('W29N28',['testsquad','testsquad'],'attack','powerSpawn','W29N23',currId,'init');
+        if (currId == 28) {
+            testSquad = new Squadron('W29N28',['testsquad','testsquad'],'attack','powerBank','W29N23',currId,'init');
             Memory.currentSquadNum += 1;
         }
-         if (currId == 11) {
-                testSquad2 = new Squadron('W29N29',['warrior','medic','warrior'],'attack','powerSpawn','W29N30',currId);
+         if (currId == 29) {
+                testSquad2 = new Squadron('W29N29',['warrior','medic','warrior'],'attack','powerBank','W30N30',currId);
                 Memory.currentSquadNum += 1;
         } 
 
@@ -139,6 +139,9 @@ module.exports = {
                 switch (squad.state) {
                     case 'init':
                         //console.log('init state');
+                        let numMembers = squad.members.length;
+                        let numQueued = 0;
+
                         squad.members.forEach(function (member, i) {
                             console.log("member " + i + ' has state ' + member.memberState);
                             // because dry runs work one creep at a time, need to only add one creep per turn to build queue
@@ -153,16 +156,65 @@ module.exports = {
                                     return squad.members[i].memberState = 'queued';
                                 }
                             }
+                            if (member.memberState == 'queued') {
+                                numQueued += 1;
+                            }
+ 
                             //console.log(memberID);
                         });
-                        squad.saveState();
-                        //Memory.squads[key].state = 'waitForSpawn';
+                        if (numQueued == numMembers) {
+                            console.log('squad ' + key  + ' setting to waitForSpawn')
+                            squad.state = 'waitForSpawn';
+                        }
                         break;
                     case 'waitForSpawn':
+                        squad.state = 'waitForStage';
                         break;
+                    case 'waitForStage':
+                        squad.state = 'goToTarget';
+                        break;
+                    case 'goToTarget':
+                        squad.state = 'performMission';
+                        break;
+                    case 'performMission':
+                        let targetRoom = Game.rooms[squad.targetRoom];
+                        if (typeof targetRoom === 'undefined') {return};
+                        switch(squad.target) {
+                            case 'powerSpawn':
+                                //console.log('squad ' + squad.id + ' performing mission');
+                                /* 
+                                substages
+                                    powerBank there - attack it
+                                    powerBank down to (say) 200k - spawn interhaulers
+                                    powerBank gone but resources there - guard
+                                    powerBank gone, resources gone - cleanup
+                                */
+                                if (targetRoom.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_POWER_BANK}}).length > 0) {
+                                    console.log('squad ' + squad.id + ' has powerBank in room');
+                                } else {
+                                    if (targetRoom.find(FIND_DROPPED_RESOURCES).length > 0) {
+                                        console.log('squad ' + squad.id + ' has resources to gather');
+                                    }
+                                    else {
+                                        console.log('cleanup');
+                                        squad.members.forEach(function (member, i) {
+                                            if (member.role == 'warrior' || member.role == 'medic') {
+                                                console.log('setting ' + member.id + ' to recycle');
+                                            }
+                                        })
+                                        squad.state = 'inactive';
+                                    }
+                                }
+                                break;
+                            default:
+                                //console.log('NO TARGET')
+                        }
+                        break;
+                    
                     default:
                         console.log('error processing squad ' + squad.id);
                 }
+                squad.saveState();
             }
         })
     } catch(err) {
