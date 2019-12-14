@@ -616,7 +616,7 @@ module.exports = {
         }
         room.boostAvailable = [];
 
-        if (room.memory.minType == 'boosttest') {
+        if (room.memory.minType == 'boosttest' || room.memory.frontier) {
             const attackBoostLab = room.labs[0];
             const healBoostLab = room.labs[1];
             const armorBoostLab = room.labs[2];
