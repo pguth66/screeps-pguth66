@@ -119,13 +119,14 @@ module.exports = {
                         lg = new LabGroup (room.labs[5],room.labs[7],room.labs[8],compound);
                         break;
                     case 'KHO2':
+                    case 'LO':
                         lg = new LabGroup ( room.labs[5], room.labs[6], room.labs[7], compound);
                         break;
-                    case 'LO':
+                   /*  case 'LO':
                         lg = new LabGroup (room.labs[0], room.labs[4], room.labs[2], compound);
-                        break;
+                        break; */
                     case 'LHO2':
-                        lg = new LabGroup (room.labs[2], room.labs[1], room.labs[3], compound);
+                        lg = new LabGroup (room.labs[7], room.labs[8], room.labs[9], compound);
                         break;
                     case 'GHO2':
                         lg = new LabGroup(room.labs[6],room.labs[9],room.labs[7], 'GHO2');
@@ -210,6 +211,41 @@ module.exports = {
             'XGHO2': {r1: RESOURCE_GHODIUM_ALKALIDE, r2: RESOURCE_CATALYST, product: RESOURCE_CATALYZED_GHODIUM_ALKALIDE}
         }
 
+        // boosting in frontier rooms
+        if (room.memory.frontier) {
+            //console.log(room.name + " running frontier boost stuff");
+            const attackBoost = [ RESOURCE_CATALYZED_UTRIUM_ACID, RESOURCE_UTRIUM_ACID, RESOURCE_UTRIUM_HYDRIDE];
+            const healBoost = [ RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE, RESOURCE_LEMERGIUM_ALKALIDE, RESOURCE_LEMERGIUM_OXIDE];
+            const armorBoost = [RESOURCE_CATALYZED_GHODIUM_ALKALIDE, RESOURCE_GHODIUM_ALKALIDE, RESOURCE_GHODIUM_OXIDE];
+            boostLabMap = {attack: {boost:attackBoost, jobName:'attack', lab: room.labs[0]},
+                            heal: {boost:healBoost, jobName: 'heal', lab: room.labs[1]},
+                            armor: {boost:armorBoost, jobName: 'armor', lab: room.labs[2]}};
+            [ 'attack', 'heal', 'armor'].forEach(function(boostType) {
+                for (const compound of boostLabMap[boostType]['boost']) {
+                    // maybe we should only do this when refilling?
+                    if (room.terminal.store[compound]>500) {
+                        //console.log(room.name + ' would fill lab ' + boostLabMap[boostType]['lab'] + ' with '  + compound);
+                        fillLab(boostLabMap[boostType]['lab'],compound,'fill' + boostLabMap[boostType]['jobName']);
+                        break;
+                    }
+                }
+            });
+
+            var labs = Object.keys(boostLabMap).map(function (boostType) {
+                return boostLabMap[boostType].lab;
+            })
+
+            // should be combined with above where we refill labs if needed?
+            labs.forEach(function (lab) {
+                //console.log(lab.id + ' has ' + lab.store.getUsedCapacity(RESOURCE_ENERGY) + ' energy');
+                if (lab.store.getUsedCapacity(RESOURCE_ENERGY) < 1000 && !room.hasCreepWithJob('refilllabenergy')) {
+                    room.addToCreepBuildQueue('contracthauler',{resource:RESOURCE_ENERGY,job:'refilllabenergy',upTo:lab.store.getCapacity(RESOURCE_ENERGY),dropTarget:lab.id,pullTarget:room.storage.id})
+                }
+            });
+
+        }
+
+        //making compound minerals
         var compoundsToMake = [];
         switch (room.memory.minType) {
             case 'ghodium':
@@ -223,7 +259,7 @@ module.exports = {
                 return;
                 break;
             case 'LO':
-                compoundsToMake = [ 'LO', 'LHO2' ];
+                compoundsToMake = [ 'LO' ];
                 makeCompounds(compoundsToMake);
                 // use labs 8 and 9 to make catalyzed
                 return;
@@ -248,14 +284,7 @@ module.exports = {
                 makeCompounds(compoundsToMake);
                 return;
                 break;
-            case 'boosttest':
-                const attackBoostLab = room.labs[0];
-                const healBoostLab = room.labs[1];
-                const armorBoostLab = room.labs[2];
-                var boostLabs=[];
-                boostLabs['attackBoost'] = room.labs[0];
-                boostLabs['healBoost'] = room.labs[1];
-                boostLabs['armorBoost'] = room.labs[2];
+   /*          case 'boosttest':
                 const attackBoost = [ RESOURCE_CATALYZED_UTRIUM_ACID, RESOURCE_UTRIUM_ACID, RESOURCE_UTRIUM_HYDRIDE];
                 const healBoost = [ RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE, RESOURCE_LEMERGIUM_ALKALIDE, RESOURCE_LEMERGIUM_OXIDE];
                 const armorBoost = [RESOURCE_CATALYZED_GHODIUM_ALKALIDE, RESOURCE_GHODIUM_ALKALIDE, RESOURCE_GHODIUM_OXIDE];
@@ -272,11 +301,12 @@ module.exports = {
                         }
                     }
                 });
-                /* 
-                fillLab(healBoostLab,RESOURCE_LEMERGIUM_OXIDE,'fillheal');
-                fillLab(armorBoostLab,RESOURCE_GHODIUM_OXIDE,'fillarmor'); */
+ 
+                var labs = Object.keys(boostLabMap).map(function (boostType) {
+                    return boostLabMap[boostType].lab;
+                })
 
-                labs = [attackBoostLab, healBoostLab, armorBoostLab];
+                // should be combined with above where we refill labs if needed?
                 labs.forEach(function (lab) {
                     //console.log(lab.id + ' has ' + lab.store.getUsedCapacity(RESOURCE_ENERGY) + ' energy');
                     if (lab.store.getUsedCapacity(RESOURCE_ENERGY) < 1000 && !room.hasCreepWithJob('refilllabenergy')) {
@@ -285,7 +315,7 @@ module.exports = {
                 });
 
                 return;
-
+ */
             default:
                 return;
         }        
