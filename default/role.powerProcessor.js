@@ -4,7 +4,7 @@ var rolePowerProcessor = {
     run: function (creep) {
 
         if (!creep.room.powerSpawn) {
-            creepLog(' is a power processor but there is no powerSpawn here!');
+            creep.creepLog(' is a power processor but there is no powerSpawn here!');
             return false;
         }
 
