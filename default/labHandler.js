@@ -106,26 +106,28 @@ module.exports = {
             compoundsToMake.forEach( function (compound) {
                 switch (compound) {
                     case 'UO':
-                    case 'OH':
                     case 'ZO':
                         lg = new LabGroup (room.labs[0], room.labs[1], room.labs[2], compound);
                         break;
-                    case 'UH':
                     case 'KO':
                     case 'GH':
                         lg = new LabGroup (room.labs[3], room.labs[4], room.labs[5], compound);
                         break;
-                    case 'UH2O':
-                        lg = new LabGroup (room.labs[5],room.labs[7],room.labs[8],compound);
-                        break;
                     case 'KHO2':
                     case 'LO':
-                        lg = new LabGroup ( room.labs[5], room.labs[6], room.labs[7], compound);
+                    case 'UH':
+                    case 'OH':
+                        if (room.labs.length < 7) {
+                            lg = new LabGroup (room.labs[0], room.labs[1], room.labs[2], compound);
+                        } else {
+                            lg = new LabGroup ( room.labs[5], room.labs[6], room.labs[7], compound);
+                        }
                         break;
                    /*  case 'LO':
                         lg = new LabGroup (room.labs[0], room.labs[4], room.labs[2], compound);
                         break; */
                     case 'LHO2':
+                    case 'UH2O':
                         lg = new LabGroup (room.labs[7], room.labs[8], room.labs[9], compound);
                         break;
                     case 'GHO2':
@@ -150,7 +152,7 @@ module.exports = {
                         lg = new LabGroup(room.labs[9],room.labs[5],room.labs[8], 'XGHO2');
                         break;
                 }
-                if (typeof lg.reactant1 === 'undefined' || typeof lg.reactant2 === 'undefined') {
+                if (typeof lg.reactant1 === 'undefined' || typeof lg.reactant2 === 'undefined' || typeof lg.product === 'undefined') {
                     console.log(room.name + ' missing lab!');
                     return false;
                 }
