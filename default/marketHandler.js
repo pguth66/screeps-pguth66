@@ -141,7 +141,7 @@
         // main loop
 
         const mineralType = room.minerals[0].mineralType;
-        const dontSell = [ 'X', 'L' ];
+        const dontSell = [ 'L', 'O', 'X' ];
         if (dontSell.includes(mineralType)) {
             console.log(room.name + ' skipping market for ' + mineralType);
             return;
@@ -155,7 +155,8 @@
 
         // if there are no existing orders for the primary mineral, create one
         const roomOrder = _.remove(roomOrders, {resourceType: mineralType})[0];
-        if (!roomOrder) {
+        if (typeof roomOrder === 'undefined') {
+            console.log(room.name + ' creating SELL order for ' + mineralType);
             Game.market.createOrder(ORDER_SELL, mineralType, averagePrice, 1 ,room.name);
         }
 
