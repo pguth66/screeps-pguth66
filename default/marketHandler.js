@@ -162,6 +162,7 @@
 
         switch (roomOrders.length) {
             // if there's one or two, try to sell
+            // since we _.removed the main sell order above, this can be zero under normal conditions
             case 0:
             case 1:
             case 2:
