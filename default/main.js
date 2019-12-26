@@ -4,6 +4,7 @@ var labHandler = require('labHandler');
 var marketHandler = require('marketHandler');
 var roomHandler = require('roomHandler');
 var diplomacy = require('diplomacy');
+var roleOperator = require('role.operator');
 
 module.exports.loop = function () {
 
@@ -66,6 +67,12 @@ module.exports.loop = function () {
     if (numMinHaulers < 1) {
         //Game.rooms[Memory.capitol].addToCreepBuildQueue('minhauler');
 //        Game.spawns['Spawn8'].createCreep([CARRY, CARRY, CARRY, CARRY, MOVE, MOVE], undefined, { role: 'minhauler' });
+    }
+
+    // powerCreeps
+    for (var name in Game.powerCreeps) {
+        //console.log('running powerCreep ' + name);
+        roleOperator.run(Game.powerCreeps[name]);
     }
 
     for (i in Game.rooms) {
