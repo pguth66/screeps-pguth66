@@ -169,7 +169,7 @@ module.exports.loop = function () {
                         } else {
                             const powerBanks = highwayRoom.find(FIND_STRUCTURES, {structureType: STRUCTURE_POWER_BANK});
                             if (powerBanks.length > 0) {
-                                console.log('powerbank found in room ' + highwayRoom.name + ' hits ' + powerBanks[0].hits + ' decay ' + powerBanks[0].ticksToDecay);
+                                console.log('powerbank found in room ' + highwayRoom.name + ' hits ' + powerBanks[0].hits + ' decay ' + powerBanks[0].ticksToDecay + ' power ' + powerBanks[0].power);
                             }
                         }
                         highwayRooms.shift();
