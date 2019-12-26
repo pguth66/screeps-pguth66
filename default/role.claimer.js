@@ -59,6 +59,10 @@ var roleClaimer = {
                         break;
                     case OK:
                         break;
+                    case ERR_INVALID_TARGET:
+                        // this typically means the controller is reserved by a player
+                        creep.attackController(creep.room.controller);
+                        break;
                     case ERR_GCL_NOT_ENOUGH:
                     if(creep.reserveController(creep.room.controller) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(creep.room.controller, {visualizePathStyle: {}});
