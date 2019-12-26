@@ -225,7 +225,7 @@ Room.prototype.findNearestRoomNeedingEnergy = function () {
     return roomsNeedingEnergy[0];
 }
 Room.prototype.getMinsFromNearestRoom = function (mineral) {
-    const roomsWithMin = _.filter(Game.rooms, (r) => { if (r.controller && r.controller.my && r.terminal && r.terminal.store[mineral] > 15000) { return r } });
+    const roomsWithMin = _.filter(Game.rooms, (r) => { if (r.controller && r.controller.my && r.terminal && r.terminal.store[mineral] > 10000) { return r } });
     var destRoomMatrix = [];
     roomsWithMin.forEach(function (room, i) {
         if (room.terminal) {
