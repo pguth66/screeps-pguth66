@@ -158,6 +158,8 @@
         if (typeof roomOrder === 'undefined') {
             console.log(room.name + ' creating SELL order for ' + mineralType);
             Game.market.createOrder(ORDER_SELL, mineralType, averagePrice, 1 ,room.name);
+            //order won't exist until the next tick so let's just get out of here now
+            return;
         }
 
         switch (roomOrders.length) {
