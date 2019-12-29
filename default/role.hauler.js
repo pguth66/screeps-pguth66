@@ -42,6 +42,10 @@ module.exports = {
             else {
                 creep.memory.hauling = false;
                 creep.memory.target = null;
+                // don't want interhaulers to pick up a load of stuff on their first tick after flipping
+                if (creep.memory.role == 'interhauler') {
+                    return;
+                }
                 creep.say("Harvest");
                 // if we just flipped and we're near a full source link, pull from it
                 const sourceLinkObjs = _.filter(creep.room.links, (l) => l.isSource);
