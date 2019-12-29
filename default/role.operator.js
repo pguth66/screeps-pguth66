@@ -87,7 +87,7 @@ var roleOperator = {
                     case OK:
                         break;
                     default:
-                        console.log(creep.room.name + ' error depsiting OPS in storage');
+                        console.log(creep.room.name + ' error depositing OPS in storage');
                 }
             }
         }
