@@ -586,8 +586,9 @@ Room.prototype.getThreatLevel = function () {
 }
 module.exports = {
 
-    handleRoom: function (room) {
+    handleRoom: function (room, minsToTrack) {
 
+ 
         // don't process rooms without controllers
         if (!room.controller) { return };
         // don't process rooms I don't own
@@ -778,7 +779,9 @@ module.exports = {
                 room.powerSpawn.processPower();
             }
         }
-
+        minsToTrack.forEach(function (min) {
+        Game.minTotal[min] += room.terminal.store[min];
+        });
         //console.log(room.avgWallStrength() + ' ' + room.memory.wallLevel);
         if ((Game.time % 79) == 0) {
             if ((room.controller.level == 8) && (room.minWallStrength() >= room.memory.wallLevel)) {
