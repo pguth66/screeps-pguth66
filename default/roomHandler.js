@@ -160,6 +160,14 @@ Object.defineProperty(Room.prototype, 'tombstones', {
         return this._tombstones;
     }
 })
+Object.defineProperty(Room.prototype, 'ruins', {
+    get: function () {
+        if (!this._ruins) {
+            this._ruins = this.find(FIND_RUINS);
+        }
+        return this._ruins;
+    }
+})
 Object.defineProperty(Room.prototype, 'walls', {
     get: function () {
         if (!this._walls) {
