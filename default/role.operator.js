@@ -79,7 +79,7 @@ var roleOperator = {
             }
             // if we're getting full, go deposit ops in storage
             if (creep.store[RESOURCE_OPS] > 375) {
-                let amtToDep = creep.store[RESOURCE_OPS] - 350;
+                let amtToDep = creep.store[RESOURCE_OPS] - 50;
                 switch (creep.transfer(creep.room.storage, RESOURCE_OPS, amtToDep)) {
                     case ERR_NOT_IN_RANGE:
                         creep.moveTo(creep.room.storage);
@@ -87,7 +87,7 @@ var roleOperator = {
                     case OK:
                         break;
                     default:
-                        console.log(creep.room.name + ' error depositing OPS in storage');
+                        console.log(creep.room.name + ' error depsiting OPS in storage');
                 }
             }
         }
