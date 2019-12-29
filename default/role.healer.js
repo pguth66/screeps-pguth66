@@ -70,7 +70,7 @@ var roleHealer = {
             // if creep already has a priority target, keep healing it unless it's full
             if (creep.memory.priorityTarget) {
                 const pt = Game.getObjectById(creep.memory.priorityTarget);
-                if (typeof pt === 'undefined') {
+                if (typeof pt === 'undefined' || pt === null) {
                     creep.memory.priorityTarget = null;
                 } else {
                     switch (pt.structureType) {
