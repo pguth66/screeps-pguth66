@@ -187,7 +187,7 @@ module.exports = {
                             }
                         })
                         var terminal = creep.room.terminal;
-                        if(terminal && terminal.store[RESOURCE_ENERGY] < 20000 && _.sum(terminal.store) < terminal.storeCapacity) {
+                        if(creep.hasEnergy() && terminal && !isFull(terminal) && terminal.store[RESOURCE_ENERGY] < 20000 && _.sum(terminal.store) < terminal.storeCapacity) {
                             targets.push(terminal);
                         }
                         creep.room.labs.forEach(function(lab) {
