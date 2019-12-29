@@ -75,13 +75,19 @@ module.exports.loop = function () {
         roleOperator.run(Game.powerCreeps[name]);
     }
 
+    Game.minTotal={};
+    minsToTrack = [ 'X', 'H', 'Z', 'K', 'U', 'L', 'G', 'O', 'OH', 'GO', 'GH', 'UH', 'UO', 'UL', 'ZK', 'LO', 'LH', 'GHO2', 'UH2O', 'LHO2', 'XGHO2', 'XUH2O', 'XLHO2' ];
+    minsToTrack.forEach(function (min) {
+        Game.minTotal[min] = 0;
+    });
+    
     for (i in Game.rooms) {
         // ALL OF THIS should be in roomHandler
         const room = Game.rooms[i];
         const spawn = room.spawns[0];
         const towers = room.towers;
 
-        roomHandler.handleRoom(room);
+        roomHandler.handleRoom(room, minsToTrack);
         
         if (!Memory.rooms[room.name]) {
             Memory.rooms[room.name] = {};
@@ -516,4 +522,11 @@ module.exports.loop = function () {
     
     // diplomacy
     diplomacy.run();
+
+    // minerals inventory
+    if ((Game.time % 12) == 3) {
+        minsToTrack.forEach(function (min) {
+            console.log(min +': ' + Game.minTotal[min])
+        })
+    };
 }
