@@ -127,6 +127,8 @@ module.exports = {
                         lg = new LabGroup (room.labs[0], room.labs[4], room.labs[2], compound);
                         break; */
                     case 'LHO2':
+                        lg = new LabGroup (room.labs[7], room.labs[4], room.labs[8], compound);
+                        break;
                     case 'UH2O':
                         lg = new LabGroup (room.labs[7], room.labs[8], room.labs[9], compound);
                         break;
@@ -245,13 +247,23 @@ module.exports = {
                 }
             });
 
+            // get top-level mins from other rooms, if available
+            [ attackBoost[0], healBoost[0], armorBoost[0] ].forEach(function (min) {
+              //console.log(min);
+              //if (room.name == 'W28N26') {
+                //console.log(room.terminal.store[min] + ' of ' + min );
+                if (room.terminal.store[min] < 2000) {
+                  room.getMinsFromNearestRoom(min);
+                }
+              //}
+            })
         }
 
         //making compound minerals
         var compoundsToMake = [];
         switch (room.memory.minType) {
             case 'ghodium':
-                compoundsToMake = [ 'ZO', 'GH', 'GHO2' ];
+                compoundsToMake = [ 'GHO2' ];
                 makeCompounds(compoundsToMake);
                 return;
                 break;
@@ -261,7 +273,7 @@ module.exports = {
                 return;
                 break;
             case 'LO':
-                compoundsToMake = [ 'LO' ];
+                compoundsToMake = [ 'LO', 'LHO2' ];
                 makeCompounds(compoundsToMake);
                 // use labs 8 and 9 to make catalyzed
                 return;
@@ -272,7 +284,7 @@ module.exports = {
                 return;
                 break;
             case 'UO':
-                compoundsToMake = [ 'UH', 'UH2O'];
+                compoundsToMake = [ ];
                 makeCompounds(compoundsToMake);
                 return;
                 break;
