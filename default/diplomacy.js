@@ -99,8 +99,8 @@ module.exports = {
             testSquad = new Squadron('W29N28',['testsquad','testsquad'],'attack','powerBank','W29N23',currId,'init');
             Memory.currentSquadNum += 1;
         }
-         if (currId == 29) {
-                testSquad2 = new Squadron('W29N29',['warrior','medic','warrior'],'attack','powerBank','W30N30',currId);
+         if (currId == 32) {
+                testSquad2 = new Squadron('W29N23',['warrior','medic','warrior'],'attack','powerBank','W30N24',currId);
                 Memory.currentSquadNum += 1;
         } 
 
@@ -147,8 +147,8 @@ module.exports = {
                             // because dry runs work one creep at a time, need to only add one creep per turn to build queue
                             if (member.memberState == 'init' && ((Game.time % squad.members.length) == i)) {
                                 if (!spawnRoom.hasCreepWithJob(member.id)) {
-                                    console.log('would spawn ' + member.id + ' with target ' + targetRoom);
-                                    if (!spawnRoom.addToCreepBuildQueue(member.role,{targetRoom:targetRoom,respawn:true,job:member.id})) {
+                                    console.log('would spawn ' + member.id + ' with target ' + squad.targetRoom);
+                                    if (!spawnRoom.addToCreepBuildQueue(member.role,{targetRoom:squad.targetRoom,respawn:true,job:member.id})) {
                                         console.log('spawning error');
                                         return;
                                     }
