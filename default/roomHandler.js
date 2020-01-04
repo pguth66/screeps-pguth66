@@ -788,7 +788,9 @@ module.exports = {
             }
         }
         minsToTrack.forEach(function (min) {
-        Game.minTotal[min] += room.terminal.store[min];
+            if (typeof room.terminal !== 'undefined') {
+                Game.minTotal[min] += room.terminal.store[min];
+            }
         });
         //console.log(room.avgWallStrength() + ' ' + room.memory.wallLevel);
         if ((Game.time % 79) == 0) {
