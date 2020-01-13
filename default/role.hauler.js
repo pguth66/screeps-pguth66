@@ -294,7 +294,7 @@ module.exports = {
                 sources.push(powerBanks[0]);
             }
 
-            if (!(creep.room.controller && creep.room.controller.my && creep.room.memory.foundHostiles)) {
+            if (!(creep.room.controller && creep.room.controller.my && (creep.room.memory.foundHostiles && typeof creep.room.controller.safeMode === 'undefined'))) {
                 sources = creep.room.droppedResources;
                 // remove anything in the junkyard
                 if ((sources.length > 0) && creep.room.junkyard) {
