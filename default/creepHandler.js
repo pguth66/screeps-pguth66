@@ -416,6 +416,7 @@ module.exports = {
                 }
                 if (creep.memory.role == 'medic') {
                     creep.memory.needsBoost.push('heal');
+                    creep.memory.needsBoost.push('armor');
                 }
             }
         }
