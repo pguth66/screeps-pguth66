@@ -302,6 +302,7 @@ Room.prototype.getSoldierBody = function (parts) {
     numTough = parts.tough;
     numAttack = parts.attack;
     numMove = parts.move;
+    numRangedAtk = parts.rangedAttack
     let newbody = [];
 
     // order matters here, this is how the body will be constructed
@@ -316,6 +317,9 @@ Room.prototype.getSoldierBody = function (parts) {
     }
     for (i = 0; i < parts.move; i++) {
         newbody.push(MOVE);
+    }
+    for (i = 0; i < parts.rangedAttack; i++ ) {
+        newbody.push(RANGED_ATTACK);
     }
 
     return newbody;
@@ -419,6 +423,9 @@ Room.prototype.getCreepBody = function (role, targetRoom) {
             case 'medic':
                 body = this.getSoldierBody({ tough: 1, heal: 32, move: 17 })
                 //body = [TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE];
+                break;
+            case 'archer':
+                body = this.getSoldierBody({ tough: 1, rangedAttack: 1, move: 1});
                 break;
             default:
                 body = [WORK, CARRY, WORK, CARRY, WORK, CARRY, MOVE, MOVE, MOVE];
