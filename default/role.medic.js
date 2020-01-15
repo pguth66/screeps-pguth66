@@ -3,7 +3,7 @@ var roleMedic = {
     /** @param {Creep} creep **/
     run: function(creep) {
 
-        const targets = creep.room.find(FIND_MY_CREEPS, {filter: function (c) { return c.memory.role == 'warrior'}});
+        const targets = creep.room.find(FIND_MY_CREEPS, {filter: function (c) { return c.memory.role == 'warrior' || c.memory.role == 'medic '}});
         var target = {} ;
 
         if (creep.hits < (creep.hitsMax / 2)) {
