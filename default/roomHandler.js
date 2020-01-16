@@ -393,7 +393,7 @@ Room.prototype.getCreepBody = function (role, targetRoom) {
                 break;
             case 'patrol':
             case 'warrior':
-                body = this.getSoldierBody({ tough: 16, attack: 17, move: 17 });
+                body = this.getSoldierBody({ tough: 10, attack: 20, move: 15 });
                 //body = [TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE];
                 break;
             case 'testsquad':
@@ -421,7 +421,7 @@ Room.prototype.getCreepBody = function (role, targetRoom) {
                 body = [WORK, WORK, WORK, CARRY, MOVE, MOVE];
                 break;
             case 'medic':
-                body = this.getSoldierBody({ tough: 1, heal: 32, move: 17 })
+                body = this.getSoldierBody({ tough: 5, heal: 10, move: 8 })
                 //body = [TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE];
                 break;
             case 'archer':
@@ -558,7 +558,7 @@ Room.prototype.hasCreepWithJob = function (j) {
 Room.prototype.getTotalCreeps = function (role) {
     // returns an array of the existing creeps with this role in this room plus those in the build queue
     const roomCreeps2 = _.filter(Game.creeps, (creep) => { return creep.room.name == this.name });
-    const creepsTargetingRoom = _.filter(Game.creeps, (creep) => { return creep.memory.targetRoom == this.name });
+    const creepsTargetingRoom = _.filter(Game.creeps, (creep) => { return creep.memory.targetRoom == this.name || creep.memory.workRoom == this.name });
     const totalCreeps = _.uniq(roomCreeps2.concat(creepsTargetingRoom));
     //console.log(this.name + ' has ' + roomCreeps2.length + ' creeps with role ' + role);
     const liveCreeps = _.filter(totalCreeps, (creep) => creep.memory.role == role);

@@ -56,11 +56,12 @@ class Squadron {
             console.log('init memory for ' + this.id);
             Memory.squads[this.id] = {};
             this.state = 'init';
+            this.missionStage = 1;
             this.saveState();
             console.log(spawnRoom + ' creating squadron of ' + members.length);
         } else {
             //rebuild object from what's stored in Memory
-            const     properties = [ 'id', 'spawnRoom', 'mission', 'target', 'targetRoom', 'state'];
+            const     properties = [ 'id', 'spawnRoom', 'mission', 'target', 'targetRoom', 'state', 'missionStage'];
             properties.forEach(function (p) {
                 this[p] = Memory.squads[this.id][p];
             },this);
@@ -71,7 +72,7 @@ class Squadron {
     } // end constructor
 
     saveState() {
-        const     properties = [ 'id', 'spawnRoom', 'mission', 'target', 'targetRoom', 'state'];
+        const     properties = [ 'id', 'spawnRoom', 'mission', 'target', 'targetRoom', 'state', 'missionStage'];
         properties.forEach(function(p) {
             //console.log(p + this[p]);
             Memory.squads[this.id][p] = this[p];
@@ -81,6 +82,11 @@ class Squadron {
             //console.log('storing memory for ' + this.id + ' member ' + m.id)
             Memory.squads[this.id]['members'][i] = m;
         },this);
+    }
+
+    log(msg) {
+        console.log('squad ' + this.id + ' ' + msg );
+
     }
 }
 
@@ -99,8 +105,8 @@ module.exports = {
             testSquad = new Squadron('W29N28',['testsquad','testsquad'],'attack','powerBank','W29N23',currId,'init');
             Memory.currentSquadNum += 1;
         }
-         if (currId == 32) {
-                testSquad2 = new Squadron('W29N23',['warrior','medic','warrior'],'attack','powerBank','W30N24',currId);
+         if (currId == 43) {
+                testSquad2 = new Squadron('W29N26',['warrior','medic'],'attack','powerBank','W30N26',currId);
                 Memory.currentSquadNum += 1;
         } 
 
@@ -143,7 +149,7 @@ module.exports = {
                         let numQueued = 0;
 
                         squad.members.forEach(function (member, i) {
-                            console.log("member " + i + ' has state ' + member.memberState);
+                            squad.log("member " + i + ' has state ' + member.memberState);
                             // because dry runs work one creep at a time, need to only add one creep per turn to build queue
                             if (member.memberState == 'init' && ((Game.time % squad.members.length) == i)) {
                                 if (!spawnRoom.hasCreepWithJob(member.id)) {
@@ -163,7 +169,7 @@ module.exports = {
                             //console.log(memberID);
                         });
                         if (numQueued == numMembers) {
-                            console.log('squad ' + key  + ' setting to waitForSpawn')
+                            squad.log('setting to waitForSpawn')
                             squad.state = 'waitForSpawn';
                         }
                         break;
@@ -180,7 +186,7 @@ module.exports = {
                         let targetRoom = Game.rooms[squad.targetRoom];
                         if (typeof targetRoom === 'undefined') {return};
                         switch(squad.target) {
-                            case 'powerSpawn':
+                            case 'powerBank':
                                 //console.log('squad ' + squad.id + ' performing mission');
                                 /* 
                                 substages
@@ -189,17 +195,41 @@ module.exports = {
                                     powerBank gone but resources there - guard
                                     powerBank gone, resources gone - cleanup
                                 */
-                                if (targetRoom.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_POWER_BANK}}).length > 0) {
-                                    console.log('squad ' + squad.id + ' has powerBank in room');
+                                const powerBank = targetRoom.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_POWER_BANK}})[0];
+                                if (typeof powerBank !== 'undefined') {
+                                    squad.log('has powerBank in room');
+                                    squad.log(powerBank.hits)
+                                    if (powerBank.hits < 400000 && squad.missionStage == 1) {
+                                        //spawn interhaulers
+                                        const numInterHaulers = Math.round(powerBank.power / 1000);
+                                        const interHaulersOnMission = targetRoom.getTotalCreeps('interhauler');
+                                        if (interHaulersOnMission < numInterHaulers) {
+                                            squad.spawnRoom.addToCreepBuildQueue('interhauler',{workRoom:squad.targetRoom,baseRoom:squad.spawnRoom});
+                                        }
+                                        else {
+                                            squad.missionStage = 2;
+                                        }
+                                        squad.log('spawning ' + numInterHaulers + ' interhaulers');
+                                    }
+                                    // TODO: have interhaulers move towards powerBank here (if spawned and in room)
                                 } else {
                                     if (targetRoom.find(FIND_DROPPED_RESOURCES).length > 0) {
-                                        console.log('squad ' + squad.id + ' has resources to gather');
+                                        // attackers hold steady, interhaulers haul
+                                        // attackers should make sure they aren't blocking the way to the powerBank
+                                        squad.members.forEach(function (member) {
+                                            if (member.role == 'warrior' || member.role == 'medic' && member.pos.getRangeTo(powerBank) < 3) {
+                                                member.flee(powerBank);
+                                            }
+                                        })
+                                        squad.log('has resources to gather');
                                     }
                                     else {
                                         console.log('cleanup');
                                         squad.members.forEach(function (member, i) {
                                             if (member.role == 'warrior' || member.role == 'medic') {
-                                                console.log('setting ' + member.id + ' to recycle');
+                                                squad.log('setting ' + member.id + ' to recycle');
+                                                member.targetRoom = squad.spawnRoom;
+                                                member.role = 'recycle';
                                             }
                                         })
                                         squad.state = 'inactive';
@@ -208,7 +238,7 @@ module.exports = {
                                 break;
                             default:
                                 //console.log('NO TARGET')
-                        }
+                        };
                         break;
                     
                     default:
