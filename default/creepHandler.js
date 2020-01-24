@@ -298,6 +298,14 @@ Creep.prototype.hasOnlyMoveParts = function () {
         return true;
     }
 }
+Creep.prototype.canHeal = function () {
+    const healParts = [ HEAL];
+    var numHealParts = 0;
+    healParts.forEach(function (part) {
+        numHealParts += this.getActiveBodyparts(part);
+    },this);
+    return numHealParts > 0 ? true : false
+}
 
 module.exports = {
 

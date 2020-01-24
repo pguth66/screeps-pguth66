@@ -245,15 +245,34 @@ Room.prototype.getMinsFromNearestRoom = function (mineral) {
     if(destRoomMatrix.length == 0) {
         return false;
     }
-    console.log(this.name + ' requesting ' + mineral + ' from ' + destRoomMatrix[0].room.name);
-    switch(destRoomMatrix[0].room.terminal.send(mineral,6000,this.name)) {
-        case OK:
-        case ERR_TIRED:
-            break;
-        default:
-            console.log(this.name + ' error while requesting ' + mineral + ' from ' + destRoomMatrix[0].room.name);
+    function sendMinsTo(room, thisRoom) {
+        console.log(thisRoom.name + ' requesting ' + mineral + ' from ' + room.name);
+        switch(room.terminal.send(mineral,6000,thisRoom.name)) {
+            case OK:
+                return true;
+            case ERR_TIRED:
+                break;
+            case ERR_NOT_ENOUGH_RESOURCES:
+                // try the next one
+                return 'next';
+                break;
+            default:
+                console.log(this.name + ' error while requesting ' + mineral + ' from ' + destRoomMatrix[0].room.name);
+        }
+        //return destRoomMatrix[0].room;
     }
-    return destRoomMatrix[0].room;
+
+    switch (sendMinsTo(destRoomMatrix[0].room, this)) {
+        case 'next':
+            if (typeof destRoomMatrix[1] !== 'undefined') {
+                sendMinsTo(destRoomMatrix[1].room, this);
+            }            
+            break;
+        case true:
+            return destRoomMatrix[0].room;
+        
+    };
+    
 }
 /**
  * Adds a task to the room's lab queue
@@ -425,7 +444,7 @@ Room.prototype.getCreepBody = function (role, targetRoom) {
                 //body = [TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE];
                 break;
             case 'archer':
-                body = this.getSoldierBody({ tough: 1, rangedAttack: 1, move: 1});
+                body = this.getSoldierBody({ tough: 5, rangedAttack: 10, move: 8});
                 break;
             default:
                 body = [WORK, CARRY, WORK, CARRY, WORK, CARRY, MOVE, MOVE, MOVE];
@@ -562,6 +581,8 @@ Room.prototype.getTotalCreeps = function (role) {
     const totalCreeps = _.uniq(roomCreeps2.concat(creepsTargetingRoom));
     //console.log(this.name + ' has ' + roomCreeps2.length + ' creeps with role ' + role);
     const liveCreeps = _.filter(totalCreeps, (creep) => creep.memory.role == role);
+    //TODO: this needs to include buildqueues of all rooms, not just this one 
+    // so walk the array of rooms. go through each buildqueue, and look for any creeps with role targeting this room
     const potentialCreeps = _.filter(this.memory.buildQueue, { role: role });
     return liveCreeps.concat(potentialCreeps);
 }
@@ -631,7 +652,6 @@ module.exports = {
             console.log(room.name + " error during init: " + err);
         }
         room.boostAvailable = [];
-
         if (room.memory.minType == 'boosttest' || room.memory.frontier) {
             const attackBoostLab = room.labs[0];
             const healBoostLab = room.labs[1];
@@ -695,7 +715,15 @@ module.exports = {
                 /* if (room.name == 'W27N26') {
                     _.remove(this.hostileCreeps, function (e) { return e.owner.username == 'Totalschaden' });
                 } */
-                const closestHostile = tower.pos.findClosestByRange(room.hostileCreeps);
+                var enemyHealers = _.filter(room.hostileCreeps, (c) => {return c.canHeal()});
+                var closestHostile = {} ;
+                const closestHealer = tower.pos.findClosestByRange(enemyHealers);
+                if (tower.pos.getRangeTo(closestHealer) < 12) {
+                    closestHostile = closestHealer;
+                } else {
+                    closestHostile = tower.pos.findClosestByRange(room.hostileCreeps);
+                    
+                }
                 if (closestHostile) {
                     if (tower.pos.getRangeTo(closestHostile) < 12) {
                         tower.attack(closestHostile);
@@ -708,10 +736,13 @@ module.exports = {
         } // end towers
 
         if (room.storage && room.terminal) {
-            const amountToSend = 50000;
+            const amountToSend = 30000;
             switch (room.memory.energyState) {
                 case 'normal':
                     if (room.storage.store[RESOURCE_ENERGY] > 700000) {
+                        if (room.storage.store.getFreeCapacity() < amountToSend) { 
+                            console.log(room.name + ' terminal too full to send energy');
+                            break; }
                         console.log(room.name + ' needs to send energy, has ' + room.storage.store[RESOURCE_ENERGY]);
                         room.memory.energyState = 'loading';
                     }
@@ -736,6 +767,7 @@ module.exports = {
                         //console.log(room.name + ' sending energy to ' + targetRoom.name);
                         // need to add check here for targetRoom terminal having enough room to accept transfer
                         // and for sending room not having enough energy to send it
+                        if (typeof targetRoom === 'undefined') { break; };
                         switch (room.terminal.send(RESOURCE_ENERGY, amountToSend, targetRoom.name)) {
                             case 0:
                                 room.memory.energyState = 'normal';
@@ -768,7 +800,14 @@ module.exports = {
                     if (!room.hasCreepWithJob('unloadingTerminal')) {
                         room.memory.taskID = Memory.taskID;
                         Memory.taskID++;
-                        room.addToCreepBuildQueue('contracthauler', { respawn: true, resource: RESOURCE_ENERGY, total: amountToSend, dropTarget: room.storage.id, pullTarget: room.terminal.id, taskID: room.memory.taskID, job: 'unloadingTerminal' });
+                        const amtToWithdraw = room.terminal.store[RESOURCE_ENERGY] >= amountToSend ? amountToSend : room.terminal.store[RESOURCE_ENERGY];
+                        console.log(room.name + ' ' + amtToWithdraw)
+                        if (amtToWithdraw <= 20000) { 
+                            console.log(room.name + ' trying to withdraw too much energy, resetting energyState') ; 
+                            room.memory.energyState = 'normal';
+                            break;
+                        };
+                        room.addToCreepBuildQueue('contracthauler', { respawn: true, resource: RESOURCE_ENERGY, total: amtToWithdraw, dropTarget: room.storage.id, pullTarget: room.terminal.id, taskID: room.memory.taskID, job: 'unloadingTerminal' });
                     }
                     const unloadTaskCreep = _.filter(room.contracthaulers, (c) => { return c.memory.taskID == room.memory.taskID })[0];
                     if (unloadTaskCreep && unloadTaskCreep.memory.processed >= amountToSend) {
