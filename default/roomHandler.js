@@ -223,13 +223,14 @@ Room.prototype.findNearestRoomSelling = function (mineral) {
     return destRoomMatrix[0].room;
 
 }
-Room.prototype.findNearestRoomNeedingEnergy = function () {
+Room.prototype.findNearestRoomNeedingEnergy = function (amountToSend) {
     // name is a misnomer right now, returns the room with the LOWEST energy, not the nearest one
     // find all rooms with less than threshold energy
-    const roomsNeedingEnergy = _.filter(Game.rooms, (r) => { if (r.storage && r.terminal && r.memory.energyState == 'normal') { return r.storage.store[RESOURCE_ENERGY] < 500000 } });
+    const roomsNeedingEnergy = _.filter(Game.rooms, (r) => { if (r.storage && r.terminal && r.memory.energyState == 'normal') { return r.storage.store[RESOURCE_ENERGY] < 500000 && r.terminal.store.getFreeCapacity() >= amountToSend } });
     // var destRoomMatrix = [] ;
     roomsNeedingEnergy.sort(function (a, b) { return a.storage.store[RESOURCE_ENERGY] - b.storage.store[RESOURCE_ENERGY] });
     //console.log(roomsNeedingEnergy);
+    
     return roomsNeedingEnergy[0];
 }
 Room.prototype.getMinsFromNearestRoom = function (mineral) {
@@ -551,7 +552,7 @@ Room.prototype.refillTerminal = function (rsrc) {
     }
     switch (this.memory.energyState) {
         case 'sending':
-            var amountToRefill = 70000 - this.terminal.store[RESOURCE_ENERGY];
+            var amountToRefill = amountToSend - this.terminal.store[RESOURCE_ENERGY];
             break;
         default:
             var amountToRefill = 20000 - this.terminal.store[RESOURCE_ENERGY];
@@ -651,6 +652,7 @@ module.exports = {
         catch (err) {
             console.log(room.name + " error during init: " + err);
         }
+        const amountToSend = 30000; // how much energy to send between rooms 
         room.boostAvailable = [];
         if (room.memory.minType == 'boosttest' || room.memory.frontier) {
             const attackBoostLab = room.labs[0];
@@ -736,7 +738,6 @@ module.exports = {
         } // end towers
 
         if (room.storage && room.terminal) {
-            const amountToSend = 30000;
             switch (room.memory.energyState) {
                 case 'normal':
                     if (room.storage.store[RESOURCE_ENERGY] > 700000) {
@@ -762,11 +763,9 @@ module.exports = {
                     }
                     break;
                 case 'sending':
-                    const targetRoom = room.findNearestRoomNeedingEnergy();
+                    const targetRoom = room.findNearestRoomNeedingEnergy(amountToSend);
                     try {
                         //console.log(room.name + ' sending energy to ' + targetRoom.name);
-                        // need to add check here for targetRoom terminal having enough room to accept transfer
-                        // and for sending room not having enough energy to send it
                         if (typeof targetRoom === 'undefined') { break; };
                         switch (room.terminal.send(RESOURCE_ENERGY, amountToSend, targetRoom.name)) {
                             case 0:
