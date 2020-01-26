@@ -338,7 +338,8 @@ module.exports.loop = function () {
             if ((room.controller && room.controller.my) && spawn) {
                 if (room.memory.foundHostiles && (threatLevel > 20) && (_.filter(roomCreeps, (creep) => creep.memory.role == 'warrior') < 1)) {
                     var newName;
-                    newName = spawn.createCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, ATTACK], undefined, { role: 'warrior' });
+                    room.addToCreepBuildQueue('warrior');
+                    //newName = spawn.createCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, ATTACK], undefined, { role: 'warrior' });
                     console.log('Spawning new WARRIOR in ' + room.name);
                 }
                 //        console.log('running spawns for ' + room.name);
