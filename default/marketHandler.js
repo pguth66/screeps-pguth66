@@ -70,6 +70,11 @@
             const orders = Game.market.getAllOrders({resourceType: mineralType, type: ORDER_SELL});
             _.remove(orders, (o) => { return o.amount < 100});
 
+            if (orders.length == 0) {
+                console.log(room.name + ": no orders for " + mineralType + ', using default price');
+                return 2;
+            }
+
             //console.log(room.name + ' has ' + amountinTerminal + ' units of ' + mineralType);           
             // pull out just the price
             const prices = orders.map(function (order) { return order.price}).sort((a,b) => (a - b));
@@ -141,7 +146,7 @@
         // main loop
 
         const mineralType = room.minerals[0].mineralType;
-        const dontSell = [ 'L', 'O', 'X' ];
+        const dontSell = [ 'O', 'X', 'L', 'K', 'Z' ];
         if (dontSell.includes(mineralType)) {
             console.log(room.name + ' skipping market for ' + mineralType);
             return;
