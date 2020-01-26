@@ -145,19 +145,32 @@ module.exports = {
                         lg = new LabGroup(room.labs[2], room.labs[8], room.labs[3], 'G');
                         break;
                     case 'XUH2O':
-                        lg = new LabGroup(room.labs[6],room.labs[5],room.labs[3], 'XUH2O');
+                        lg = new LabGroup(room.labs[9],room.labs[5],room.labs[3], 'XUH2O');
                         break;
                     case 'XLHO2':
                         lg = new LabGroup(room.labs[4],room.labs[5],room.labs[7], 'XLHO2');
                         break;
                     case 'XGHO2':
-                        lg = new LabGroup(room.labs[9],room.labs[5],room.labs[8], 'XGHO2');
+                        lg = new LabGroup(room.labs[6],room.labs[5],room.labs[8], 'XGHO2');
+                        break;
+                    case 'XGHO3':
+                        lg = new LabGroup(room.labs[6],room.labs[5],room.labs[7], 'XGHO2');
+                        break;
+                    case 'XGHO4':
+                        lg = new LabGroup(room.labs[6],room.labs[5],room.labs[9], 'XGHO2');
+                        break;
+                    case 'XGHO5':
+                        lg = new LabGroup(room.labs[6],room.labs[5],room.labs[4], 'XGHO2');
+                        break;
+                    case 'XGHO6':
+                        lg = new LabGroup(room.labs[6],room.labs[5],room.labs[3], 'XGHO2');
                         break;
                 }
                 if (typeof lg.reactant1 === 'undefined' || typeof lg.reactant2 === 'undefined' || typeof lg.product === 'undefined') {
                     console.log(room.name + ' missing lab!');
                     return false;
                 }
+                compound = lg.target;
                 const r1cpd = reactionMap[compound].r1;
                 const r2cpd = reactionMap[compound].r2;
                 const prodcpd = reactionMap[compound].product;
@@ -279,7 +292,7 @@ module.exports = {
                 return;
                 break;
             case 'UH':
-                compoundsToMake = [ 'UH'];
+                compoundsToMake = [ 'UH', 'UH2O'];
                 makeCompounds(compoundsToMake);
                 return;
                 break;
@@ -295,6 +308,11 @@ module.exports = {
                 break;
             case 'XUH2O':
                 compoundsToMake = [ 'XUH2O', 'XLHO2', 'XGHO2'];
+                makeCompounds(compoundsToMake);
+                return;
+                break;
+            case 'XGHO2':
+                compoundsToMake = [ 'XGHO2', 'XGHO3', 'XGHO5', 'XGHO6'];
                 makeCompounds(compoundsToMake);
                 return;
                 break;
