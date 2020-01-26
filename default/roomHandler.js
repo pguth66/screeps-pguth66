@@ -740,7 +740,7 @@ module.exports = {
             switch (room.memory.energyState) {
                 case 'normal':
                     if (room.storage.store[RESOURCE_ENERGY] > 700000) {
-                        if (room.storage.store.getFreeCapacity() < amountToSend) { 
+                        if (room.terminal.store.getFreeCapacity() < amountToSend) { 
                             console.log(room.name + ' terminal too full to send energy');
                             break; }
                         console.log(room.name + ' needs to send energy, has ' + room.storage.store[RESOURCE_ENERGY]);
