@@ -6,35 +6,32 @@
  * var mod = require('roomHandler');
  * mod.thing == 'a thing'; // true
  */
-
 Object.defineProperty(Room.prototype, 'sources', {
     get: function () {
         //delete this.memory.sources;
         if (this.memory.sources) {
-            this._sources = this.memory.sources.map(id => Game.getObjectById(id));
+            this._sources = this.memory.sources.map(function (id) { return Game.getObjectById(id); });
         }
         else {
             if (!this._sources) {
                 this._sources = this.find(FIND_SOURCES);
             }
-            this.memory.sources = this._sources.map(source => source.id);
+            this.memory.sources = this._sources.map(function (source) { return source.id; });
         }
         return this._sources;
     }
-})
-
+});
 Object.defineProperty(Room.prototype, 'minerals', {
     get: function () {
         if (!this._minerals) {
             if (!this.memory.minerals) {
-                this.memory.minerals = this.find(FIND_MINERALS).map(mineral => mineral.id);
+                this.memory.minerals = this.find(FIND_MINERALS).map(function (mineral) { return mineral.id; });
             }
-            this._minerals = this.memory.minerals.map(id => Game.getObjectById(id));
+            this._minerals = this.memory.minerals.map(function (id) { return Game.getObjectById(id); });
         }
         return this._minerals;
     }
-})
-
+});
 Object.defineProperty(Room.prototype, 'spawns', {
     get: function () {
         if (!this._spawns) {
@@ -42,13 +39,13 @@ Object.defineProperty(Room.prototype, 'spawns', {
         }
         return this._spawns;
     }
-})
+});
 Object.defineProperty(Room.prototype, 'contracthaulers', {
     get: function () {
-        const contracthaulers = this.getTotalCreeps('contracthauler');
+        var contracthaulers = this.getTotalCreeps('contracthauler');
         return contracthaulers;
     }
-})
+});
 Object.defineProperty(Room.prototype, 'extensions', {
     get: function () {
         if (!this._extensions) {
@@ -56,7 +53,7 @@ Object.defineProperty(Room.prototype, 'extensions', {
         }
         return this._extensions;
     }
-})
+});
 Object.defineProperty(Room.prototype, 'towers', {
     get: function () {
         if (!this._towers) {
@@ -64,7 +61,7 @@ Object.defineProperty(Room.prototype, 'towers', {
         }
         return this._towers;
     }
-})
+});
 Object.defineProperty(Room.prototype, 'links', {
     get: function () {
         if (!this._links) {
@@ -76,12 +73,11 @@ Object.defineProperty(Room.prototype, 'links', {
                 else {
                     link.isSource = false;
                 }
-            }, this)
+            }, this);
         }
         return this._links;
     }
-})
-
+});
 Object.defineProperty(Room.prototype, 'containers', {
     get: function () {
         if (!this._containers) {
@@ -89,15 +85,15 @@ Object.defineProperty(Room.prototype, 'containers', {
             this._containers.forEach(function (container) {
                 //var sources = this.find(FIND_SOURCES);
                 //const nearbySources =  _.filter(sources, (s) => {return container.pos.inRangeTo(s, 3)});
-                const nearbySources = _.filter(this.sources, (s) => { return container.pos.inRangeTo(s, 3) });
-                const nearbyMinerals = _.filter(this.minerals, (m) => { return container.pos.inRangeTo(m, 3) });
+                var nearbySources = _.filter(this.sources, function (s) { return container.pos.inRangeTo(s, 3); });
+                var nearbyMinerals = _.filter(this.minerals, function (m) { return container.pos.inRangeTo(m, 3); });
                 if (nearbySources.length > 0 || nearbyMinerals.length > 0) {
                     container.isSource = true;
                 }
                 else {
                     container.isSource = false;
                 }
-            }, this)
+            }, this);
             if (this.storage) {
                 this.storage.isSource = false;
                 this._containers.push(this.storage);
@@ -105,8 +101,7 @@ Object.defineProperty(Room.prototype, 'containers', {
         }
         return this._containers;
     }
-})
-
+});
 Object.defineProperty(Room.prototype, 'labs', {
     get: function () {
         if (!this._labs) {
@@ -114,8 +109,7 @@ Object.defineProperty(Room.prototype, 'labs', {
         }
         return this._labs;
     }
-})
-
+});
 Object.defineProperty(Room.prototype, 'powerSpawn', {
     get: function () {
         if (!this._ps) {
@@ -123,7 +117,7 @@ Object.defineProperty(Room.prototype, 'powerSpawn', {
         }
         return this._ps;
     }
-})
+});
 Object.defineProperty(Room.prototype, 'observer', {
     get: function () {
         if (!this._observer) {
@@ -131,7 +125,7 @@ Object.defineProperty(Room.prototype, 'observer', {
         }
         return this._observer;
     }
-})
+});
 Object.defineProperty(Room.prototype, 'nuker', {
     get: function () {
         if (!this._nk) {
@@ -139,19 +133,18 @@ Object.defineProperty(Room.prototype, 'nuker', {
         }
         return this._nk;
     }
-})
+});
 Object.defineProperty(Room.prototype, 'droppedResources', {
     // returns an array of objectIDs of resources that can be picked up
     get: function () {
         if (!this._dropped) {
             this._droppedAll = this.find(FIND_DROPPED_RESOURCES);
             // only return piles with more than 50 so we don't waste time
-            this._dropped = _.filter(this._droppedAll, (r) => { return r.amount > 50 });
+            this._dropped = _.filter(this._droppedAll, function (r) { return r.amount > 50; });
         }
         return this._dropped;
     }
-})
-
+});
 Object.defineProperty(Room.prototype, 'tombstones', {
     get: function () {
         if (!this._tombstones) {
@@ -159,7 +152,7 @@ Object.defineProperty(Room.prototype, 'tombstones', {
         }
         return this._tombstones;
     }
-})
+});
 Object.defineProperty(Room.prototype, 'ruins', {
     get: function () {
         if (!this._ruins) {
@@ -167,7 +160,7 @@ Object.defineProperty(Room.prototype, 'ruins', {
         }
         return this._ruins;
     }
-})
+});
 Object.defineProperty(Room.prototype, 'walls', {
     get: function () {
         if (!this._walls) {
@@ -175,7 +168,7 @@ Object.defineProperty(Room.prototype, 'walls', {
         }
         return this._walls;
     }
-})
+});
 Object.defineProperty(Room.prototype, 'ramparts', {
     get: function () {
         if (!this._ramparts) {
@@ -183,7 +176,7 @@ Object.defineProperty(Room.prototype, 'ramparts', {
         }
         return this._ramparts;
     }
-})
+});
 Object.defineProperty(Room.prototype, 'hostileCreeps', {
     get: function () {
         if (!this._hostileCreeps) {
@@ -191,7 +184,7 @@ Object.defineProperty(Room.prototype, 'hostileCreeps', {
         }
         return this._hostileCreeps;
     }
-})
+});
 Object.defineProperty(Room.prototype, 'junkyard', {
     get: function () {
         if (this._junkyard == 'nojunkyard') {
@@ -208,47 +201,50 @@ Object.defineProperty(Room.prototype, 'junkyard', {
         }
         return this._junkyard;
     }
-})
-
+});
 Room.prototype.findNearestRoomSelling = function (mineral) {
-    const roomsWithMin = _.filter(Game.rooms, (r) => { if (r.minerals[0]) { return r.minerals[0].mineralType == mineral } });
+    var roomsWithMin = _.filter(Game.rooms, function (r) { if (r.minerals[0]) {
+        return r.minerals[0].mineralType == mineral;
+    } });
     var destRoomMatrix = [];
     roomsWithMin.forEach(function (room, i) {
         if (room.terminal) {
             destRoomMatrix[i] = { 'room': room, 'dist': Game.map.getRoomLinearDistance(this.name, room.name, true) };
         }
     }, this);
-    destRoomMatrix.sort(function (a, b) { return a.dist - b.dist });
+    destRoomMatrix.sort(function (a, b) { return a.dist - b.dist; });
     //console.log(JSON.stringify(destRoomMatrix,null,4));
     return destRoomMatrix[0].room;
-
-}
+};
 Room.prototype.findNearestRoomNeedingEnergy = function (amountToSend) {
     // name is a misnomer right now, returns the room with the LOWEST energy, not the nearest one
     // find all rooms with less than threshold energy
-    const roomsNeedingEnergy = _.filter(Game.rooms, (r) => { if (r.storage && r.terminal && r.memory.energyState == 'normal') { return r.storage.store[RESOURCE_ENERGY] < 500000 && r.terminal.store.getFreeCapacity() >= amountToSend } });
+    var roomsNeedingEnergy = _.filter(Game.rooms, function (r) { if (r.storage && r.terminal && r.memory.energyState == 'normal') {
+        return r.storage.store[RESOURCE_ENERGY] < 500000 && r.terminal.store.getFreeCapacity() >= amountToSend;
+    } });
     // var destRoomMatrix = [] ;
-    roomsNeedingEnergy.sort(function (a, b) { return a.storage.store[RESOURCE_ENERGY] - b.storage.store[RESOURCE_ENERGY] });
+    roomsNeedingEnergy.sort(function (a, b) { return a.storage.store[RESOURCE_ENERGY] - b.storage.store[RESOURCE_ENERGY]; });
     //console.log(roomsNeedingEnergy);
-    
     return roomsNeedingEnergy[0];
-}
+};
 Room.prototype.getMinsFromNearestRoom = function (mineral) {
-    const roomsWithMin = _.filter(Game.rooms, (r) => { if (r.controller && r.controller.my && r.terminal && r.terminal.store[mineral] > 10000) { return r } });
+    var roomsWithMin = _.filter(Game.rooms, function (r) { if (r.controller && r.controller.my && r.terminal) {
+        return r.terminal.store[mineral] > 10000;
+    } });
     var destRoomMatrix = [];
     roomsWithMin.forEach(function (room, i) {
         if (room.terminal) {
             destRoomMatrix[i] = { 'room': room, 'dist': Game.map.getRoomLinearDistance(this.name, room.name, true) };
         }
     }, this);
-    destRoomMatrix.sort(function (a, b) { return a.dist - b.dist });
+    destRoomMatrix.sort(function (a, b) { return a.dist - b.dist; });
     //console.log(JSON.stringify(destRoomMatrix,null,4));
-    if(destRoomMatrix.length == 0) {
+    if (destRoomMatrix.length == 0) {
         return false;
     }
     function sendMinsTo(room, thisRoom) {
         console.log(thisRoom.name + ' requesting ' + mineral + ' from ' + room.name);
-        switch(room.terminal.send(mineral,6000,thisRoom.name)) {
+        switch (room.terminal.send(mineral, 6000, thisRoom.name)) {
             case OK:
                 return true;
             case ERR_TIRED:
@@ -262,19 +258,17 @@ Room.prototype.getMinsFromNearestRoom = function (mineral) {
         }
         //return destRoomMatrix[0].room;
     }
-
     switch (sendMinsTo(destRoomMatrix[0].room, this)) {
         case 'next':
             if (typeof destRoomMatrix[1] !== 'undefined') {
                 sendMinsTo(destRoomMatrix[1].room, this);
-            }            
+            }
             break;
         case true:
             return destRoomMatrix[0].room;
-        
-    };
-    
-}
+    }
+    ;
+};
 /**
  * Adds a task to the room's lab queue
  * @param {StructureLab} lab to haul to
@@ -283,9 +277,7 @@ Room.prototype.getMinsFromNearestRoom = function (mineral) {
 Room.prototype.addToLabQueue = function (lab, resource) {
     //console.log('adding creep to build queue: '+ creepType);
     var lq = this.memory.labQueue;
-
     lq.push({ lab: lab, resource: resource });
-
     // verify it worked
     if (lq[lq.length - 1].lab == lab && lq[lq.length - 1].resource == resource) {
         return true;
@@ -293,17 +285,14 @@ Room.prototype.addToLabQueue = function (lab, resource) {
     else {
         return false;
     }
-}
+};
 Room.prototype.addToCreepBuildQueue = function (creepType, memoryObject) {
     //console.log('adding creep to build queue: '+ creepType);
     var bq = this.memory.buildQueue;
-
     if (!memoryObject) {
-        memoryObject = {};
+        var memoryObject = { role: creepType };
     }
-
-    bq.push({ role: creepType, memory: memoryObject });
-
+    bq.push({ memory: memoryObject });
     // verify it worked
     if (bq[bq.length - 1].role == creepType && bq[bq.length - 1].memory == memoryObject) {
         return true;
@@ -312,60 +301,47 @@ Room.prototype.addToCreepBuildQueue = function (creepType, memoryObject) {
         return false;
     }
     console.log(JSON.stringify(bq[bq.length - 1]));
-}
-
+};
 /**
  * Return the proper body part array for a soldier
  * @param {object} parts - object containing what parts and how many, e.g. {tough:2,attack:2}
  */
 Room.prototype.getSoldierBody = function (parts) {
-    numTough = parts.tough;
-    numAttack = parts.attack;
-    numMove = parts.move;
-    numRangedAtk = parts.rangedAttack
-    let newbody = [];
-
+    var newbody = [];
     // order matters here, this is how the body will be constructed
-    for (i = 0; i < parts.tough; i++) {
+    for (var i = 0; i < parts.tough; i++) {
         newbody.push(TOUGH);
     }
-    for (i = 0; i < parts.attack; i++) {
+    for (var i = 0; i < parts.attack; i++) {
         newbody.push(ATTACK);
     }
-    for (i = 0; i < parts.heal; i++) {
+    for (var i = 0; i < parts.heal; i++) {
         newbody.push(HEAL);
     }
-    for (i = 0; i < parts.move; i++) {
+    for (var i = 0; i < parts.move; i++) {
         newbody.push(MOVE);
     }
-    for (i = 0; i < parts.rangedAttack; i++ ) {
+    for (var i = 0; i < parts.rangedAttack; i++) {
         newbody.push(RANGED_ATTACK);
     }
-
     return newbody;
-
-}
-
+};
 Room.prototype.getCreepBody = function (role, targetRoom) {
-
     // have to pass in targetRoom to handle the special case of harvesters being sent to other
     // rooms to work in. We have to check that room's controller to see how big the body is.
     // Not used for any other cases atm.
-
     var body = [];
-    var room = {};
-
+    //var room: Room = {};
+    //var room = new Room('temp');
     //console.log('targetRoom is ' + targetRoom);
     //console.log('this in getCreepbody is ' + this);
     if (targetRoom && (role == 'harvester' || role == 'upgrader')) {
-        room = Game.rooms[targetRoom];
+        var room = Game.rooms[targetRoom];
     }
     else {
-        room = this;
+        var room = this;
     }
-
     //console.log('room is now ' + room);
-
     if (room.memory.stage == 'start' && role != 'patrol') {
         //console.log('using small creep bodies');
         switch (role) {
@@ -417,11 +393,11 @@ Room.prototype.getCreepBody = function (role, targetRoom) {
                 //body = [TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE];
                 break;
             case 'testsquad':
-                body = this.getSoldierBody({ tough:1, attack:1, move:1});
+                body = this.getSoldierBody({ tough: 1, attack: 1, move: 1 });
                 break;
             case 'hauler':
                 if (this.controller.level == 8) {
-                    body = [CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE];
+                    body = [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
                 }
                 else {
                     body = [CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
@@ -441,37 +417,37 @@ Room.prototype.getCreepBody = function (role, targetRoom) {
                 body = [WORK, WORK, WORK, CARRY, MOVE, MOVE];
                 break;
             case 'drainer':
-                body = this.getSoldierBody({ tough: 15, heal: 10, move: 13});
+                body = this.getSoldierBody({ tough: 15, heal: 10, move: 13 });
                 break;
             case 'medic':
-                body = this.getSoldierBody({ tough: 5, heal: 10, move: 8 })
+                body = this.getSoldierBody({ tough: 5, heal: 10, move: 8 });
                 //body = [TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE];
                 break;
             case 'archer':
-                body = this.getSoldierBody({ tough: 5, rangedAttack: 10, move: 8});
+                body = this.getSoldierBody({ tough: 5, rangedAttack: 10, move: 8 });
                 break;
             default:
                 body = [WORK, CARRY, WORK, CARRY, WORK, CARRY, MOVE, MOVE, MOVE];
         }
     }
     return body;
-}
-
+};
 Room.prototype.runBuildQueue = function () {
     var bq = this.memory.buildQueue;
-
     console.log(this.name + ' build queue length ' + bq.length);
-    const availableSpawns = _.filter(this.spawns, { 'spawning': null });
+    var availableSpawns = _.filter(this.spawns, { 'spawning': null });
     //console.log('available spawns: ' + availableSpawns);
-
     availableSpawns.forEach(function (spawn) {
-        if (bq.length == 0) { return };
-        const embryo = bq.shift();
+        if (bq.length == 0) {
+            return;
+        }
+        ;
+        var embryo = bq.shift();
         //console.log('executing build queue');
         embryo.memory.role = embryo.role; // all creeps need this
-        const creepname = this.name + '-' + spawn.name + '-' + Game.time
+        var creepname = this.name + '-' + spawn.name + '-' + Game.time;
         //const body = [WORK,CARRY,WORK,CARRY,MOVE,MOVE];
-        const body = this.getCreepBody(embryo.role, embryo.memory.targetRoom);
+        var body = this.getCreepBody(embryo.role, embryo.memory.targetRoom);
         switch (spawn.spawnCreep(body, creepname, { dryRun: true, memory: embryo.memory })) {
             case OK:
                 //console.log(spawn.id + ' spawning ' + embryo.role );
@@ -491,29 +467,25 @@ Room.prototype.runBuildQueue = function () {
                 bq.push(embryo);
                 console.log(spawn + ' cannot spawn ' + embryo.role + ' with ' + body.length + ' body parts');
         }
-    }, this)
-}
-
+    }, this);
+};
 Room.prototype.drawRoad = function (pos1, pos2) {
-
     // finds a path between pos1 and pos2, then drops construction sites for roads along that path
-
-    const path = this.findPath(pos1, pos2, { ignoreCreeps: true, ignoreRoads: true, range: 1 });
+    var path = this.findPath(pos1, pos2, { ignoreCreeps: true, ignoreRoads: true, range: 1 });
     path.forEach(function (pos) {
-        const x = pos.x;
-        const y = pos.y;
+        var x = pos.x;
+        var y = pos.y;
         this.createConstructionSite(x, y, STRUCTURE_ROAD);
         //        console.log(x + ',' + y);
-    }, this)
+    }, this);
     console.log('path found has length ' + path.length);
-}
+};
 Room.prototype.buildRoomRoads = function () {
-
     this.sources.forEach(function (source) {
         this.drawRoad(source.pos, this.controller.pos);
         this.spawns.forEach(function (spawn) {
             this.drawRoad(source.pos, spawn.pos);
-        }, this)
+        }, this);
         if (this.storage) {
             this.drawRoad(source.pos, this.storage.pos);
         }
@@ -523,31 +495,31 @@ Room.prototype.buildRoomRoads = function () {
         if (this.terminal) {
             this.drawRoad(source.pos, this.terminal.pos);
         }
-    }, this)
+    }, this);
     this.labs.forEach(function (lab) {
         this.drawRoad(lab.pos, this.storage.pos);
     }, this);
     if (this.terminal && this.minerals[0]) {
         this.drawRoad(this.terminal.pos, this.minerals[0].pos);
     }
-}
+};
 Room.prototype.buildSourceContainers = function () {
     this.sources.forEach(function (source) {
-        const path = this.findPath(source.pos, this.controller.pos, { ignoreCreeps: true, ignoreRoads: true, range: 1 });
+        var path = this.findPath(source.pos, this.controller.pos, { ignoreCreeps: true, ignoreRoads: true, range: 1 });
         console.log('building container at ' + path[0].x + ',' + path[0].y);
         if (this.createConstructionSite(path[0].x, path[0].y, STRUCTURE_CONTAINER) != 0) {
             console.log(this.name + ': Error creating contruction site');
         }
-    }, this)
-}
+    }, this);
+};
 /**
  * Spawns a contracthauler to refill a terminal - defaults to energy
- * @param {string} [energy] One of the RESOURCE_ constants 
+ * @param {string} [energy] One of the RESOURCE_ constants
  */
 Room.prototype.refillTerminal = function (rsrc) {
     // this odesn't work right now, use typeof === 'undefined' instead?
     if (!rsrc) {
-        const rsrc = 'energy';
+        var rsrc_1 = 'energy';
     }
     if (rsrc != 'energy') {
         console.log('refillTerminal only does energy at this time');
@@ -562,40 +534,42 @@ Room.prototype.refillTerminal = function (rsrc) {
             break;
     }
     this.addToCreepBuildQueue('contracthauler', { resource: rsrc, total: amountToRefill, dropTarget: this.terminal.id, pullTarget: this.storage.id, job: 'refillTerminal' });
-}
+};
 /**
  * Checks if there's already a creep performing a specific job
  * Returns true if there is, false if there is not
  * @param {string} job - the job to check on
  */
 Room.prototype.hasCreepWithJob = function (j) {
-    const roomCreeps2 = _.filter(Game.creeps, (creep) => { return creep.room.name == this.name });
-    const queuedCreeps = _.filter(this.memory.buildQueue, (c) => {return c.memory.job == j});
-    const allCreeps = roomCreeps2.concat(queuedCreeps);
-    if (_.filter(allCreeps, (c) => { return c.memory.job == j }).length > 0) {
+    var _this = this;
+    var roomCreeps2 = _.filter(Game.creeps, function (creep) { return creep.room.name == _this.name; });
+    var queuedCreeps = _.filter(this.memory.buildQueue, function (c) { return c.memory.job == j; });
+    var allCreeps = roomCreeps2.concat(queuedCreeps);
+    if (_.filter(allCreeps, function (c) { return c.memory.job == j; }).length > 0) {
         return true;
-    } else {
+    }
+    else {
         return false;
     }
-}
+};
 Room.prototype.getTotalCreeps = function (role) {
+    var _this = this;
     // returns an array of the existing creeps with this role in this room plus those in the build queue
-    const roomCreeps2 = _.filter(Game.creeps, (creep) => { return creep.room.name == this.name });
-    const creepsTargetingRoom = _.filter(Game.creeps, (creep) => { return creep.memory.targetRoom == this.name || creep.memory.workRoom == this.name });
-    const totalCreeps = _.uniq(roomCreeps2.concat(creepsTargetingRoom));
+    var roomCreeps2 = _.filter(Game.creeps, function (creep) { return creep.room.name == _this.name; });
+    var creepsTargetingRoom = _.filter(Game.creeps, function (creep) { return creep.memory.targetRoom == _this.name || creep.memory.workRoom == _this.name; });
+    var totalCreeps = _.uniq(roomCreeps2.concat(creepsTargetingRoom));
     //console.log(this.name + ' has ' + roomCreeps2.length + ' creeps with role ' + role);
-    const liveCreeps = _.filter(totalCreeps, (creep) => creep.memory.role == role);
+    var liveCreeps = _.filter(totalCreeps, function (creep) { return creep.memory.role == role; });
     //TODO: this needs to include buildqueues of all rooms, not just this one 
     // so walk the array of rooms. go through each buildqueue, and look for any creeps with role targeting this room
-    const potentialCreeps = _.filter(this.memory.buildQueue, { role: role });
+    var potentialCreeps = _.filter(this.memory.buildQueue, { role: role });
     return liveCreeps.concat(potentialCreeps);
-}
+};
 Room.prototype.minWallStrength = function () {
     // find all walls, sum their strength, divide by number of them
-    const wallHits = this.walls.map((w) => { return w.hits });
+    var wallHits = this.walls.map(function (w) { return w.hits; });
     return _.min(wallHits);
-}
-
+};
 /**
  * Observes a target room from the current room
  * @param {string} roomToObserve - name of room to observe
@@ -608,14 +582,14 @@ Room.prototype.observeRoom = function (roomToObserve) {
             default:
                 console.log(this.name + ' error observing room ' + roomToObserve);
                 return false;
-        };
+        }
+        ;
     }
-}
-
+};
 /* Gauges threat level to the room - returns the count of attack and heal body parts on hostile creeps */
 Room.prototype.getThreatLevel = function () {
-    const hostileCreeps = this.find(FIND_HOSTILE_CREEPS);
-    let threatLevel = 0;
+    var hostileCreeps = this.find(FIND_HOSTILE_CREEPS);
+    var threatLevel = 0;
     hostileCreeps.forEach(function (creep) {
         //console.log(this.name + 'found creep attacker ' + creep.name)
         threatLevel += creep.getActiveBodyparts(ATTACK);
@@ -623,17 +597,19 @@ Room.prototype.getThreatLevel = function () {
         threatLevel += creep.getActiveBodyparts(HEAL);
     }, this);
     return threatLevel;
-}
+};
 module.exports = {
-
     handleRoom: function (room, minsToTrack) {
-
- 
         // don't process rooms without controllers
-        if (!room.controller) { return };
+        if (!room.controller) {
+            return;
+        }
+        ;
         // don't process rooms I don't own
-        if (!room.controller.my) { return };
-
+        if (!room.controller.my) {
+            return;
+        }
+        ;
         // init
         try {
             if (!room.memory.labQueue) {
@@ -657,63 +633,58 @@ module.exports = {
         }
         room.boostAvailable = [];
         if (room.memory.minType == 'boosttest' || room.memory.frontier) {
-            const attackBoostLab = room.labs[0];
-            const healBoostLab = room.labs[1];
-            const armorBoostLab = room.labs[2];
+            var attackBoostLab = room.labs[0];
+            var healBoostLab = room.labs[1];
+            var armorBoostLab = room.labs[2];
             //const moveBoostLab = room.labs[3];
-
             if (attackBoostLab) {
-                if ((attackBoostLab.store[RESOURCE_UTRIUM_HYDRIDE] >= 300 || attackBoostLab.store[RESOURCE_UTRIUM_ACID] >=300 || attackBoostLab.store[RESOURCE_CATALYZED_UTRIUM_ACID] >=300 )
-                     && attackBoostLab.store[RESOURCE_ENERGY] >= 200) {
+                if ((attackBoostLab.store[RESOURCE_UTRIUM_HYDRIDE] >= 300 || attackBoostLab.store[RESOURCE_UTRIUM_ACID] >= 300 || attackBoostLab.store[RESOURCE_CATALYZED_UTRIUM_ACID] >= 300)
+                    && attackBoostLab.store[RESOURCE_ENERGY] >= 200) {
                     room.boostAvailable.push('attack');
-                    }
+                }
             }
             if (healBoostLab) {
                 if ((healBoostLab.store[RESOURCE_LEMERGIUM_OXIDE] >= 300 || healBoostLab.store[RESOURCE_LEMERGIUM_ALKALIDE] >= 300 || healBoostLab.store[RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE] >= 300)
                     && healBoostLab.store[RESOURCE_ENERGY] >= 200) {
                     room.boostAvailable.push('heal');
-                    }
+                }
             }
             if (armorBoostLab) {
-                if ((armorBoostLab.store[RESOURCE_GHODIUM_OXIDE] >= 300 || armorBoostLab.store[RESOURCE_GHODIUM_ALKALIDE] >= 300 || armorBoostLab.store[RESOURCE_CATALYZED_GHODIUM_ALKALIDE] >= 300) 
-                && armorBoostLab.store[RESOURCE_ENERGY] >= 200) {
+                if ((armorBoostLab.store[RESOURCE_GHODIUM_OXIDE] >= 300 || armorBoostLab.store[RESOURCE_GHODIUM_ALKALIDE] >= 300 || armorBoostLab.store[RESOURCE_CATALYZED_GHODIUM_ALKALIDE] >= 300)
+                    && armorBoostLab.store[RESOURCE_ENERGY] >= 200) {
                     room.boostAvailable.push('armor');
                 }
             }
-         /*    if (moveBoostLab) {
-                if ((moveBoostLab.store[RESOURCE_ZYNTHIUM_OXIDE] >= 300 || moveBoostLab.store[RESOURCE_ZYNTHIUM_ALKALIDE] >= 300 || moveBoostLab.store[RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE] >= 300)
-                && moveBoostLab.store[RESOURCE_ENERGY] >= 200) {
-                    room.boostAvailable.push('move');
-                }
-             } */
-
-             //console.log(room.name + room.boostAvailable);
+            /*    if (moveBoostLab) {
+                   if ((moveBoostLab.store[RESOURCE_ZYNTHIUM_OXIDE] >= 300 || moveBoostLab.store[RESOURCE_ZYNTHIUM_ALKALIDE] >= 300 || moveBoostLab.store[RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE] >= 300)
+                   && moveBoostLab.store[RESOURCE_ENERGY] >= 200) {
+                       room.boostAvailable.push('move');
+                   }
+                } */
+            //console.log(room.name + room.boostAvailable);
         }
-
-        const towers = room.towers;
+        var towers = room.towers;
         var dismantleTarget; //have to define up here so tower code can find it
-
-        for (i in towers) {
-            const tower = towers[i];
+        for (var i in towers) {
+            var tower = towers[i];
             if (!room.memory.foundHostiles && (tower.energy > tower.energyCapacity / 2)) {
                 var damagedCreeps = tower.room.find(FIND_MY_CREEPS, {
-                    filter: (c) => ((c.hits < c.hitsMax))
+                    filter: function (c) { return ((c.hits < c.hitsMax)); }
                 });
-                const closestDamagedCreep = tower.pos.findClosestByRange(damagedCreeps);
+                var closestDamagedCreep = tower.pos.findClosestByRange(damagedCreeps);
                 if (closestDamagedCreep) {
                     tower.heal(closestDamagedCreep);
                     console.log(room + ' healing creep ' + closestDamagedCreep.name);
                 }
                 var DamagedStructures = tower.room.find(FIND_STRUCTURES, {
-                    filter: (structure) => ((structure.hits < structure.hitsMax) && (structure.hits < 5000))
+                    filter: function (structure) { return ((structure.hits < structure.hitsMax) && (structure.hits < 5000)); }
                 });
                 DamagedStructures.forEach(function (s) {
                     if (s.pos.lookFor(LOOK_FLAGS, { filter: { color: COLOR_RED } }).length > 0) {
                         _.remove(DamagedStructures, s);
                     }
-                })
-                const closestDamagedStructure = tower.pos.findClosestByRange(DamagedStructures);
-
+                });
+                var closestDamagedStructure = tower.pos.findClosestByRange(DamagedStructures);
                 if (closestDamagedStructure) {
                     if (!(closestDamagedStructure == dismantleTarget)) {
                         tower.repair(closestDamagedStructure);
@@ -727,14 +698,14 @@ module.exports = {
                 /* if (room.name == 'W27N26') {
                     _.remove(this.hostileCreeps, function (e) { return e.owner.username == 'Totalschaden' });
                 } */
-                var enemyHealers = _.filter(room.hostileCreeps, (c) => {return c.canHeal()});
-                var closestHostile = {} ;
-                const closestHealer = tower.pos.findClosestByRange(enemyHealers);
+                var enemyHealers = _.filter(room.hostileCreeps, function (c) { return c.canHeal(); });
+                var closestHostile = {};
+                var closestHealer = tower.pos.findClosestByRange(enemyHealers);
                 if (tower.pos.getRangeTo(closestHealer) < 12) {
                     closestHostile = closestHealer;
-                } else {
+                }
+                else {
                     closestHostile = tower.pos.findClosestByRange(room.hostileCreeps);
-                    
                 }
                 if (closestHostile) {
                     if (tower.pos.getRangeTo(closestHostile) < 12) {
@@ -746,15 +717,15 @@ module.exports = {
                 room.needsSafeRoom = true;
             }
         } // end towers
-
         if (room.storage && room.terminal) {
-            const amountToSend = 30000; // how much energy to send between rooms 
+            var amountToSend = 30000; // how much energy to send between rooms 
             switch (room.memory.energyState) {
                 case 'normal':
                     if (room.storage.store[RESOURCE_ENERGY] > 700000) {
-                        if (room.terminal.store.getFreeCapacity() < amountToSend) { 
+                        if (room.terminal.store.getFreeCapacity() < amountToSend) {
                             console.log(room.name + ' terminal too full to load energy');
-                            break; }
+                            break;
+                        }
                         console.log(room.name + ' needs to send energy, has ' + room.storage.store[RESOURCE_ENERGY]);
                         room.memory.energyState = 'loading';
                     }
@@ -766,7 +737,7 @@ module.exports = {
                         Memory.taskID++;
                         room.addToCreepBuildQueue('contracthauler', { respawn: true, resource: RESOURCE_ENERGY, total: amountToSend, dropTarget: room.terminal.id, pullTarget: room.storage.id, taskID: room.memory.taskID, job: 'loadingTerminal' });
                     }
-                    const taskCreep = _.filter(room.contracthaulers, (c) => { return c.memory.taskID == room.memory.taskID })[0];
+                    var taskCreep = _.filter(room.contracthaulers, function (c) { return c.memory.taskID == room.memory.taskID; })[0];
                     if (taskCreep && taskCreep.memory.processed >= amountToSend) {
                         room.memory.energyState = 'sending';
                         taskCreep.memory.role = 'recycle';
@@ -774,10 +745,13 @@ module.exports = {
                     }
                     break;
                 case 'sending':
-                    const targetRoom = room.findNearestRoomNeedingEnergy(amountToSend);
+                    var targetRoom = room.findNearestRoomNeedingEnergy(amountToSend);
                     try {
                         //console.log(room.name + ' sending energy to ' + targetRoom.name);
-                        if (typeof targetRoom === 'undefined') { break; };
+                        if (typeof targetRoom === 'undefined') {
+                            break;
+                        }
+                        ;
                         switch (room.terminal.send(RESOURCE_ENERGY, amountToSend, targetRoom.name)) {
                             case 0:
                                 room.memory.energyState = 'normal';
@@ -810,16 +784,17 @@ module.exports = {
                     if (!room.hasCreepWithJob('unloadingTerminal')) {
                         room.memory.taskID = Memory.taskID;
                         Memory.taskID++;
-                        const amtToWithdraw = room.terminal.store[RESOURCE_ENERGY] >= amountToSend ? amountToSend : room.terminal.store[RESOURCE_ENERGY];
-                        console.log(room.name + ' ' + amtToWithdraw)
-                        if (amtToWithdraw <= 20000) { 
-                            console.log(room.name + ' trying to withdraw too much energy, resetting energyState') ; 
+                        var amtToWithdraw = room.terminal.store[RESOURCE_ENERGY] >= amountToSend ? amountToSend : room.terminal.store[RESOURCE_ENERGY];
+                        console.log(room.name + ' ' + amtToWithdraw);
+                        if (amtToWithdraw <= 20000) {
+                            console.log(room.name + ' trying to withdraw too much energy, resetting energyState');
                             room.memory.energyState = 'normal';
                             break;
-                        };
+                        }
+                        ;
                         room.addToCreepBuildQueue('contracthauler', { respawn: true, resource: RESOURCE_ENERGY, total: amtToWithdraw, dropTarget: room.storage.id, pullTarget: room.terminal.id, taskID: room.memory.taskID, job: 'unloadingTerminal' });
                     }
-                    const unloadTaskCreep = _.filter(room.contracthaulers, (c) => { return c.memory.taskID == room.memory.taskID })[0];
+                    var unloadTaskCreep = _.filter(room.contracthaulers, function (c) { return c.memory.taskID == room.memory.taskID; })[0];
                     if (unloadTaskCreep && unloadTaskCreep.memory.processed >= amountToSend) {
                         room.memory.energyState = 'normal';
                         unloadTaskCreep.memory.role = 'recycle';
@@ -830,13 +805,13 @@ module.exports = {
                     break;
             }
         }
-        try{
+        try {
             if (room.memory.buildQueue.length > 0) {
                 room.runBuildQueue();
             }
         }
-        catch(err) {
-            console.log(room.name + ' ' + err)
+        catch (err) {
+            console.log(room.name + ' ' + err);
         }
         if (room.powerSpawn) {
             if (room.powerSpawn.energy > 50 && room.powerSpawn.power > 1) {
