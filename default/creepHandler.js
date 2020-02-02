@@ -28,30 +28,29 @@ var roleHeisenberg = require('role.heisenberg');
 var roleMedic = require('role.medic');
 var roleArcher = require('role.archer');
 var rolePowerProcessor = require('role.powerProcessor');
-
 Creep.prototype.creepLog = function (text) {
-    console.log(this.name + "-" + this.memory.role + ": " + text)
-}
+    console.log(this.name + "-" + this.memory.role + ": " + text);
+};
 Creep.prototype.attackTarget = function (target) {
-    if(target) {
-        switch(this.attack(target)) {
-            case ERR_NOT_IN_RANGE: 
-                var onRamp = false ;
-                const look = this.pos.lookFor(LOOK_STRUCTURES);
-                look.forEach(function(l) {
+    if (target) {
+        switch (this.attack(target)) {
+            case ERR_NOT_IN_RANGE:
+                var onRamp = false;
+                var look = this.pos.lookFor(LOOK_STRUCTURES);
+                look.forEach(function (l) {
                     if (l.structureType == STRUCTURE_RAMPART) {
-                        onRamp = true ;
+                        onRamp = true;
                     }
-                })
+                });
                 if (!onRamp) {
-                    this.moveTo(target, {visualizePathStyle: {}});
+                    this.moveTo(target, { visualizePathStyle: {} });
                 }
                 break;
             case ERR_INVALID_TARGET:
                 this.say('inv target');
                 break;
             case OK:
-                this.say('ATTACK!');                
+                this.say('ATTACK!');
                 break;
             default:
                 this.say('attackerr');
@@ -60,27 +59,27 @@ Creep.prototype.attackTarget = function (target) {
     }
     else {
         return false;
-    }   
-}
+    }
+};
 Creep.prototype.moveToTarget = function (target) {
     //this.creepLog('moving to target ' + target.id);
-    switch (this.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}})) {
+    switch (this.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } })) {
         case ERR_NO_PATH:
             //this.creepLog('entering NO_PATH code');
-            const path = this.pos.findPathTo(target, {ignoreCreeps:true});
-            for (var i = 0  ; i < path.length; i++ ) {
-                const pathSpot = new RoomPosition(path[i].x, path[i].y, this.room.name);
-                const blockingCreeps = pathSpot.lookFor(LOOK_CREEPS);
+            var path = this.pos.findPathTo(target, { ignoreCreeps: true });
+            for (var i = 0; i < path.length; i++) {
+                var pathSpot = new RoomPosition(path[i].x, path[i].y, this.room.name);
+                var blockingCreeps = pathSpot.lookFor(LOOK_CREEPS);
                 if (blockingCreeps.length > 0) {
-                    this.memory.blocked ? this.memory.blocked++ : this.memory.blocked=1;                    
+                    this.memory.blocked ? this.memory.blocked++ : this.memory.blocked = 1;
                     if (this.memory.blocked > 0 && this.memory.blocked < 5) {
                         //this.creepLog('blocked by creep ' + blockingCreeps[0].name);
                         this.tellCreepToMove(blockingCreeps[0]);
                     }
                     else {
-                        this.memory.target=null;
+                        this.memory.target = null;
                         this.creepLog('giving up because blocked for ' + this.memory.blocked);
-                        this.memory.blocked=0;                        
+                        this.memory.blocked = 0;
                         return;
                     }
                 }
@@ -90,13 +89,13 @@ Creep.prototype.moveToTarget = function (target) {
                     }
                 }
                 break;
-            };
+            }
+            ;
             break;
         default:
             break;
-        }
-}
-
+    }
+};
 Creep.prototype.hasTarget = function () {
     if (this.memory.target != null) {
         //this.say('HasTarget!');
@@ -106,7 +105,7 @@ Creep.prototype.hasTarget = function () {
         //this.say('Notarget!');
         return false;
     }
-}
+};
 Creep.prototype.hasEnergy = function () {
     if (this.carry[RESOURCE_ENERGY] > 0) {
         return true;
@@ -114,7 +113,7 @@ Creep.prototype.hasEnergy = function () {
     else {
         return false;
     }
-}
+};
 Creep.prototype.hasPower = function () {
     if (this.carry[RESOURCE_POWER] > 0) {
         return true;
@@ -122,24 +121,25 @@ Creep.prototype.hasPower = function () {
     else {
         return false;
     }
-}
+};
 Creep.prototype.hasMinerals = function () {
     // pull out energy, what's left is minerals
-    const creepMins = _.omit(this.carry, RESOURCE_ENERGY);
+    var creepMins = _.omit(this.carry, RESOURCE_ENERGY);
     if (!_.isEmpty(creepMins)) {
         return true;
     }
     else {
         return false;
     }
-}
+};
 Creep.prototype.getBoosted = function (boost) {
     // expects argument of mineral type to boost with
     // finds lab with that mineral, moves there, tells lab to boost it, then goes back to normal
     // need flag for boosted or not
     // set target to proper lab
-}
+};
 Creep.prototype.inRangeToTarget = function (target) {
+    var range = 1;
     switch (target.structureType) {
         default:
             range = 1;
@@ -151,13 +151,12 @@ Creep.prototype.inRangeToTarget = function (target) {
     else {
         return false;
     }
-}
+};
 Creep.prototype.moveToRoom = function (room) {
     // expects room to be a room NAME
-    targetRoom = Game.rooms[room];
-
+    var targetRoom = Game.rooms[room];
     if (targetRoom && targetRoom.controller) {
-        switch(this.moveTo(targetRoom.controller, {visualizePathStyle: {}})) {
+        switch (this.moveTo(targetRoom.controller, { visualizePathStyle: {} })) {
             case OK:
                 break;
             case ERR_INVALID_TARGET:
@@ -165,14 +164,15 @@ Creep.prototype.moveToRoom = function (room) {
                 break;
             default:
                 this.say('moveerr');
-        };
+        }
+        ;
     }
     else {
-        const exitDir = this.room.findExitTo(room);
-        const exit = this.pos.findClosestByRange(exitDir);
+        var exitDir = this.room.findExitTo(room);
+        var exit = this.pos.findClosestByRange(exitDir);
         this.moveTo(exit, { visualizePathStyle: {} });
     }
-}
+};
 Creep.prototype.getResources = function (target) {
     // target should be a game object
     if (this.pos.inRangeTo(target, 1)) {
@@ -184,55 +184,51 @@ Creep.prototype.getResources = function (target) {
                 break;
             default:
                 if (_.sum(this.carry) < this.carryCapacity) {
-                    for (const r in (target.store)) {
+                    for (var r in (target.store)) {
                         this.withdraw(target, r);
                     }
-                };
+                }
+                ;
                 break;
         }
-
         this.memory.target = null;
-
     }
     else {
         this.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
     }
-}
+};
 Creep.prototype.flee = function (fleeTarget) {
     // right now this only works when the fleeTarget is close to (really, next to) the creep
-    const newX = this.pos.x + (this.pos.x - fleeTarget.pos.x);
-    const newY = this.pos.y + (this.pos.y - fleeTarget.pos.y);
+    var newX = this.pos.x + (this.pos.x - fleeTarget.pos.x);
+    var newY = this.pos.y + (this.pos.y - fleeTarget.pos.y);
     this.moveTo(newX, newY);
-}
+};
 Creep.prototype.tellCreepToMove = function (creep) {
-    const randomDir = Math.floor(Math.random() * 8 + 1);
+    var randomDir = Math.floor(Math.random() * 8 + 1);
     //creep.creepLog('moving in dir ' + randomDir);
     creep.move(randomDir);
-}
+};
 Creep.prototype.getBody = function () {
     //        body = JSON.stringify(_.values(_.pick(this.body[0], ['type'])),null,4);
     function pullParts(part) {
         var r = _.values(_.pick(part, ['type']));
         //console.log(JSON.stringify(r,null,4));            
     }
-
     var bodyArr = this.body.map(pullParts);
     var newarr = [];
-
     bodyArr.forEach(function (e) {
         newarr.concat(e);
-    })
+    });
     console.log(bodyArr);
     //        console.log(body);
-}
+};
 Creep.prototype.respawn = function () {
     var body = [];
-    var newCreepMemory = { role: this.memory.role, respawn: true } ;
-
+    var newCreepMemory = { role: this.memory.role, respawn: true };
     try {
         switch (this.memory.role) {
             case 'interhauler':
-                newCreepMemory.targetRoom = this.memory.targetRoom; 
+                newCreepMemory.targetRoom = this.memory.targetRoom;
                 newCreepMemory.workRoom = this.memory.workRoom;
                 newCreepMemory.baseRoom = this.memory.baseRoom;
                 break;
@@ -246,76 +242,75 @@ Creep.prototype.respawn = function () {
             case 'remoteworker':
             case 'warrior':
             case 'medic':
+            case 'drainer':
+            case 'archer':
                 newCreepMemory.targetRoom = this.memory.targetRoom;
                 break;
             case 'contracthauler':
-                memProps = [ 'pullTarget', 'dropTarget', 'job', 'upTo', 'resource', 'total', 'taskID', 'loadingTerminal', 'unloadingTerminal', 'processed'];
+                var memProps = ['pullTarget', 'dropTarget', 'job', 'upTo', 'resource', 'total', 'taskID', 'loadingTerminal', 'unloadingTerminal', 'processed'];
                 memProps.forEach(function (memProp) {
                     if (this.memory[memProp]) {
                         newCreepMemory[memProp] = this.memory[memProp];
                     }
-                },this);
+                }, this);
                 break;
             default:
                 break;
         }
-        const spawnRoom = Game.rooms[this.memory.spawnRoom];
-  //      const spawn = spawnRoom.find(FIND_MY_SPAWNS)[0];
+        var spawnRoom = Game.rooms[this.memory.spawnRoom];
+        //      const spawn = spawnRoom.find(FIND_MY_SPAWNS)[0];
         if (spawnRoom.addToCreepBuildQueue(this.memory.role, newCreepMemory)) {
-            this.memory.respawn=false ;
+            this.memory.respawn = false;
             return true;
         }
         else {
-            creep.creepLog('error adding self to build queue');
+            this.creepLog('error adding self to build queue');
             return false;
         }
     }
     catch (err) {
         this.creepLog(err);
     }
-}
+};
 Creep.prototype.findAnyDepositTarget = function () {
     var targets = [];
     // need to add links, spawns, extensions to this
-    this.room.containers.forEach(function(container) {
+    this.room.containers.forEach(function (container) {
         //this.creepLog('processing container ' + container.id);
-        if((_.sum(container.store) < (container.storeCapacity - _.sum(this.carry)))) {
+        if ((_.sum(container.store) < (container.storeCapacity - _.sum(this.carry)))) {
             targets.push(container);
         }
-    } , this);
+    }, this);
     //this.creepLog('found ' + targets.length + ' containers to deposit in, picking closest');
     return this.pos.findClosestByPath(targets);
-    }
+};
 Creep.prototype.hasOnlyMoveParts = function () {
-    const workparts = [ CARRY , WORK , ATTACK , RANGED_ATTACK, HEAL, CLAIM];
-    var numWorkingParts = 0 ;
-    workparts.forEach(function(part) {
+    var workparts = [CARRY, WORK, ATTACK, RANGED_ATTACK, HEAL, CLAIM];
+    var numWorkingParts = 0;
+    workparts.forEach(function (part) {
         numWorkingParts += this.getActiveBodyparts(part);
-    },this);
+    }, this);
     if (numWorkingParts > 0) {
         return false;
-    } else {
+    }
+    else {
         return true;
     }
-}
+};
 Creep.prototype.canHeal = function () {
-    const healParts = [ HEAL];
+    var healParts = [HEAL];
     var numHealParts = 0;
     healParts.forEach(function (part) {
         numHealParts += this.getActiveBodyparts(part);
-    },this);
-    return numHealParts > 0 ? true : false
-}
-
+    }, this);
+    return numHealParts > 0 ? true : false;
+};
 module.exports = {
-
-    handleCreep: function(creep) {
-
+    handleCreep: function (creep) {
         // takes a creep as an argument
         // handles init etc and runs the appropriate role for that creep
         // meant to be called from the room loop
-  
-        const creepRoles = [
+        var creepRoles = [
             { role: 'harvester', run: roleHarvester.run },
             { role: 'upgrader', run: roleUpgrader.run },
             { role: 'healer', run: roleHealer.run },
@@ -331,29 +326,29 @@ module.exports = {
             { role: 'vanguard', run: roleVanguard.run },
             { role: 'scavenger', run: roleScavenger.run },
             { role: 'patrol', run: rolePatrol.run },
-            { role: 'dismantle', run:roleDismantle.run},
-            { role: 'contracthauler', run:roleContractHauler.run},
-            { role: 'heisenberg', run: roleHeisenberg.run},
+            { role: 'dismantle', run: roleDismantle.run },
+            { role: 'contracthauler', run: roleContractHauler.run },
+            { role: 'heisenberg', run: roleHeisenberg.run },
             { role: 'remoteworker', run: roleRemoteworker.run },
             { role: 'medic', run: roleMedic.run },
-            { role: 'archer', run: roleArcher.run},
-            { role: 'powerProcessor', run:rolePowerProcessor.run }
+            { role: 'archer', run: roleArcher.run },
+            { role: 'drainer', run: roleMedic.run },
+            { role: 'powerProcessor', run: rolePowerProcessor.run }
         ];
         //    console.log('role: ' + creepMap[0].role + " function: " + creepMap[0].run);
-
         if (!creep.spawning) {
             if (creep.hasOnlyMoveParts() && (creep.memory.role != 'warrior')) {
-                creep.creepLog('has only move parts, recycling')
+                creep.creepLog('has only move parts, recycling');
                 creep.memory.role = 'recycle';
             }
             if (typeof creep.memory.needsBoost !== 'undefined' && creep.memory.needsBoost.length > 0) {
-                boostTypes = [ 'armor', 'attack', 'move', 'heal'];
+                var boostTypes = ['armor', 'attack', 'move', 'heal'];
                 boostTypes.forEach(function (bt) {
                     if (creep.memory.needsBoost.includes(bt)) {
                         creep.creepLog('needs Boost ' + bt);
                         if (creep.room.boostAvailable && creep.room.boostAvailable.includes(bt)) {
                             // try to boost
-                            var boostLab ; 
+                            var boostLab;
                             switch (bt) {
                                 case 'armor':
                                     boostLab = creep.room.labs[2];
@@ -369,32 +364,31 @@ module.exports = {
                                     break;
                                 default:
                                     console.log(creep.room.name + ' unknown boost type: ' + bt);
-
                             }
-                            switch(boostLab.boostCreep(creep)) {
+                            switch (boostLab.boostCreep(creep)) {
                                 case ERR_NOT_IN_RANGE:
                                     creep.moveToTarget(boostLab);
                                     break;
                                 case OK:
-                                    _.remove(creep.memory.needsBoost, (b) => { return b == bt});
+                                    _.remove(creep.memory.needsBoost, function (b) { return b == bt; });
                                     break;
                                 default:
                                     creep.creepLog('error trying to boost');
-                            } 
-                        } else {
+                            }
+                        }
+                        else {
                             creep.creepLog('no boost available, removing ' + bt);
-                            _.remove(creep.memory.needsBoost, (b) => { return b == bt});
-
+                            _.remove(creep.memory.needsBoost, function (b) { return b == bt; });
                         }
                     }
-                })
+                });
                 return; // this is here because when we're boosting we can't send more move commands to creeps
             }
             if (creep.memory.targetRoom && (creep.memory.targetRoom != creep.room.name)) {
                 creep.moveToRoom(creep.memory.targetRoom);
             }
             else {
-                for (i = 0; i < creepRoles.length; i++) {
+                for (var i = 0; i < creepRoles.length; i++) {
                     if (creep.memory.role == creepRoles[i].role) {
                         creepRoles[i].run(creep);
                     }
@@ -403,7 +397,7 @@ module.exports = {
                 if (creep.memory.respawn && (creep.ticksToLive < 100)) {
                     creep.say("Respawning");
                     if (creep.respawn()) {
-                        creep.memory.respawn=false;
+                        creep.memory.respawn = false;
                     }
                 }
             }
@@ -413,7 +407,7 @@ module.exports = {
                 creep.memory.spawnRoom = creep.room.name;
             }
             if (!creep.memory.processed) {
-                creep.memory.processed = 0 ;
+                creep.memory.processed = 0;
             }
             if (!creep.memory.targetRoom && !((creep.memory.role == 'interhauler') || (creep.memory.role == 'contracthauler') || (creep.memory.role == 'minhauler'))) {
                 creep.memory.targetRoom = creep.room.name;
@@ -424,12 +418,11 @@ module.exports = {
                     creep.memory.needsBoost.push('armor');
                     creep.memory.needsBoost.push('attack');
                 }
-                if (creep.memory.role == 'medic') {
+                if (creep.memory.role == 'medic' || creep.memory.role == 'drainer') {
                     creep.memory.needsBoost.push('heal');
                     creep.memory.needsBoost.push('armor');
                 }
             }
         }
-        
     }
 };
