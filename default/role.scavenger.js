@@ -25,14 +25,14 @@ var roleScavenger = {
             }
             else {
                 targets = creep.room.find(FIND_STRUCTURES, {filter: (s) => 
-                    { return (!s.my && ((s.structureType == STRUCTURE_EXTENSION ||
+                    { return !s.my && ((s.structureType == STRUCTURE_EXTENSION ||
                         s.structureType == STRUCTURE_TOWER ||                        
                         s.structureType == STRUCTURE_SPAWN) &&
-                        s.energy > 0) ||
-                        (s.structureType == STRUCTURE_STORAGE ||
+                        s.store.getUsedCapacity(RESOURCE_ENERGY) > 0) ||
+                        ((s.structureType == STRUCTURE_STORAGE ||
                         s.structureType == STRUCTURE_CONTAINER ||
                         s.structureType == STRUCTURE_TERMINAL) &&
-                        s.store[RESOURCE_ENERGY] > 0) }});
+                        s.store.getUsedCapacity(RESOURCE_ENERGY) > 0) }});
                 if(targets.length > 0) {
                     target = creep.pos.findClosestByPath(targets);
                     creep.memory.target=target;
