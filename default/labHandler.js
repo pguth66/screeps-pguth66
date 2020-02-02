@@ -43,7 +43,7 @@ class LabGroup {
                         case OK:
                         break;
                     case ERR_NOT_IN_RANGE:
-                        console.log(this.reactant1.room.name + ' not in range error when making ' + this.target);
+                        //console.log(this.reactant1.room.name + ' not in range error when making ' + this.target);
                         break;
                     case ERR_INVALID_ARGS:
                         console.log(this.reactant1.room.name + " has wrong resources for " + this.target);
@@ -106,11 +106,11 @@ module.exports = {
             compoundsToMake.forEach( function (compound) {
                 switch (compound) {
                     case 'UO':
-                    case 'ZO':
                         lg = new LabGroup (room.labs[0], room.labs[1], room.labs[2], compound);
                         break;
                     case 'KO':
                     case 'GH':
+                    case 'ZO':
                         lg = new LabGroup (room.labs[3], room.labs[4], room.labs[5], compound);
                         break;
                     case 'KHO2':
@@ -276,7 +276,7 @@ module.exports = {
         var compoundsToMake = [];
         switch (room.memory.minType) {
             case 'ghodium':
-                compoundsToMake = [ 'GHO2' ];
+                compoundsToMake = [ 'GHO2', 'ZO' ];
                 makeCompounds(compoundsToMake);
                 return;
                 break;
