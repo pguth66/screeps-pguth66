@@ -276,7 +276,7 @@ module.exports = {
         var compoundsToMake = [];
         switch (room.memory.minType) {
             case 'ghodium':
-                compoundsToMake = [ 'GHO2', 'ZO' ];
+                compoundsToMake = [ 'GHO2' ];
                 makeCompounds(compoundsToMake);
                 return;
                 break;
