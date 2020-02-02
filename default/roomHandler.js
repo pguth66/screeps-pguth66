@@ -292,7 +292,7 @@ Room.prototype.addToCreepBuildQueue = function (creepType, memoryObject) {
     if (!memoryObject) {
         var memoryObject = { role: creepType };
     }
-    bq.push({ memory: memoryObject });
+    bq.push({ role: creepType, memory: memoryObject });
     // verify it worked
     if (bq[bq.length - 1].role == creepType && bq[bq.length - 1].memory == memoryObject) {
         return true;

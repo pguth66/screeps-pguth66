@@ -294,7 +294,7 @@ Room.prototype.addToLabQueue = function (lab, resource) {
         return false;
     }
 }
-Room.prototype.addToCreepBuildQueue = function (creepType, memoryObject) {
+Room.prototype.addToCreepBuildQueue = function (creepType, memoryObject: CreepMemory) {
     //console.log('adding creep to build queue: '+ creepType);
     var bq = this.memory.buildQueue;
 
@@ -302,7 +302,7 @@ Room.prototype.addToCreepBuildQueue = function (creepType, memoryObject) {
         var memoryObject: CreepMemory = {role: creepType};
     }
 
-    bq.push({ memory: memoryObject });
+    bq.push({ role:creepType, memory: memoryObject });
 
     // verify it worked
     if (bq[bq.length - 1].role == creepType && bq[bq.length - 1].memory == memoryObject) {
