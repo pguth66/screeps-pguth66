@@ -525,7 +525,7 @@ module.exports.loop = function () {
     diplomacy.run();
 
     // minerals inventory
-    if ((Game.time % 12) == 3) {
+    if ((Game.time % 48) == 3) {
         minsToTrack.forEach(function (min) {
             console.log(min +': ' + Game.minTotal[min])
         })
