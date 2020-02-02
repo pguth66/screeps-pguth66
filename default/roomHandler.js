@@ -555,7 +555,7 @@ Room.prototype.refillTerminal = function (rsrc) {
     }
     switch (this.memory.energyState) {
         case 'sending':
-            var amountToRefill = amountToSend - this.terminal.store[RESOURCE_ENERGY];
+            var amountToRefill = 50000 - this.terminal.store[RESOURCE_ENERGY];
             break;
         default:
             var amountToRefill = 20000 - this.terminal.store[RESOURCE_ENERGY];
@@ -655,7 +655,6 @@ module.exports = {
         catch (err) {
             console.log(room.name + " error during init: " + err);
         }
-        const amountToSend = 30000; // how much energy to send between rooms 
         room.boostAvailable = [];
         if (room.memory.minType == 'boosttest' || room.memory.frontier) {
             const attackBoostLab = room.labs[0];
@@ -749,6 +748,7 @@ module.exports = {
         } // end towers
 
         if (room.storage && room.terminal) {
+            const amountToSend = 30000; // how much energy to send between rooms 
             switch (room.memory.energyState) {
                 case 'normal':
                     if (room.storage.store[RESOURCE_ENERGY] > 700000) {
@@ -790,7 +790,7 @@ module.exports = {
                                 break;
                             case -6:
                                 // not enough energy to send
-                                console.log(room.name + " does not have eneough energy to send");
+                                console.log(room.name + " does not have enough energy to send");
                                 if (!room.hasCreepWithJob('refillTerminal')) {
                                     console.log(room.name + ' spawning refill creep');
                                     room.refillTerminal('energy');
