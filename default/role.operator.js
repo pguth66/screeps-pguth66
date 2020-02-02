@@ -14,13 +14,13 @@ var roleOperator = {
         var labsToOperate = [];
         switch (creep.room.name) {
             case 'W27N27':
-                labsToOperate = [ '5a4b17b4c5e760084b6224a2', '5a4ac96bbfd0365429ac83cb', '5a4961d94c3fe43d8d039ca2' ]; // hardcoded list from W27N27 for now
+                labsToOperate = [ '5a4b17b4c5e760084b6224a2', '5a4ac96bbfd0365429ac83cb', '5a4961d94c3fe43d8d039ca2', '5a49bee7b3c35b6597b4f364']; // hardcoded list from W27N27 for now
                 break;
             case 'W28N27':
                 labsToOperate = [ '5dea737d8d4c4c6fc9d9f55c', '5de9767e4643c04198fc057d', '5de588533a7ad706a429f70f'];
                 break;
             case 'W28N26':
-                labsToOperate = [ '5a41f056155d9b4992bfd8e2'];
+                labsToOperate = [ '5a41f056155d9b4992bfd8e2', '59eb1ab80624dc3f3ef4d5b9'];
                 break;
             default:
                 console.log(creep.room.name + ' unknown labs to operate')
