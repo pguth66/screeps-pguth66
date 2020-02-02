@@ -440,6 +440,9 @@ Room.prototype.getCreepBody = function (role, targetRoom) {
             case 'remoteworker':
                 body = [WORK, WORK, WORK, CARRY, MOVE, MOVE];
                 break;
+            case 'drainer':
+                body = this.getSoldierBody({ tough: 15, heal: 10, move: 13});
+                break;
             case 'medic':
                 body = this.getSoldierBody({ tough: 5, heal: 10, move: 8 })
                 //body = [TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE];
@@ -658,6 +661,7 @@ module.exports = {
             const attackBoostLab = room.labs[0];
             const healBoostLab = room.labs[1];
             const armorBoostLab = room.labs[2];
+            //const moveBoostLab = room.labs[3];
 
             if (attackBoostLab) {
                 if ((attackBoostLab.store[RESOURCE_UTRIUM_HYDRIDE] >= 300 || attackBoostLab.store[RESOURCE_UTRIUM_ACID] >=300 || attackBoostLab.store[RESOURCE_CATALYZED_UTRIUM_ACID] >=300 )
@@ -677,7 +681,14 @@ module.exports = {
                     room.boostAvailable.push('armor');
                 }
             }
-            //console.log(room.name + room.boostAvailable);
+         /*    if (moveBoostLab) {
+                if ((moveBoostLab.store[RESOURCE_ZYNTHIUM_OXIDE] >= 300 || moveBoostLab.store[RESOURCE_ZYNTHIUM_ALKALIDE] >= 300 || moveBoostLab.store[RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE] >= 300)
+                && moveBoostLab.store[RESOURCE_ENERGY] >= 200) {
+                    room.boostAvailable.push('move');
+                }
+             } */
+
+             //console.log(room.name + room.boostAvailable);
         }
 
         const towers = room.towers;
@@ -742,7 +753,7 @@ module.exports = {
                 case 'normal':
                     if (room.storage.store[RESOURCE_ENERGY] > 700000) {
                         if (room.terminal.store.getFreeCapacity() < amountToSend) { 
-                            console.log(room.name + ' terminal too full to send energy');
+                            console.log(room.name + ' terminal too full to load energy');
                             break; }
                         console.log(room.name + ' needs to send energy, has ' + room.storage.store[RESOURCE_ENERGY]);
                         room.memory.energyState = 'loading';
