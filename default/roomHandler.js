@@ -598,6 +598,35 @@ Room.prototype.getThreatLevel = function () {
     }, this);
     return threatLevel;
 };
+function nearestRoom(rooms, targetRoom, method) {
+    var destRoomMatrix = [];
+    rooms.forEach(function (room, i) {
+        switch (method) {
+            case 'linear':
+                destRoomMatrix[i] = { 'room': room, 'dist': Game.map.getRoomLinearDistance(this.name, room.name, true) };
+                break;
+            case 'path':
+                var dist = Game.map.findRoute(this.name, room.name);
+                switch (dist) {
+                    case -2:
+                        console.log('error computing distance');
+                        break;
+                    default:
+                        destRoomMatrix[i] = { 'room': room, 'dist': dist.length };
+                }
+                break;
+            default:
+                console.log('func nearestRoom - unknown option ' + method);
+        }
+    }, targetRoom);
+    destRoomMatrix.sort(function (a, b) { return a.dist - b.dist; });
+    console.log(destRoomMatrix.length);
+    return destRoomMatrix[0].room;
+}
+Room.prototype.findRoomToSendAttackSquad = function () {
+    var sourceRooms = _.filter(Game.rooms, function (r) { return r.controller && r.controller.level == 8 && r.storage.store[RESOURCE_ENERGY] > 200000 && r.energyAvailable > 10000; });
+    return nearestRoom(sourceRooms, this, 'path');
+};
 module.exports = {
     handleRoom: function (room, minsToTrack) {
         // don't process rooms without controllers

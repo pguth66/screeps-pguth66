@@ -176,6 +176,11 @@ module.exports.loop = function () {
                             const powerBanks = highwayRoom.find(FIND_STRUCTURES, {structureType: STRUCTURE_POWER_BANK});
                             if (powerBanks.length > 0) {
                                 console.log('powerbank found in room ' + highwayRoom.name + ' hits ' + powerBanks[0].hits + ' decay ' + powerBanks[0].ticksToDecay + ' power ' + powerBanks[0].power);
+                                if (powerBanks[0].ticksToDecay > 1500 && _.filter(Memory.squads, (s) => { return s.targetRoom == highwayRoom.name && s.state != 'inactive'}).length == 0 ) {
+                                    Game.notify('spawning squad for ' + highwayRoom.name);
+                                    squad = new diplomacy.Squadron(room.findRoomToSendAttackSquad().name,['warrior','medic'],'attack','powerBank',highwayRoom.name,Memory.currentSquadNum);
+                                    Memory.currentSquadNum += 1;
+                                }
                             }
                         }
                         highwayRooms.shift();
