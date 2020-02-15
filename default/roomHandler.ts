@@ -294,15 +294,18 @@ Room.prototype.addToLabQueue = function (lab, resource) {
         return false;
     }
 }
-Room.prototype.addToCreepBuildQueue = function (creepType, memoryObject: CreepMemory) {
+Room.prototype.addToCreepBuildQueue = function (creepType, memoryObject: CreepMemory, name?: String) {
     //console.log('adding creep to build queue: '+ creepType);
     var bq = this.memory.buildQueue;
 
     if (!memoryObject) {
         var memoryObject: CreepMemory = {role: creepType};
     }
-
-    bq.push({ role:creepType, memory: memoryObject });
+    if (typeof name === 'undefined') {
+        bq.push({ role:creepType, memory: memoryObject });
+    } else {
+        bq.push({ role:creepType, memory: memoryObject, name: name });
+    }
 
     // verify it worked
     if (bq[bq.length - 1].role == creepType && bq[bq.length - 1].memory == memoryObject) {
@@ -467,8 +470,12 @@ Room.prototype.runBuildQueue = function () {
         const embryo = bq.shift();
         //console.log('executing build queue');
         embryo.memory.role = embryo.role; // all creeps need this
-        const creepname = this.name + '-' + spawn.name + '-' + Game.time
-        //const body = [WORK,CARRY,WORK,CARRY,MOVE,MOVE];
+        if (typeof embryo.name === 'undefined') {
+            var creepname = this.name + '-' + spawn.name + '-' + Game.time;
+        }
+        else {
+            creepname = embryo.name;
+        }
         const body = this.getCreepBody(embryo.role, embryo.memory.targetRoom);
         switch (spawn.spawnCreep(body, creepname, { dryRun: true, memory: embryo.memory })) {
             case OK:
