@@ -31,7 +31,7 @@ module.exports = {
             }
             return b;
         }
-        if ((creep.memory.hauling) && _.sum(creep.carry) == 0) {
+        if ((creep.memory.hauling) && creep.store.getUsedCapacity() == 0) {
             if (creep.ticksToLive < 100) {
                 creep.say('Goodbye');
                 creep.memory.role = 'recycle';
@@ -54,7 +54,7 @@ module.exports = {
                 });
             }
         }
-        if (!creep.memory.hauling && _.sum(creep.carry) == creep.carryCapacity) {
+        if (!creep.memory.hauling && creep.store.getFreeCapacity() == 0) {
             creep.memory.hauling = true;
             creep.memory.target = null;
             // if we just flipped to hauling, don't walk across the entire room if a LINK is nearby
@@ -99,7 +99,7 @@ module.exports = {
                     target = Game.getObjectById(creep.memory.target);
                     if (!isFull(target)) {
                         if (creep.pos.inRangeTo(target, 1)) {
-                            for (var resourceType in creep.carry) {
+                            for (var resourceType in creep.store) {
                                 if (creep.carry[resourceType] > 0) {
                                     var r_1 = creep.carry[resourceType];
                                     if (creep.transfer(target, resourceType) == OK) {
@@ -129,7 +129,7 @@ module.exports = {
             }
             else {
                 // we don't have a target, so figure out where to go
-                if (_.sum(creep.carry) > 0 && creep.carry[RESOURCE_ENERGY] > 0) {
+                if (creep.store.getUsedCapacity() > 0 && creep.carry[RESOURCE_ENERGY] > 0) {
                     // first look for extensions, spawns, or towers that aren't full
                     var potentialTargets = creep.room.extensions.concat(creep.room.towers, creep.room.spawns);
                     targets = _.filter(potentialTargets, function (s) { return s.energy < (s.energyCapacity * .9); });
@@ -160,12 +160,12 @@ module.exports = {
                         // this looks for SINKs and deposits there no matter how full
                         // looks for containers (includes storage), links, and terminals
                         // also labs
-                        if (creep.room.links.length > 0) {
-                            var containersAndLinks = creep.room.containers.concat(creep.room.links);
-                        }
-                        else {
-                            var containersAndLinks = creep.room.containers;
-                        }
+                        /*                       if(creep.room.links.length > 0) {
+                                                  let containersAndLinks: object[] = creep.room.containers.concat(creep.room.links);
+                                              }
+                                              else {
+                                                  var containersAndLinks = creep.room.containers;
+                                              } */
                         //console.log('room ' + creep.room.name + ' has ' + containersAndLinks.length + ' cont/links');
                         if (creep.hasMinerals() && (creep.carry[RESOURCE_ENERGY] == 0) && creep.room.terminal && !isFull(creep.room.terminal)) {
                             target = creep.room.terminal;
@@ -174,7 +174,7 @@ module.exports = {
                             return;
                         }
                         creep.room.containers.forEach(function (container) {
-                            if ((!container.isSource) && (_.sum(container.store) < (container.storeCapacity - _.sum(creep.carry)))) {
+                            if ((!container.isSource) && (container.store.getUsedCapacity() < (container.storeCapacity - creep.store.getUsedCapacity()))) {
                                 targets.push(container);
                             }
                         });
@@ -185,7 +185,7 @@ module.exports = {
                             }
                         });
                         var terminal = creep.room.terminal;
-                        if (creep.hasEnergy() && terminal && !isFull(terminal) && terminal.store[RESOURCE_ENERGY] < 20000 && _.sum(terminal.store) < terminal.storeCapacity) {
+                        if (creep.hasEnergy() && terminal && !isFull(terminal) && terminal.store[RESOURCE_ENERGY] < 20000 && terminal.store.getUsedCapacity() < terminal.store.getCapacity()) {
                             targets.push(terminal);
                         }
                         creep.room.labs.forEach(function (lab) {
@@ -263,7 +263,7 @@ module.exports = {
                                 case OK:
                                     break;
                                 default:
-                                    if (_.sum(creep.carry) < creep.carryCapacity) {
+                                    if (creep.store.getUsedCapacity() < creep.store.getCapacity()) {
                                         for (var r_2 in (target.store)) {
                                             creep.withdraw(target, r_2);
                                         }
@@ -283,8 +283,8 @@ module.exports = {
                     // start with dropped resources of > 50 units
                     var sources = [];
                     // process powerSpawns first, chances are if there's one it's the only thing in the room
-                    var powerBanks = creep.room.find(FIND_STRUCTURES, { structureType: STRUCTURE_POWER_BANK });
-                    if (powerBanks.length > 0 && powerBanks[0].hits == 0 && powerBanks[0].store[RESOURCE_POWER] > 0) {
+                    var powerBanks = creep.room.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_POWER_BANK } });
+                    if (powerBanks.length > 0 && powerBanks[0].hits == 0 && powerBanks[0].power > 0) {
                         sources.push(powerBanks[0]);
                     }
                     if (!(creep.room.controller && creep.room.controller.my && (creep.room.memory.foundHostiles && typeof creep.room.controller.safeMode === 'undefined'))) {
@@ -297,7 +297,7 @@ module.exports = {
                         if (creep.room.tombstones) {
                             // cycle through tombstones, add them to sources if they aren't empty
                             creep.room.tombstones.forEach(function (tombstone) {
-                                if (_.sum(tombstone.store) > 0) {
+                                if (tombstone.store.getUsedCapacity() > 0) {
                                     sources.push(tombstone);
                                     //creep.creepLog('found non-empty tombstone');
                                 }
@@ -305,7 +305,7 @@ module.exports = {
                         }
                         if (creep.room.ruins) {
                             creep.room.ruins.forEach(function (ruin) {
-                                if (_.sum(ruin.store) > 0) {
+                                if (ruin.store.getUsedCapacity() > 0) {
                                     sources.push(ruin);
                                 }
                             });
@@ -316,7 +316,7 @@ module.exports = {
                     // if no dropped resources, then cycle through containers and find SOURCEs
                     if (sources.length == 0) {
                         creep.room.containers.forEach(function (container) {
-                            if ((container.isSource) && (_.sum(container.store) > creep.carryCapacity)) {
+                            if ((container.isSource) && (container.store.getUsedCapacity() > creep.store.getCapacity())) {
                                 // if there's no terminal, don't pull minerals out of containers
                                 // not sure this is a good idea or why it's here
                                 if (typeof (creep.room.terminal) === 'undefined' && (container.store[RESOURCE_ENERGY] == 0)) {
@@ -324,7 +324,7 @@ module.exports = {
                                 }
                                 else {
                                     sources.push(container);
-                                    if (_.sum(container.store) >= (container.storeCapacity - 250)) {
+                                    if (container.store.getUsedCapacity() >= (container.storeCapacity - 250)) {
                                         fullsources.push(container);
                                     }
                                 }
