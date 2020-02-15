@@ -39,10 +39,11 @@
          const costInCredits = cost * EnergyExchangeRate ;
          const profit = revenue - costInCredits ; 
          if (profit < 0) {
+             console.log(this.name + ' not selling ' + mineral + ' due to lack of profit')
              return false;
             
         }
-         else {
+        else {
             if (this.terminal.store[RESOURCE_ENERGY] >= cost) {
                 console.log(this.name + ' selling ' + amountToSell + ' to room ' + orders[0].roomName + ' at price ' + orders[0].price + ' with profit ' + profit);
                 Game.market.deal(orders[0].id,amountToSell,this.name);
@@ -56,6 +57,10 @@
             }
          }
      }
+    else {
+        console.log(this.name + ' not selling mins because lowest buying price of ' + orders[0].price + ' is below floor');
+        return false;
+    }
     }
     catch (err) {
         console.log(this.name + " error while selling: " + err);
@@ -146,7 +151,7 @@
         // main loop
 
         const mineralType = room.minerals[0].mineralType;
-        const dontSell = [ 'O', 'X', 'L', 'K', 'Z' ];
+        const dontSell = [ 'O', 'L', 'K', 'X' ];
         if (dontSell.includes(mineralType)) {
             console.log(room.name + ' skipping market for ' + mineralType);
             return;
@@ -198,7 +203,7 @@
         const basicMinerals = [ 'U', 'Z', 'K', 'O', 'H', 'X', 'L'];
 
         basicMinerals.forEach(function (mineral) {
-            if (mineral == mineralType || (room.memory.minType != 'generic' || room.memory.minType != 'boosttest')) {
+            if (mineral == mineralType || (room.memory.minType != 'generic')) {
                 return;
             }
             else {
