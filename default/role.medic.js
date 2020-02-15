@@ -37,6 +37,19 @@ var roleMedic = {
                 }
 
             }
+        // here want to have creep follow warriors in their squad
+        // so 1. figure out if you're in a squad 2. get the warrior from that squad 
+        // 3. move to that warrior if you haven't already moved
+        const squadId = creep.memory.squad;
+        if (typeof squadId !== 'undefined') {
+            const warriorId = _.filter(Memory.squads[squadId].members, (m) => {return m.role == 'warrior'})[0].id;
+            const warrior = _.filter(Game.creeps, (c) => {return c.memory.job == warriorId})[0];
+            if (typeof warrior == "object") {
+                creep.moveToTarget(warrior);
+            }
+
+
+        }
         }
     }
 
