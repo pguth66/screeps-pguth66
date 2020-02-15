@@ -14,8 +14,8 @@ module.exports.loop = function () {
     Memory.roomToAttack = null; // room to send warriors to
     Memory.roomToBuild = 'W27N26'; // room to send remoteworkers to
     Memory.roomToHarvest = null; // room to harvest energy in (and send interhaulers to)
-    Memory.highwayRooms = [ 'W30N29', 'W30N28', 'W30N27', 'W30N26', 'W30N25', 'W30N24', 'W30N23', 'W30N22', 'W30N29' ]
-    Memory.roomsToObserve = ['W30N20', 'W28N29', 'W27N26', 'W27N25', 'W26N25', 'W26N24', 'W28N24', 'W28N29'];
+    Memory.highwayRooms = [ 'W30N29', 'W30N28', 'W30N27', 'W30N26', 'W30N25', 'W30N24', 'W30N23', 'W30N22', 'W29N30' ]
+    Memory.roomsToObserve = ['W30N20', 'W28N29', 'W27N26', 'W27N25', 'W26N25', 'W26N24', 'W28N24'];
     Memory.capitol='W27N27';
 
     Memory.terminal = '59a55cde8f17b94e4e8804e9'; // only one terminal for now
@@ -178,7 +178,7 @@ module.exports.loop = function () {
                                 console.log('powerbank found in room ' + highwayRoom.name + ' hits ' + powerBanks[0].hits + ' decay ' + powerBanks[0].ticksToDecay + ' power ' + powerBanks[0].power);
                                 if (powerBanks[0].ticksToDecay > 1500 && _.filter(Memory.squads, (s) => { return s.targetRoom == highwayRoom.name && s.state != 'inactive'}).length == 0 ) {
                                     Game.notify('spawning squad for ' + highwayRoom.name);
-                                    squad = new diplomacy.Squadron(room.findRoomToSendAttackSquad().name,['warrior','medic'],'attack','powerBank',highwayRoom.name,Memory.currentSquadNum);
+                                    squad = new diplomacy.Squadron(highwayRoom.findRoomToSendAttackSquad().name,['warrior','medic'],'attack','powerBank',highwayRoom.name,Memory.currentSquadNum);
                                     Memory.currentSquadNum += 1;
                                 }
                             }
