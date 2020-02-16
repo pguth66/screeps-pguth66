@@ -92,6 +92,8 @@ class Squadron {
 
 module.exports = {
 
+    Squadron: Squadron,
+
     run: function () {
         //console.log('running diplomacy');
         if (!Memory.squads) {
@@ -105,11 +107,10 @@ module.exports = {
             testSquad = new Squadron('W29N28',['testsquad','testsquad'],'attack','powerBank','W29N23',currId,'init');
             Memory.currentSquadNum += 1;
         }
-         if (currId == 48) {
-                testSquad2 = new Squadron('W29N23',['warrior','medic'],'attack','powerBank','W30N23',currId);
+         if (currId == 86) {
+                testSquad2 = new Squadron('W29N29',['warrior','medic'],'attack','powerBank','W28N30',currId);
                 Memory.currentSquadNum += 1;
         } 
-
 
         try {
         //process each squad
@@ -154,7 +155,7 @@ module.exports = {
                             if (member.memberState == 'init' && ((Game.time % squad.members.length) == i)) {
                                 if (!spawnRoom.hasCreepWithJob(member.id)) {
                                     console.log('would spawn ' + member.id + ' with target ' + squad.targetRoom);
-                                    if (!spawnRoom.addToCreepBuildQueue(member.role,{targetRoom:squad.targetRoom,respawn:false,job:member.id})) {
+                                    if (!spawnRoom.addToCreepBuildQueue(member.role,{targetRoom:squad.targetRoom,respawn:false,job:member.id,squad:key})) {
                                         console.log('spawning error');
                                         return;
                                     }
@@ -180,7 +181,20 @@ module.exports = {
                         squad.state = 'goToTarget';
                         break;
                     case 'goToTarget':
+                        let membersInTgtRoom = 0;
+                        let liveSquad = false;
+                        squad.members.forEach(function (member, i) {
+                            let m = _.filter(Game.creeps, (c) => { return c.memory.job == member.id})[0];
+                            if (typeof m == 'object') { 
+                                liveSquad = true;
+                                if (m.room.name == squad.targetRoom) {
+                                    membersInTgtRoom++;
+                                }
+                            }
+                        })
+                        if (membersInTgtRoom == squad.members.length) {
                         squad.state = 'performMission';
+                        }
                         break;
                     case 'performMission':
                         let targetRoom = Game.rooms[squad.targetRoom];
@@ -201,7 +215,7 @@ module.exports = {
                                     if (powerBank.hits < 400000 && squad.missionStage == 1) {
                                         //spawn interhaulers
                                         const numInterHaulers = Math.round(powerBank.power / 1000);
-                                        const interHaulersOnMission = targetRoom.getTotalCreeps('interhauler').length;
+                                        const interHaulersOnMission = Game.rooms[squad.spawnRoom].getTotalCreeps('interhauler').length;
                                         if (interHaulersOnMission < numInterHaulers) {
                                             Game.rooms[squad.spawnRoom].addToCreepBuildQueue('interhauler',{workRoom:squad.targetRoom,baseRoom:squad.spawnRoom});
                                         }
@@ -215,15 +229,18 @@ module.exports = {
                                     // TODO: have to look for stuff in ruins not just stuff dropped
                                     // should update the Room object property for dropped_resources to get this
                                     // Or maybe do this as room.hasPower
-                                    if (targetRoom.find(FIND_DROPPED_RESOURCES).length > 0) {
+                                    //console.log(targetRoom.find(FIND_DROPPED_RESOURCES))
+                                    if (targetRoom.droppedResources.length > 0 || targetRoom.ruins.length > 0) {
                                         // attackers hold steady, interhaulers haul
                                         // attackers should make sure they aren't blocking the way to the powerBank
                                         squad.log(' has ' + squad.members.length + ' members')
                                         squad.members.forEach(function (m) {
-                                            console.log(m.id + m.role);
+                                            console.log(m.id);
                                             const squadCreep =  _.filter(Game.creeps, (c) => {return c.memory.job == m.id})[0];
-                                            if (m.role == 'warrior' || m.role == 'medic' && squadCreep.pos.getRangeTo(powerBank) < 3) {
-                                                squadCreep.flee(powerBank);
+                                            const powerPos = targetRoom.droppedResources[0];
+                                            if (typeof powerPos !== 'undefined' && (m.role == 'warrior' || m.role == 'medic') && squadCreep.pos.getRangeTo(powerPos) < 3) {
+                                                console.log('fleeing')
+                                                squadCreep.flee(powerPos);
                                             }
                                         })
                                         squad.log('has resources to gather');
@@ -231,10 +248,13 @@ module.exports = {
                                     else {
                                         console.log('cleanup');
                                         squad.members.forEach(function (member, i) {
-                                            if (member.role == 'warrior' || member.role == 'medic') {
+                                            if (member.role == 'warrior' || member.role == 'medic' || member.role == 'recycle') {
                                                 squad.log('setting ' + member.id + ' to recycle');
-                                                member.targetRoom = squad.spawnRoom;
-                                                return squad.members[i].role = 'recycle';
+                                                // this won't work till member.id is the same as the key in Game.creeeps
+                                                squad.members[i].targetRoom = squad.spawnRoom;
+                                                //Game.creeps[member.id].memory.targetRoom = squad.spawnRoom;
+                                                //Game.creeps[member.id].memory.role='recycle';
+                                                squad.members[i].role = 'recycle';
                                             }
                                         })
                                         squad.state = 'inactive';
