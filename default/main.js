@@ -14,7 +14,7 @@ module.exports.loop = function () {
     Memory.roomToAttack = null; // room to send warriors to
     Memory.roomToBuild = 'W27N26'; // room to send remoteworkers to
     Memory.roomToHarvest = null; // room to harvest energy in (and send interhaulers to)
-    Memory.highwayRooms = [ 'W30N29', 'W30N28', 'W30N27', 'W30N26', 'W30N25', 'W30N24', 'W30N23', 'W30N22', 'W29N30' ]
+    Memory.highwayRooms = [ 'W30N29', 'W30N28', 'W30N27', 'W30N26', 'W30N25', 'W30N24', 'W30N23', 'W30N22', 'W29N30', 'W30N21' ]
     Memory.roomsToObserve = ['W30N20', 'W28N29', 'W27N26', 'W27N25', 'W26N25', 'W26N24', 'W28N24'];
     Memory.capitol='W27N27';
 
@@ -164,7 +164,7 @@ module.exports.loop = function () {
                         }
                     }
                 }
-                if (Game.time %2 == 1) {
+                if (Game.time %10 == 1) {
                     var highwayRooms = Memory.highwayRooms;
                     if (highwayRooms[0]) {
                         const targetRoom = highwayRooms[0];
@@ -384,6 +384,7 @@ module.exports.loop = function () {
 
                 if ((totalMiners < 1) && (room.controller.level >= 6) &&
                     (room.minerals[0].mineralAmount > 0) &&
+                    (room.terminal.store[room.minerals[0].mineralType] < 100000) &&
                     (room.energyAvailable > (room.energyCapacityAvailable * 0.9))) {
                         room.addToCreepBuildQueue('miner');
                         console.log('Spawning new miner in ' + room.name + ': ' + newName);
